@@ -1,0 +1,81 @@
+// Polymeg data model.
+//
+// For local development we use SQLite. To deploy on Supabase, change the
+// datasource provider to "postgresql" and point DATABASE_URL at the Supabase
+// connection string. The models below avoid native enums and other
+// Postgres-only features so the schema is portable across both.
+//
+// Money is stored as an integer number of agorot (₪ × 100) everywhere.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  avatarUrl String? // data URL (small base64 image) or external URL
+  pinHash   String // bcrypt hash of the 4-digit PIN
+  isAdmin   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  marketsCreated Market[]       @relation("MarketCreator")
+  positions      Position[]
+  notifications  Notification[]
+}
+
+model Market {
+  id              String   @id @default(cuid())
+  creatorId       String
+  creator         User     @relation("MarketCreator", fields: [creatorId], references: [id])
+  title           String
+  criteria        String // how the bet resolves: what counts as each outcome
+  imageUrl        String?
+  minStake        Int // agorot
+  closesAt        DateTime
+  status          String   @default("OPEN") // OPEN | CLOSED | RESOLVED
+  winningOptionId String? // set when resolved
+  resolvedAt      DateTime? // set when resolved; drives portfolio-over-time
+  createdAt       DateTime @default(now())
+
+  options   Option[]
+  positions Position[]
+}
+
+model Option {
+  id        String @id @default(cuid())
+  marketId  String
+  market    Market @relation(fields: [marketId], references: [id], onDelete: Cascade)
+  label     String
+  sortOrder Int    @default(0)
+
+  positions Position[]
+}
+
+model Position {
+  id        String   @id @default(cuid())
+  marketId  String
+  market    Market   @relation(fields: [marketId], references: [id], onDelete: Cascade)
+  optionId  String
+  option    Option   @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  amount    Int // agorot
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  type      String // NEW_MARKET | MARKET_CLOSED | MARKET_RESOLVED
+  marketId  String?
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

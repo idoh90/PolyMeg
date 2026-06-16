@@ -1,26 +1,51 @@
 @import "tailwindcss";
 
+/* Polymeg — Polymarket-inspired dark theme. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #0b0e14;
+  --surface: #131823;
+  --surface-2: #1b2233;
+  --border: #232c3d;
+  --text: #e7ecf3;
+  --muted: #8b97a8;
+  --yes: #1ec77d;
+  --yes-dim: #14352a;
+  --no: #fb5a5a;
+  --no-dim: #3a2026;
+  --accent: #3aa0ff;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-yes: var(--yes);
+  --color-yes-dim: var(--yes-dim);
+  --color-no: var(--no);
+  --color-no-dim: var(--no-dim);
+  --color-accent: var(--accent);
   --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, Arial, sans-serif;
+}
+
+/* Hide number input spinners for a cleaner amount field. */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
 }
