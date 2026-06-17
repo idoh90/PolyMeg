@@ -11,6 +11,7 @@ import Avatar from "@/components/Avatar";
 import PriceChart from "@/components/PriceChart";
 import BuyOptionList from "@/components/BuyOptionList";
 import ResolveBet from "@/components/ResolveBet";
+import AdminBetControls from "@/components/AdminBetControls";
 import type { SheetMarket } from "@/components/BetSheet";
 
 const SIDE_HEX = { yes: "#15b87a", no: "#f0405a", accent: "#2b6ef2" };
@@ -63,11 +64,13 @@ export default async function BetDetailPage({
   const endTime = market.resolvedAt ? market.resolvedAt.getTime() : nowMs();
   const priceSeries = buildPriceHistory(market.options, market.positions, endTime);
   const topSeries = priceSeries.find((s) => s.label === top.label);
-  const change = topSeries
-    ? Math.round(
-        topSeries.points[topSeries.points.length - 1].y - valueAt(topSeries.points, endTime - 86400000),
-      )
-    : 0;
+  const change =
+    topSeries && topSeries.points.length > 0
+      ? Math.round(
+          topSeries.points[topSeries.points.length - 1].y -
+            valueAt(topSeries.points, endTime - 86400000),
+        )
+      : 0;
 
   const sheet: SheetMarket = {
     id: market.id,
@@ -173,6 +176,11 @@ export default async function BetDetailPage({
           <div className="mb-5 rounded-[16px] border border-border bg-surface p-4 text-sm text-muted">
             ההימור נסגר וממתין ש{market.creator.name} יקבע את התוצאה.
           </div>
+        )}
+
+        {/* admin debug controls */}
+        {user.isAdmin && (
+          <AdminBetControls marketId={market.id} isResolved={isResolved} />
         )}
 
         {/* criteria */}
