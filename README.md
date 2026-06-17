@@ -1,29 +1,36 @@
 # Polymeg
 
 A private, Polymarket-style prediction-market app for you and your friends.
-Create bets, buy into Yes/No (or multiple-choice) options with shekels, and when
-a bet resolves the app works out **who owes whom**. No real money lives in the
-app — you settle up between yourselves.
+Hebrew, right-to-left, mobile-first. Create bets, buy into Yes/No (or
+multiple-choice) options with shekels, and when a bet resolves the app works out
+**who owes whom**. No real money lives in the app — you settle up between
+yourselves.
 
 ## How it works
 
 - **Log in** by tapping your profile avatar and entering your 4-digit PIN.
-- **Dashboard** shows every bet as a card with live pool percentages.
-- **Create a bet**: title, resolution criteria, picture, options, minimum stake
-  (₪), and a closing time.
-- **Buy in**: pick an option and stake an amount (≥ the minimum).
-- When the closing time passes the bet locks. The **creator resolves** it by
-  picking the winning option.
-- **Payout is parimutuel**: all stakes form one pot; winners split the pot in
-  proportion to how much they staked on the winning option.
-- **Settlement** nets every resolved bet into one balance per person and shows
-  the minimal list of "X pays Y ₪" transfers.
+- **הימורים (Markets)** — a feed of bet cards with a live ticker, a featured
+  bet, search and filters; odds are shown Polymarket-style in ¢.
+- **Place a bet** from the slide-up sheet: pick a side, type an amount (or use a
+  quick chip), and see your potential payout before confirming.
+- **Bet detail** — a big implied-probability number, a price-history chart, and
+  buy buttons per option.
+- **טבלה (Leaderboard)** — podium + ranked net P/L across resolved bets.
+- **התיק (Portfolio)** — your net P/L, a value-over-time chart, open positions,
+  history, and a trophies placeholder.
+- **חשבון (Settlement)** — nets every resolved bet into one balance per person
+  and shows the minimal list of "X pays Y ₪" transfers.
+- The **creator resolves** a bet once it closes. **Payout is parimutuel**: all
+  stakes form one pot; winners split it in proportion to their winning stake.
 - **Admin** (you) creates friends' accounts and their PINs.
+
+Bottom nav: Markets · Leaderboard · ( + new bet ) · Portfolio · Settlement.
 
 ## Tech
 
-Next.js (App Router) · React · TypeScript · Tailwind CSS · Prisma · iron-session.
-SQLite for local development, Postgres (Supabase) for production.
+Next.js (App Router) · React · TypeScript · Tailwind CSS v4 · Prisma ·
+iron-session · Heebo font. SQLite for local development, Postgres (Supabase) for
+production.
 
 ## Run it locally
 
@@ -76,9 +83,19 @@ You only need two free accounts: **Supabase** (database) and **Vercel** (hosting
 
    Deploy. Open the URL on your phone, log in, and add your friends from Admin.
 
+## Demo / sample data
+
+- `node scripts/demo-data.mjs` — fills the DB with sample bets so you can explore
+  the UI (uses placeholder English content).
+- `node scripts/clear-data.mjs` — wipes all bets/positions/notifications but
+  keeps the user accounts. Run this before going live so you start clean.
+
 ## Notes / possible next steps
 
 - Images are stored as compact data URLs in the database — fine for a small
   group. Swap to Supabase Storage if you want larger images.
 - Notifications are an in-app feed/bell. Supabase Realtime or web push could make
   them live.
+- The trophies section on the profile is a visual placeholder — the
+  special-events/awards flow isn't wired up yet.
+- Search and the chart timeframe controls are visual for now.

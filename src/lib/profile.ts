@@ -1,20 +1,28 @@
 import { prisma } from "@/lib/db";
 import { computePayouts } from "@/lib/payout";
 import { buildPortfolioSeries } from "@/lib/charts";
-import { poolFor } from "@/lib/markets";
+import { poolFor, sideKind } from "@/lib/markets";
 import { nowMs } from "@/lib/format";
 import { MarketStatus } from "@/lib/constants";
 import type { ChartSeries } from "@/components/LineChart";
-import type { MarketCardData } from "@/components/MarketCard";
 
-export interface ProfileActivity {
-  positionId: string;
+export interface OpenPosition {
   marketId: string;
   title: string;
-  optionLabel: string;
-  amount: number;
-  outcome: "won" | "lost" | "pending";
-  createdAt: Date;
+  imageUrl: string | null;
+  sideLabel: string;
+  sideKind: "yes" | "no" | "accent";
+  stake: number; // agorot
+  toWin: number; // agorot (parimutuel estimate at current pool)
+}
+
+export interface HistoryItem {
+  marketId: string;
+  title: string;
+  imageUrl: string | null;
+  sideLabel: string;
+  won: boolean;
+  profit: number; // agorot, signed
 }
 
 export interface ProfileData {
@@ -26,119 +34,109 @@ export interface ProfileData {
     createdAt: Date;
   };
   stats: {
-    realizedNet: number; // agorot
-    totalStaked: number; // agorot
+    realizedNet: number;
+    totalStaked: number;
+    openCount: number;
     betsEntered: number;
     betsCreated: number;
     won: number;
     lost: number;
-    winRate: number | null; // 0-1
+    winRate: number | null;
   };
   portfolio: ChartSeries;
-  created: MarketCardData[];
-  activity: ProfileActivity[];
+  openPositions: OpenPosition[];
+  history: HistoryItem[];
 }
 
 export async function getProfile(userId: string): Promise<ProfileData | null> {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) return null;
 
-  // Everything this user staked, with market + option context.
-  const positions = await prisma.position.findMany({
-    where: { userId },
-    orderBy: { createdAt: "desc" },
-    include: {
-      option: { select: { label: true } },
-      market: {
-        select: {
-          id: true,
-          title: true,
-          status: true,
-          winningOptionId: true,
-          resolvedAt: true,
+  const [positions, betsCreated] = await Promise.all([
+    prisma.position.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      include: {
+        option: { select: { label: true } },
+        market: {
+          select: { id: true, status: true, winningOptionId: true },
         },
       },
-    },
-  });
+    }),
+    prisma.market.count({ where: { creatorId: userId } }),
+  ]);
 
-  // Markets this user created (for the "Bets created" list).
-  const createdRaw = await prisma.market.findMany({
-    where: { creatorId: userId },
-    orderBy: { createdAt: "desc" },
+  const totalStaked = positions.reduce((s, p) => s + p.amount, 0);
+  const betsEntered = new Set(positions.map((p) => p.market.id)).size;
+
+  // Markets the user participated in, fully loaded, to compute pools & payouts.
+  const marketIds = [...new Set(positions.map((p) => p.market.id))];
+  const markets = await prisma.market.findMany({
+    where: { id: { in: marketIds } },
     include: {
       options: { orderBy: { sortOrder: "asc" } },
-      positions: { select: { optionId: true, amount: true } },
-    },
-  });
-  const created: MarketCardData[] = createdRaw.map((m) => {
-    const { options, totalPot } = poolFor(m.options, m.positions, m.winningOptionId);
-    return {
-      id: m.id,
-      title: m.title,
-      imageUrl: m.imageUrl,
-      status: m.status,
-      closesAt: m.closesAt,
-      creatorName: user.name,
-      totalPot,
-      options,
-    };
-  });
-
-  // Realized P/L: recompute each resolved market the user took part in.
-  const resolvedIds = [
-    ...new Set(
-      positions
-        .filter((p) => p.market.status === MarketStatus.RESOLVED && p.market.winningOptionId)
-        .map((p) => p.market.id),
-    ),
-  ];
-  const resolvedMarkets = await prisma.market.findMany({
-    where: { id: { in: resolvedIds } },
-    select: {
-      id: true,
-      winningOptionId: true,
-      resolvedAt: true,
       positions: { select: { userId: true, optionId: true, amount: true } },
     },
   });
+  const marketById = new Map(markets.map((m) => [m.id, m]));
 
+  // ---- Open positions (with parimutuel toWin estimate) ----
+  const openPositions: OpenPosition[] = [];
+  for (const p of positions) {
+    const m = marketById.get(p.market.id);
+    if (!m || m.status !== MarketStatus.OPEN) continue;
+    const { options, totalPot } = poolFor(m.options, m.positions, m.winningOptionId);
+    const opt = options.find((o) => o.id === p.optionId);
+    const toWin = opt && opt.total > 0 ? Math.round((p.amount / opt.total) * totalPot) : p.amount;
+    openPositions.push({
+      marketId: m.id,
+      title: m.title,
+      imageUrl: m.imageUrl,
+      sideLabel: p.option.label,
+      sideKind: sideKind(p.option.label),
+      stake: p.amount,
+      toWin,
+    });
+  }
+
+  // ---- Resolved markets: profit, win/loss, history, portfolio series ----
   const profitEntries: { resolvedAt: Date; profit: number }[] = [];
+  const history: HistoryItem[] = [];
   let realizedNet = 0;
   let won = 0;
   let lost = 0;
-  for (const m of resolvedMarkets) {
-    const mine = computePayouts(m.positions, m.winningOptionId!).find(
-      (r) => r.userId === userId,
-    );
+
+  const resolvedMine = markets
+    .filter((m) => m.status === MarketStatus.RESOLVED && m.winningOptionId)
+    .sort((a, b) => (b.resolvedAt?.getTime() ?? 0) - (a.resolvedAt?.getTime() ?? 0));
+
+  for (const m of resolvedMine) {
+    const mine = computePayouts(m.positions, m.winningOptionId!).find((r) => r.userId === userId);
     if (!mine) continue;
     realizedNet += mine.profit;
+    const isWin = mine.profit > 0;
     if (mine.profit > 0) won++;
     else if (mine.profit < 0) lost++;
-    profitEntries.push({
-      resolvedAt: m.resolvedAt ?? new Date(),
+    profitEntries.push({ resolvedAt: m.resolvedAt ?? new Date(), profit: mine.profit });
+
+    // The user's main side in this market (largest stake).
+    const mineHere = m.positions.filter((p) => p.userId === userId);
+    const byOpt = new Map<string, number>();
+    for (const p of mineHere) byOpt.set(p.optionId, (byOpt.get(p.optionId) ?? 0) + p.amount);
+    const topOptId = [...byOpt.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+    const sideLabel = m.options.find((o) => o.id === topOptId)?.label ?? "";
+
+    history.push({
+      marketId: m.id,
+      title: m.title,
+      imageUrl: m.imageUrl,
+      sideLabel,
+      won: isWin,
       profit: mine.profit,
     });
   }
 
-  const totalStaked = positions.reduce((s, p) => s + p.amount, 0);
-  const betsEntered = new Set(positions.map((p) => p.market.id)).size;
   const decided = won + lost;
-
-  const activity: ProfileActivity[] = positions.map((p) => {
-    let outcome: ProfileActivity["outcome"] = "pending";
-    if (p.market.status === MarketStatus.RESOLVED && p.market.winningOptionId) {
-      outcome = p.optionId === p.market.winningOptionId ? "won" : "lost";
-    }
-    return {
-      positionId: p.id,
-      marketId: p.market.id,
-      title: p.market.title,
-      optionLabel: p.option.label,
-      amount: p.amount,
-      outcome,
-      createdAt: p.createdAt,
-    };
-  });
 
   return {
     user: {
@@ -151,14 +149,15 @@ export async function getProfile(userId: string): Promise<ProfileData | null> {
     stats: {
       realizedNet,
       totalStaked,
+      openCount: openPositions.length,
       betsEntered,
-      betsCreated: createdRaw.length,
+      betsCreated,
       won,
       lost,
       winRate: decided > 0 ? won / decided : null,
     },
     portfolio: buildPortfolioSeries(profitEntries, user.createdAt, nowMs()),
-    created,
-    activity,
+    openPositions,
+    history,
   };
 }

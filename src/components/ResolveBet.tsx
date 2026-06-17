@@ -42,8 +42,8 @@ export default function ResolveBet({
   }
 
   return (
-    <div className="rounded-2xl border border-accent/40 bg-surface p-4">
-      <h3 className="mb-1 font-semibold">הכרע את ההימור</h3>
+    <div className="rounded-[16px] border-[1.5px] border-accent-soft bg-surface p-4">
+      <h3 className="mb-1 font-extrabold">הכרע את ההימור</h3>
       <p className="mb-3 text-sm text-muted">
         בחר את האפשרות שבאמת קרתה. הקופה מתחלקת בין כל מי שהימר עליה.
       </p>
@@ -53,9 +53,9 @@ export default function ResolveBet({
             key={o.id}
             type="button"
             onClick={() => setWinningOptionId(o.id)}
-            className={`rounded-lg border px-3 py-2 text-left text-sm font-medium transition ${
+            className={`rounded-xl border px-3 py-2.5 text-right text-sm font-bold transition ${
               winningOptionId === o.id
-                ? "border-yes bg-yes-dim text-yes"
+                ? "border-yes bg-yes-b text-yes"
                 : "border-border text-muted hover:text-text"
             }`}
           >
@@ -67,7 +67,7 @@ export default function ResolveBet({
       <button
         onClick={submit}
         disabled={busy}
-        className="w-full rounded-full bg-yes py-2 font-semibold text-black transition hover:opacity-90 disabled:opacity-50"
+        className="w-full rounded-[13px] bg-yes py-3 font-extrabold text-white transition hover:opacity-90 disabled:opacity-50"
       >
         {busy ? "מכריע…" : "הכרע וחלק את הקופה"}
       </button>

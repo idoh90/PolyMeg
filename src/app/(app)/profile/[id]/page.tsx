@@ -3,10 +3,16 @@ import { notFound } from "next/navigation";
 import { getProfile } from "@/lib/profile";
 import { getCurrentUserId } from "@/lib/session";
 import { formatAgorot } from "@/lib/money";
-import { formatDateTime } from "@/lib/format";
 import Avatar from "@/components/Avatar";
-import MarketCard from "@/components/MarketCard";
 import PortfolioChart from "@/components/PortfolioChart";
+import ProfileActions from "@/components/ProfileActions";
+
+const SIDE_HEX = { yes: "#15b87a", no: "#f0405a", accent: "#2b6ef2" };
+const SIDE_SOFT = { yes: "var(--yes-b)", no: "var(--no-b)", accent: "var(--accent-soft)" };
+
+function signed(n: number) {
+  return `${n > 0 ? "+" : ""}${formatAgorot(n)}`;
+}
 
 export default async function ProfilePage({
   params,
@@ -17,160 +23,172 @@ export default async function ProfilePage({
   const [profile, meId] = await Promise.all([getProfile(id), getCurrentUserId()]);
   if (!profile) notFound();
 
-  const { user, stats, portfolio, created, activity } = profile;
+  const { user, stats, portfolio, openPositions, history } = profile;
   const isMe = meId === user.id;
-  const hasPortfolio = portfolio.points.length > 2;
+  const hasChart = portfolio.points.length > 2;
+  const netColor = stats.realizedNet > 0 ? "var(--yes)" : stats.realizedNet < 0 ? "var(--no)" : "#fff";
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* Header */}
-      <div className="flex items-center gap-4 rounded-2xl border border-border bg-surface p-5">
-        <Avatar name={user.name} src={user.avatarUrl} size={72} />
-        <div className="flex-1">
-          <h1 className="flex items-center gap-2 text-2xl font-bold">
-            {user.name}
-            {isMe && <span className="text-sm font-normal text-muted">(אתה)</span>}
-            {user.isAdmin && (
-              <span className="rounded-full bg-surface-2 px-2 py-0.5 text-xs text-accent">
-                מנהל
-              </span>
+    <div className="px-[18px] pb-8 pt-1.5">
+      {/* header */}
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          {!isMe && <Avatar name={user.name} src={user.avatarUrl} size={40} />}
+          <h1 className="text-2xl font-extrabold">
+            {isMe ? "התיק שלי" : user.name}
+            {user.isAdmin && !isMe && (
+              <span className="ms-2 rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent">מנהל</span>
             )}
           </h1>
-          <p className="text-sm text-muted">
-            חבר מאז {formatDateTime(user.createdAt)}
-          </p>
         </div>
-        <div className="text-end">
-          <div className="text-xs tracking-wide text-muted">רווח/הפסד</div>
-          <div
-            className={`text-2xl font-bold ${
-              stats.realizedNet > 0
-                ? "text-yes"
-                : stats.realizedNet < 0
-                  ? "text-no"
-                  : "text-muted"
-            }`}
-          >
-            {stats.realizedNet > 0 ? "+" : ""}
-            {formatAgorot(stats.realizedNet)}
+        {isMe && <ProfileActions isAdmin={user.isAdmin} />}
+      </div>
+
+      {/* hero card */}
+      <div
+        className="relative mb-4 overflow-hidden rounded-[22px] p-5 text-white"
+        style={{ background: "linear-gradient(135deg,#1f2a4d,#0f1320)" }}
+      >
+        <div
+          className="absolute -left-5 -top-[50px] h-[170px] w-[170px] rounded-full"
+          style={{ background: "radial-gradient(circle,rgba(43,110,242,.45),transparent 70%)" }}
+        />
+        <div className="relative">
+          <div className="text-[12.5px] font-bold tracking-wide text-[#aeb7c9]">רווח/הפסד נטו</div>
+          <div className="my-1 text-[38px] font-black tracking-tight" style={{ color: netColor }}>
+            {signed(stats.realizedNet)}
+          </div>
+          <div className="mt-3 flex gap-7">
+            <div>
+              <div className="text-[11px] font-bold text-[#aeb7c9]">פוזיציות פתוחות</div>
+              <div className="mt-0.5 text-[17px] font-extrabold">{stats.openCount}</div>
+            </div>
+            <div>
+              <div className="text-[11px] font-bold text-[#aeb7c9]">הימרת בסה״כ</div>
+              <div className="mt-0.5 text-[17px] font-extrabold">{formatAgorot(stats.totalStaked)}</div>
+            </div>
+            <div>
+              <div className="text-[11px] font-bold text-[#aeb7c9]">אחוז הצלחה</div>
+              <div className="mt-0.5 text-[17px] font-extrabold">
+                {stats.winRate === null ? "—" : `${Math.round(stats.winRate * 100)}%`}
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Portfolio chart */}
-      <section className="rounded-2xl border border-border bg-surface p-4">
-        <h2 className="mb-3 font-semibold">תיק לאורך זמן</h2>
-        {hasPortfolio ? (
+      {/* value chart */}
+      {hasChart && (
+        <div className="mb-5 rounded-[18px] border border-border bg-surface p-2 pt-3.5">
+          <div className="px-2.5 pb-2 text-[13px] font-extrabold text-muted">שווי לאורך זמן</div>
           <PortfolioChart series={portfolio} />
-        ) : (
-          <p className="py-8 text-center text-sm text-muted">
-            אין עדיין הימורים שהוכרעו — הגרף יתמלא ככל שהימורים נסגרים.
-          </p>
-        )}
-      </section>
+        </div>
+      )}
 
-      {/* Stats */}
-      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Stat label="אחוז הצלחה" value={stats.winRate === null ? "—" : `${Math.round(stats.winRate * 100)}%`} sub={`${stats.won} ניצחונות · ${stats.lost} הפסדים`} />
-        <Stat label="סך הימורים" value={formatAgorot(stats.totalStaked)} />
-        <Stat label="הימורים שהשתתף" value={String(stats.betsEntered)} />
-        <Stat label="הימורים שיצר" value={String(stats.betsCreated)} />
-      </section>
-
-      {/* Trophies (placeholder for future special events) */}
-      <section className="rounded-2xl border border-border bg-surface p-4">
+      {/* trophies placeholder */}
+      <div className="mb-5 rounded-[18px] border border-border bg-surface p-4">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-semibold">🏆 גביעים</h2>
+          <h2 className="font-extrabold">🏆 גביעים</h2>
           <span className="text-xs text-muted">בקרוב</span>
         </div>
         <div className="flex gap-3">
           {[0, 1, 2, 3].map((i) => (
             <div
               key={i}
-              className="flex h-16 w-16 items-center justify-center rounded-xl border border-dashed border-border text-2xl opacity-40"
+              className="flex h-14 w-14 items-center justify-center rounded-xl border border-dashed border-border text-2xl opacity-40"
             >
               🏆
             </div>
           ))}
         </div>
-        <p className="mt-3 text-xs text-muted">
-          אירועים מיוחדים ופרסים יופיעו כאן — תנו גביע למי שצדק.
-        </p>
-      </section>
+        <p className="mt-3 text-xs text-muted">אירועים מיוחדים ופרסים יופיעו כאן — תנו גביע למי שצדק.</p>
+      </div>
 
-      {/* Activity */}
-      <section>
-        <h2 className="mb-3 font-semibold">פעילות</h2>
-        {activity.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted">
-            עדיין לא הונחו הימורים.
-          </p>
-        ) : (
-          <ul className="flex flex-col gap-2">
-            {activity.map((a) => (
-              <li key={a.positionId}>
-                <Link
-                  href={`/bets/${a.marketId}`}
-                  className="flex items-center gap-3 rounded-xl border border-border bg-surface px-4 py-3 text-sm transition hover:border-accent/60"
-                >
-                  <OutcomeTag outcome={a.outcome} />
-                  <span className="min-w-0 flex-1 truncate">{a.title}</span>
-                  <span className="text-muted">{a.optionLabel}</span>
-                  <span className="w-20 text-right font-medium">
-                    {formatAgorot(a.amount)}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      {/* Bets created */}
-      {created.length > 0 && (
-        <section>
-          <h2 className="mb-3 font-semibold">הימורים שנוצרו</h2>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {created.map((m) => (
-              <MarketCard key={m.id} market={m} />
+      {/* open positions */}
+      {openPositions.length > 0 && (
+        <>
+          <div className="mb-2.5 text-base font-extrabold">פוזיציות פתוחות</div>
+          <div className="mb-5 flex flex-col gap-2.5">
+            {openPositions.map((p, i) => (
+              <Link
+                href={`/bets/${p.marketId}`}
+                key={i}
+                className="rounded-[16px] border border-border bg-surface p-3.5"
+              >
+                <div className="flex items-start gap-2.5">
+                  <div className="flex h-[38px] w-[38px] shrink-0 items-center justify-center overflow-hidden rounded-[11px] bg-surface-2 text-xl">
+                    {p.imageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={p.imageUrl} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      "🎲"
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div dir="auto" className="text-sm font-bold leading-tight">{p.title}</div>
+                    <div className="mt-1.5 text-xs font-bold">
+                      <span
+                        className="rounded-md px-2 py-0.5"
+                        style={{ color: SIDE_HEX[p.sideKind], background: SIDE_SOFT[p.sideKind] }}
+                      >
+                        {p.sideLabel}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-left">
+                    <div className="text-[11px] font-bold text-faint">הימרת</div>
+                    <div className="text-[15px] font-extrabold">{formatAgorot(p.stake)}</div>
+                    <div className="mt-0.5 text-[11px] font-bold text-yes">זכייה {formatAgorot(p.toWin)}</div>
+                  </div>
+                </div>
+              </Link>
             ))}
           </div>
-        </section>
+        </>
+      )}
+
+      {/* history */}
+      {history.length > 0 && (
+        <>
+          <div className="mb-2.5 text-base font-extrabold">היסטוריה</div>
+          <div className="flex flex-col">
+            {history.map((h, i) => (
+              <Link
+                href={`/bets/${h.marketId}`}
+                key={i}
+                className="flex items-center gap-2.5 border-b border-border py-2.5 last:border-0"
+              >
+                <div className="flex h-[34px] w-[34px] shrink-0 items-center justify-center overflow-hidden rounded-[10px] bg-surface-2 text-[17px]">
+                  {h.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={h.imageUrl} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    "🎲"
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div dir="auto" className="text-[13.5px] font-bold leading-tight">{h.title}</div>
+                  <div className="text-xs font-semibold text-faint">
+                    הימרת {h.sideLabel} · {h.won ? "זכית" : "הפסדת"}
+                  </div>
+                </div>
+                <span
+                  className="text-[15px] font-extrabold"
+                  style={{ color: h.profit > 0 ? "var(--yes)" : h.profit < 0 ? "var(--no)" : "var(--muted)" }}
+                >
+                  {signed(h.profit)}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </>
+      )}
+
+      {openPositions.length === 0 && history.length === 0 && (
+        <p className="rounded-[16px] border border-dashed border-border p-8 text-center text-sm text-muted">
+          {isMe ? "עוד לא הימרת. כנס להימור והנח את הראשון!" : "עדיין אין פעילות."}
+        </p>
       )}
     </div>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  sub,
-}: {
-  label: string;
-  value: string;
-  sub?: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-border bg-surface p-4">
-      <div className="text-xs uppercase tracking-wide text-muted">{label}</div>
-      <div className="mt-1 text-xl font-bold">{value}</div>
-      {sub && <div className="text-xs text-muted">{sub}</div>}
-    </div>
-  );
-}
-
-function OutcomeTag({ outcome }: { outcome: "won" | "lost" | "pending" }) {
-  const map = {
-    won: "bg-yes-dim text-yes",
-    lost: "bg-no-dim text-no",
-    pending: "bg-surface-2 text-muted",
-  };
-  const label = { won: "ניצח", lost: "הפסיד", pending: "ממתין" };
-  return (
-    <span
-      className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${map[outcome]}`}
-    >
-      {label[outcome]}
-    </span>
   );
 }

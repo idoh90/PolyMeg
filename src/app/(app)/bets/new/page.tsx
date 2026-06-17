@@ -92,8 +92,8 @@ export default function NewBetPage() {
   }
 
   return (
-    <div className="mx-auto max-w-lg">
-      <h1 className="mb-5 text-2xl font-bold">יצירת הימור חדש</h1>
+    <div className="px-[18px] pb-8 pt-3">
+      <h1 className="mb-5 text-2xl font-extrabold">יצירת הימור חדש</h1>
       <form onSubmit={submit} className="flex flex-col gap-5">
         <Field label="כותרת">
           <input
@@ -146,10 +146,10 @@ export default function NewBetPage() {
           </div>
           {mode === "binary" ? (
             <div className="flex gap-2">
-              <span className="flex-1 rounded-lg border border-border bg-yes-dim px-3 py-2 text-yes">
+              <span className="flex-1 rounded-lg border border-border bg-yes-b px-3 py-2 text-yes">
                 כן
               </span>
-              <span className="flex-1 rounded-lg border border-border bg-no-dim px-3 py-2 text-no">
+              <span className="flex-1 rounded-lg border border-border bg-no-b px-3 py-2 text-no">
                 לא
               </span>
             </div>
@@ -219,7 +219,7 @@ export default function NewBetPage() {
         <button
           type="submit"
           disabled={busy}
-          className="rounded-full bg-accent py-2.5 font-semibold text-black transition hover:opacity-90 disabled:opacity-50"
+          className="rounded-full bg-accent py-2.5 font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
         >
           {busy ? "יוצר…" : "צור הימור"}
         </button>

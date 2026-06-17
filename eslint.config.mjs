@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Vendored design prototype + one-off node scripts.
+    "UI proto/**",
+    "scripts/**",
   ]),
 ]);
 

@@ -4,120 +4,110 @@ import { getCurrentUser } from "@/lib/currentUser";
 import { formatAgorot } from "@/lib/money";
 import Avatar from "@/components/Avatar";
 
+function signed(n: number) {
+  return `${n > 0 ? "+" : ""}${formatAgorot(n)}`;
+}
+
 export default async function SettlementPage() {
   const user = await getCurrentUser();
   const { balances, transfers } = await getSettlement();
 
-  const myTransfers = transfers.filter(
+  const mine = transfers.filter(
     (t) => t.fromUserId === user?.id || t.toUserId === user?.id,
   );
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold">התחשבנות</h1>
-        <p className="text-sm text-muted">
-          מאזן כולל מכל ההימורים שהוכרעו, והדרך הפשוטה ביותר לסגור חשבון. הכסף לא
-          עובר באפליקציה — שלמו אחד לשני ישירות.
-        </p>
-      </div>
+    <div className="px-[18px] pb-8 pt-1.5">
+      <h1 className="text-2xl font-extrabold">התחשבנות</h1>
+      <p className="mb-[18px] mt-1 text-[13.5px] font-semibold leading-relaxed text-muted">
+        מאזן כולל מכל ההימורים שהוכרעו. הכסף לא עובר באפליקציה — שלמו אחד לשני ישירות.
+      </p>
 
-      {/* Your action items */}
+      {/* your settle-up */}
       {user && (
-        <section className="rounded-2xl border border-accent/40 bg-surface p-4">
-          <h2 className="mb-3 font-semibold">ההתחשבנות שלך</h2>
-          {myTransfers.length === 0 ? (
-            <p className="text-sm text-muted">אתה מאוזן. אין מה לשלם או לגבות.</p>
+        <div className="mb-5 rounded-[18px] border-[1.5px] border-accent-soft bg-surface p-4 shadow-[0_8px_22px_-16px_var(--accent)]">
+          <div className="mb-3 text-sm font-extrabold">ההתחשבנות שלך</div>
+          {mine.length === 0 ? (
+            <p className="text-sm font-semibold text-muted">אתה מאוזן. אין מה לשלם או לגבות.</p>
           ) : (
-            <ul className="flex flex-col gap-2">
-              {myTransfers.map((t, i) => {
+            <div className="flex flex-col gap-2.5">
+              {mine.map((t, i) => {
                 const youPay = t.fromUserId === user.id;
+                const other = youPay
+                  ? { id: t.toUserId, name: t.toName }
+                  : { id: t.fromUserId, name: t.fromName };
                 return (
-                  <li
+                  <div
                     key={i}
-                    className={`flex items-center justify-between rounded-lg px-3 py-2 ${
-                      youPay ? "bg-no-dim" : "bg-yes-dim"
-                    }`}
+                    className="flex items-center gap-2.5 rounded-xl px-3 py-2.5"
+                    style={{ background: youPay ? "var(--no-b)" : "var(--yes-b)" }}
                   >
-                    <span className="text-sm">
-                      {youPay ? (
-                        <>
-                          שלם ל<strong>{t.toName}</strong>
-                        </>
-                      ) : (
-                        <>
-                          גבה מ<strong>{t.fromName}</strong>
-                        </>
-                      )}
+                    <Avatar name={other.name} size={34} />
+                    <span className="flex-1 text-sm font-bold">
+                      {youPay ? "שלם ל־" : "גבה מ־"}
+                      <strong>{other.name}</strong>
                     </span>
                     <span
-                      className={`font-bold ${youPay ? "text-no" : "text-yes"}`}
+                      className="text-base font-extrabold"
+                      style={{ color: youPay ? "var(--no)" : "var(--yes)" }}
                     >
                       {formatAgorot(t.amount)}
                     </span>
-                  </li>
+                  </div>
                 );
               })}
-            </ul>
+            </div>
           )}
-        </section>
+        </div>
       )}
 
-      {/* All transfers */}
-      <section>
-        <h2 className="mb-3 font-semibold">מי משלם למי</h2>
-        {transfers.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted">
-            אין חובות עדיין — הכריעו כמה הימורים קודם.
-          </p>
-        ) : (
-          <ul className="flex flex-col gap-2">
-            {transfers.map((t, i) => (
-              <li
-                key={i}
-                className="flex items-center gap-2 rounded-xl border border-border bg-surface px-4 py-3 text-sm"
-              >
-                <strong>{t.fromName}</strong>
-                <span className="text-muted">משלם ל־</span>
-                <strong>{t.toName}</strong>
-                <span className="ms-auto font-semibold">
-                  {formatAgorot(t.amount)}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      {/* Net standings */}
-      <section>
-        <h2 className="mb-3 font-semibold">מאזן כולל</h2>
-        <div className="flex flex-col gap-1.5">
-          {balances.map((b) => (
-            <Link
-              key={b.userId}
-              href={`/profile/${b.userId}`}
-              className="flex items-center gap-3 rounded-xl border border-border bg-surface px-4 py-2 transition hover:border-accent/60"
+      {/* who pays whom */}
+      <div className="mb-2.5 text-base font-extrabold">מי משלם למי</div>
+      {transfers.length === 0 ? (
+        <p className="mb-5 rounded-[14px] border border-dashed border-border p-6 text-center text-sm text-muted">
+          אין חובות עדיין — הכריעו כמה הימורים קודם.
+        </p>
+      ) : (
+        <div className="mb-5 flex flex-col gap-2.5">
+          {transfers.map((t, i) => (
+            <div
+              key={i}
+              className="flex items-center gap-2.5 rounded-[14px] border border-border bg-surface px-3.5 py-3 text-[13.5px] font-bold"
             >
-              <Avatar name={b.name} src={b.avatarUrl} size={28} />
-              <span className="flex-1 text-sm">
-                {b.name}
-                {b.userId === user?.id && (
-                  <span className="ms-1 text-muted">(אתה)</span>
-                )}
-              </span>
-              <span
-                className={`font-semibold ${
-                  b.net > 0 ? "text-yes" : b.net < 0 ? "text-no" : "text-muted"
-                }`}
-              >
-                {b.net > 0 ? "+" : ""}
-                {formatAgorot(b.net)}
-              </span>
-            </Link>
+              <span>{t.fromName}</span>
+              <svg width="20" height="14" viewBox="0 0 24 14" fill="none" stroke="var(--faint)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "scaleX(-1)" }}>
+                <path d="M2 7h18m0 0-6-5m6 5-6 5" />
+              </svg>
+              <span>{t.toName}</span>
+              <span className="me-auto text-[15px] font-extrabold">{formatAgorot(t.amount)}</span>
+            </div>
           ))}
         </div>
-      </section>
+      )}
+
+      {/* net standings */}
+      <div className="mb-2.5 text-base font-extrabold">מאזן כולל</div>
+      <div className="flex flex-col gap-2">
+        {balances.map((b) => (
+          <Link
+            href={`/profile/${b.userId}`}
+            key={b.userId}
+            className="flex items-center gap-2.5 rounded-[13px] border border-border bg-surface px-3.5 py-2.5"
+          >
+            <Avatar name={b.name} src={b.avatarUrl} size={30} />
+            <span className="flex-1 text-sm font-bold">
+              {b.name}
+              {b.userId === user?.id && <span className="font-semibold text-muted"> (אתה)</span>}
+            </span>
+            <span
+              className="text-[14.5px] font-extrabold"
+              style={{ color: b.net > 0 ? "var(--yes)" : b.net < 0 ? "var(--no)" : "var(--muted)" }}
+            >
+              {signed(b.net)}
+            </span>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }

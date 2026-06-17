@@ -41,3 +41,17 @@ export function poolFor(
   });
   return { options: opts, totalPot };
 }
+
+/** A market is "binary" when it has exactly Yes/No (כן/לא) options. */
+export function isBinaryMarket(options: { label: string }[]): boolean {
+  if (options.length !== 2) return false;
+  const s = new Set(options.map((o) => o.label));
+  return (s.has("כן") && s.has("לא")) || (s.has("Yes") && s.has("No"));
+}
+
+/** Semantic color kind for an option label: yes/no get themed, else accent. */
+export function sideKind(label: string): "yes" | "no" | "accent" {
+  if (label === "כן" || label === "Yes") return "yes";
+  if (label === "לא" || label === "No") return "no";
+  return "accent";
+}

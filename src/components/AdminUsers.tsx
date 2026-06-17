@@ -85,7 +85,7 @@ export default function AdminUsers({ users }: { users: U[] }) {
           <button
             type="submit"
             disabled={busy}
-            className="rounded-lg bg-accent px-4 py-2 font-semibold text-black disabled:opacity-50"
+            className="rounded-lg bg-accent px-4 py-2 font-semibold text-white disabled:opacity-50"
           >
             הוסף
           </button>
@@ -131,7 +131,7 @@ export default function AdminUsers({ users }: { users: U[] }) {
                   />
                   <button
                     onClick={() => resetUserPin(u.id)}
-                    className="rounded-lg bg-accent px-3 py-1 text-sm font-semibold text-black"
+                    className="rounded-lg bg-accent px-3 py-1 text-sm font-semibold text-white"
                   >
                     שמור
                   </button>

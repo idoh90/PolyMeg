@@ -1,106 +1,161 @@
-import Link from "next/link";
-import Image from "next/image";
-import { formatAgorot } from "@/lib/money";
-import { timeUntil } from "@/lib/format";
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useBetSheet, type SheetMarket } from "@/components/BetSheet";
+import { sideKind } from "@/lib/markets";
 import { MarketStatus } from "@/lib/constants";
-import type { OptionPool } from "@/lib/markets";
 
 export interface MarketCardData {
   id: string;
   title: string;
   imageUrl: string | null;
-  status: string;
-  closesAt: Date;
   creatorName: string;
-  totalPot: number;
-  options: OptionPool[];
+  status: string;
+  minStake: number; // agorot
+  pot: number; // agorot
+  potText: string;
+  timeText: string;
+  isBinary: boolean;
+  options: { id: string; label: string; pct: number; total: number; isWinner: boolean }[];
 }
 
-const STATUS_LABEL: Record<string, string> = {
-  [MarketStatus.OPEN]: "פתוח",
-  [MarketStatus.CLOSED]: "ממתין לתוצאה",
-  [MarketStatus.RESOLVED]: "הוכרע",
-};
-
-function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, string> = {
-    [MarketStatus.OPEN]: "bg-yes-dim text-yes",
-    [MarketStatus.CLOSED]: "bg-surface-2 text-muted",
-    [MarketStatus.RESOLVED]: "bg-surface-2 text-accent",
-  };
-  return (
-    <span
-      className={`rounded-full px-2 py-0.5 text-[11px] font-semibold tracking-wide ${
-        map[status] ?? "bg-surface-2 text-muted"
-      }`}
-    >
-      {STATUS_LABEL[status] ?? status}
-    </span>
-  );
+function statusInfo(status: string) {
+  if (status === MarketStatus.OPEN) return { label: "פתוח", cls: "bg-yes-b text-yes" };
+  if (status === MarketStatus.CLOSED) return { label: "ממתין", cls: "bg-surface-2 text-muted" };
+  return { label: "הוכרע", cls: "bg-accent-soft text-accent" };
 }
 
 export default function MarketCard({ market }: { market: MarketCardData }) {
+  const router = useRouter();
+  const { open } = useBetSheet();
+  const st = statusInfo(market.status);
+  const isOpen = market.status === MarketStatus.OPEN;
+
+  const sheet: SheetMarket = {
+    id: market.id,
+    title: market.title,
+    imageUrl: market.imageUrl,
+    minStake: market.minStake,
+    pot: market.pot,
+    options: market.options.map((o) => ({
+      id: o.id,
+      label: o.label,
+      total: o.total,
+      pct: o.pct,
+    })),
+  };
+
+  const yes = market.options[0];
+  const no = market.options[1];
+
   return (
-    <Link
-      href={`/bets/${market.id}`}
-      className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4 transition hover:border-accent/60"
+    <div
+      onClick={() => router.push(`/bets/${market.id}`)}
+      className="cursor-pointer rounded-[18px] border border-border bg-surface p-[15px] shadow-[0_1px_2px_rgba(15,19,32,.03)] transition hover:border-accent/40"
     >
       <div className="flex items-start gap-3">
-        {market.imageUrl ? (
-          <Image
-            src={market.imageUrl}
-            alt=""
-            width={48}
-            height={48}
-            unoptimized
-            className="h-12 w-12 shrink-0 rounded-lg object-cover"
-          />
-        ) : (
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-surface-2 text-xl">
-            🎲
-          </div>
-        )}
+        <Tile imageUrl={market.imageUrl} />
         <div className="min-w-0 flex-1">
-          <h3 className="line-clamp-2 font-semibold leading-snug">
+          <div dir="auto" className="text-[15px] font-bold leading-tight">
             {market.title}
-          </h3>
-          <p className="mt-0.5 text-xs text-muted">מאת {market.creatorName}</p>
+          </div>
+          <div className="mt-1 text-xs font-semibold text-faint">מאת {market.creatorName}</div>
         </div>
-        <StatusBadge status={market.status} />
+        <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10.5px] font-extrabold ${st.cls}`}>
+          {st.label}
+        </span>
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        {market.options.map((o) => (
-          <div key={o.id} className="flex items-center gap-2">
-            <div className="relative h-7 flex-1 overflow-hidden rounded-md bg-surface-2">
+      {market.isBinary ? (
+        <div className="mt-3 flex gap-2.5">
+          <SideButton
+            label={yes.label}
+            pct={yes.pct}
+            disabled={!isOpen}
+            onClick={(e) => {
+              e.stopPropagation();
+              open(sheet, yes.id);
+            }}
+          />
+          <SideButton
+            label={no.label}
+            pct={no.pct}
+            disabled={!isOpen}
+            onClick={(e) => {
+              e.stopPropagation();
+              open(sheet, no.id);
+            }}
+          />
+        </div>
+      ) : (
+        <div className="mt-3 flex flex-col gap-[7px]">
+          {market.options.map((o) => (
+            <div key={o.id} className="relative h-[30px] overflow-hidden rounded-[9px] bg-surface-2">
               <div
-                className={`absolute inset-y-0 left-0 ${
-                  o.isWinner ? "bg-yes/30" : "bg-accent/20"
-                }`}
-                style={{ width: `${o.pct}%` }}
+                className="absolute inset-y-0 right-0"
+                style={{
+                  width: `${o.pct}%`,
+                  background: o.isWinner ? "var(--yes-b)" : "var(--accent-soft)",
+                }}
               />
-              <div className="relative flex h-full items-center justify-between px-2 text-sm">
-                <span className="truncate">
+              <div className="relative flex h-full items-center justify-between px-2.5 text-[13px] font-bold">
+                <span>
                   {o.label}
                   {o.isWinner && " ✓"}
                 </span>
-                <span className="font-semibold text-muted">{o.pct}%</span>
+                <span className="text-muted">{o.pct}%</span>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
-      <div className="flex items-center justify-between text-xs text-muted">
-        <span>קופה {formatAgorot(market.totalPot)}</span>
-        <span>
-          {market.status === MarketStatus.OPEN
-            ? `נסגר ${timeUntil(market.closesAt)}`
-            : market.status === MarketStatus.CLOSED
-              ? "ממתין לתוצאה"
-              : "הוכרע"}
-        </span>
+      <div className="mt-3 flex justify-between text-xs font-semibold text-muted">
+        <span>קופה {market.potText}</span>
+        <span>{market.timeText}</span>
       </div>
-    </Link>
+    </div>
+  );
+}
+
+function Tile({ imageUrl }: { imageUrl: string | null }) {
+  return (
+    <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-surface-2 text-[23px]">
+      {imageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={imageUrl} alt="" className="h-full w-full object-cover" />
+      ) : (
+        "🎲"
+      )}
+    </div>
+  );
+}
+
+function SideButton({
+  label,
+  pct,
+  disabled,
+  onClick,
+}: {
+  label: string;
+  pct: number;
+  disabled: boolean;
+  onClick: (e: React.MouseEvent) => void;
+}) {
+  const k = sideKind(label);
+  const cls =
+    k === "no"
+      ? "border-no-b bg-no-b text-no"
+      : k === "yes"
+        ? "border-yes-b bg-yes-b text-yes"
+        : "border-accent-soft bg-accent-soft text-accent";
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl border px-3 py-[11px] text-sm font-extrabold disabled:opacity-60 ${cls}`}
+    >
+      {label} <span className="opacity-65">{pct}¢</span>
+    </button>
   );
 }

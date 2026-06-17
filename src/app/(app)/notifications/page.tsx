@@ -14,9 +14,9 @@ export default async function NotificationsPage() {
   const hasUnread = notifications.some((n) => !n.read);
 
   return (
-    <div>
+    <div className="px-[18px] pb-8 pt-3">
       <MarkAllRead hasUnread={hasUnread} />
-      <h1 className="mb-4 text-2xl font-bold">התראות</h1>
+      <h1 className="mb-4 text-2xl font-extrabold">התראות</h1>
       {notifications.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-border p-8 text-center text-muted">
           אין התראות עדיין.

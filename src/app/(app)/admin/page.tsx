@@ -14,8 +14,8 @@ export default async function AdminPage() {
   });
 
   return (
-    <div>
-      <h1 className="mb-1 text-2xl font-bold">ניהול</h1>
+    <div className="px-[18px] pb-8 pt-3">
+      <h1 className="mb-1 text-2xl font-extrabold">ניהול</h1>
       <p className="mb-5 text-sm text-muted">
         צור חשבונות לחברים שלך ומסור להם את הקודים.
       </p>
