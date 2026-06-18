@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/currentUser";
-import { MarketStatus, NotificationType } from "@/lib/constants";
+import { MarketStatus } from "@/lib/constants";
+import { resolveMarket } from "@/lib/markets";
 
+// Creator-only decision endpoint.
+//   mode "now"      -> resolve immediately (any time, even before close)
+//   mode "schedule" -> set/clear the winner that applies when the date ends
+//                      (editable only while the timer hasn't hit 0)
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
@@ -12,63 +17,40 @@ export async function POST(
 
   const { id } = await params;
   const body = await req.json().catch(() => null);
-  const winningOptionId = String(body?.winningOptionId ?? "");
+  const mode = body?.mode === "schedule" ? "schedule" : "now";
+  const winningOptionId =
+    body?.winningOptionId == null ? null : String(body.winningOptionId);
 
   const market = await prisma.market.findUnique({
     where: { id },
-    include: { options: { select: { id: true, label: true } } },
+    include: { options: { select: { id: true } } },
   });
   if (!market) return NextResponse.json({ error: "ההימור לא נמצא" }, { status: 404 });
+  if (market.creatorId !== user.id && !user.isAdmin)
+    return NextResponse.json({ error: "רק יוצר ההימור יכול להכריע." }, { status: 403 });
+  if (market.status === MarketStatus.RESOLVED)
+    return NextResponse.json({ error: "ההימור כבר הוכרע." }, { status: 400 });
 
-  // Only the creator (or an admin) may resolve.
-  if (market.creatorId !== user.id && !user.isAdmin) {
-    return NextResponse.json(
-      { error: "רק יוצר ההימור יכול להכריע אותו." },
-      { status: 403 },
-    );
-  }
-  if (market.status === MarketStatus.RESOLVED) {
-    return NextResponse.json(
-      { error: "ההימור כבר הוכרע." },
-      { status: 400 },
-    );
-  }
-  if (market.closesAt.getTime() > Date.now()) {
-    return NextResponse.json(
-      { error: "אפשר להכריע הימור רק אחרי שהוא נסגר." },
-      { status: 400 },
-    );
-  }
-  const winning = market.options.find((o) => o.id === winningOptionId);
-  if (!winning) {
-    return NextResponse.json({ error: "בחר את האפשרות המנצחת." }, { status: 400 });
-  }
+  const valid = (oid: string) => market.options.some((o) => o.id === oid);
 
-  await prisma.market.update({
-    where: { id },
-    data: {
-      status: MarketStatus.RESOLVED,
-      winningOptionId,
-      resolvedAt: new Date(),
-    },
-  });
-
-  // Notify everyone who placed a position (other than the resolver).
-  const participants = await prisma.position.findMany({
-    where: { marketId: id, userId: { not: user.id } },
-    distinct: ["userId"],
-    select: { userId: true },
-  });
-  if (participants.length > 0) {
-    await prisma.notification.createMany({
-      data: participants.map((p) => ({
-        userId: p.userId,
-        type: NotificationType.MARKET_RESOLVED,
-        marketId: id,
-        message: `ההימור "${market.title}" הוכרע: ${winning.label} ניצח. בדוק את ההתחשבנות שלך.`,
-      })),
+  if (mode === "schedule") {
+    if (market.closesAt.getTime() <= Date.now())
+      return NextResponse.json(
+        { error: "הזמן נגמר — אפשר רק להכריע עכשיו." },
+        { status: 400 },
+      );
+    if (winningOptionId !== null && !valid(winningOptionId))
+      return NextResponse.json({ error: "בחר אפשרות." }, { status: 400 });
+    await prisma.market.update({
+      where: { id },
+      data: { pendingWinnerOptionId: winningOptionId },
     });
+    return NextResponse.json({ ok: true });
   }
 
+  // mode "now"
+  if (!winningOptionId || !valid(winningOptionId))
+    return NextResponse.json({ error: "בחר את האפשרות המנצחת." }, { status: 400 });
+  await resolveMarket(id, winningOptionId);
   return NextResponse.json({ ok: true });
 }

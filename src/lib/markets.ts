@@ -1,12 +1,66 @@
 import { prisma } from "@/lib/db";
-import { MarketStatus } from "@/lib/constants";
+import { MarketStatus, NotificationType } from "@/lib/constants";
 
-/** Flip any OPEN markets whose close time has passed to CLOSED. Lazy cron. */
-export async function autoCloseExpired() {
-  await prisma.market.updateMany({
-    where: { status: MarketStatus.OPEN, closesAt: { lt: new Date() } },
-    data: { status: MarketStatus.CLOSED },
+/**
+ * Resolve a market to a winning option: mark RESOLVED, set winner + resolvedAt,
+ * and notify participants. Used by manual "resolve now" and by scheduled
+ * auto-resolution at close. Money split is derived from this on read.
+ */
+export async function resolveMarket(marketId: string, winningOptionId: string) {
+  const market = await prisma.market.findUnique({
+    where: { id: marketId },
+    include: { options: { select: { id: true, label: true } } },
   });
+  if (!market || market.status === MarketStatus.RESOLVED) return;
+  const winner = market.options.find((o) => o.id === winningOptionId);
+  if (!winner) return;
+
+  await prisma.market.update({
+    where: { id: marketId },
+    data: {
+      status: MarketStatus.RESOLVED,
+      winningOptionId,
+      resolvedAt: new Date(),
+      pendingWinnerOptionId: null,
+    },
+  });
+
+  const participants = await prisma.position.findMany({
+    where: { marketId },
+    distinct: ["userId"],
+    select: { userId: true },
+  });
+  if (participants.length > 0) {
+    await prisma.notification.createMany({
+      data: participants.map((p) => ({
+        userId: p.userId,
+        type: NotificationType.MARKET_RESOLVED,
+        marketId,
+        message: `ההימור "${market.title}" הוכרע: ${winner.label} ניצח. בדוק את ההתחשבנות שלך.`,
+      })),
+    });
+  }
+}
+
+/**
+ * Lazy cron: handle markets whose close time passed. If the creator scheduled a
+ * winner, auto-resolve to it; otherwise just flip OPEN -> CLOSED.
+ */
+export async function autoCloseExpired() {
+  const expired = await prisma.market.findMany({
+    where: { status: MarketStatus.OPEN, closesAt: { lt: new Date() } },
+    select: { id: true, pendingWinnerOptionId: true },
+  });
+  for (const m of expired) {
+    if (m.pendingWinnerOptionId) {
+      await resolveMarket(m.id, m.pendingWinnerOptionId);
+    } else {
+      await prisma.market.update({
+        where: { id: m.id },
+        data: { status: MarketStatus.CLOSED },
+      });
+    }
+  }
 }
 
 export interface OptionPool {

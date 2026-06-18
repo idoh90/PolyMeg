@@ -10,7 +10,7 @@ import { MarketStatus } from "@/lib/constants";
 import Avatar from "@/components/Avatar";
 import PriceChart from "@/components/PriceChart";
 import BuyOptionList from "@/components/BuyOptionList";
-import ResolveBet from "@/components/ResolveBet";
+import DecisionBet from "@/components/DecisionBet";
 import AdminBetControls from "@/components/AdminBetControls";
 import PositionDeleteControl from "@/components/PositionDeleteControl";
 import type { SheetMarket } from "@/components/BetSheet";
@@ -52,9 +52,8 @@ export default async function BetDetailPage({
   const { options, totalPot } = poolFor(market.options, market.positions, market.winningOptionId);
   const isOpen = market.status === MarketStatus.OPEN;
   const isResolved = market.status === MarketStatus.RESOLVED;
-  const canResolve =
-    market.status === MarketStatus.CLOSED &&
-    (market.creatorId === user.id || user.isAdmin);
+  const canDecide =
+    !isResolved && (market.creatorId === user.id || user.isAdmin);
 
   const ranked = [...options].sort((a, b) => b.pct - a.pct);
   const top = ranked[0];
@@ -172,16 +171,18 @@ export default async function BetDetailPage({
           <BuyOptionList sheet={sheet} isOpen={isOpen} winningOptionId={market.winningOptionId} />
         </div>
 
-        {/* resolve (creator/admin) */}
-        {canResolve && (
+        {/* decision (creator/admin) */}
+        {canDecide && (
           <div className="mb-5">
-            <ResolveBet
+            <DecisionBet
               marketId={market.id}
               options={market.options.map((o) => ({ id: o.id, label: o.label }))}
+              closesAtISO={market.closesAt.toISOString()}
+              pendingWinnerOptionId={market.pendingWinnerOptionId}
             />
           </div>
         )}
-        {!isOpen && !canResolve && !isResolved && (
+        {!isOpen && !canDecide && !isResolved && (
           <div className="mb-5 rounded-[16px] border border-border bg-surface p-4 text-sm text-muted">
             ההימור נסגר וממתין ש{market.creator.name} יקבע את התוצאה.
           </div>
