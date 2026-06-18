@@ -48,11 +48,12 @@ model Market {
 }
 
 model Option {
-  id        String @id @default(cuid())
-  marketId  String
-  market    Market @relation(fields: [marketId], references: [id], onDelete: Cascade)
-  label     String
-  sortOrder Int    @default(0)
+  id             String   @id @default(cuid())
+  marketId       String
+  market         Market   @relation(fields: [marketId], references: [id], onDelete: Cascade)
+  label          String
+  sortOrder      Int      @default(0)
+  blockedUserIds String[] @default([]) // users barred from betting this option
 
   positions Position[]
 }

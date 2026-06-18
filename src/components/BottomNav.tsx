@@ -20,6 +20,18 @@ export default function BottomNav({ myId }: { myId: string }) {
       active: pathname === "/leaderboard",
     },
     {
+      href: "/news",
+      label: "חדשות",
+      icon: (
+        <>
+          <path d="M4 22a2 2 0 0 1-2-2V8h4" />
+          <rect x="6" y="2" width="16" height="20" rx="2" />
+          <path d="M10 7h8M10 11h8M10 15h5" />
+        </>
+      ),
+      active: pathname === "/news",
+    },
+    {
       href: `/profile/${myId}`,
       label: "התיק",
       icon: (

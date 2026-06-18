@@ -97,6 +97,14 @@ export default async function BetDetailPage({
           </svg>
         </Link>
         <span className="text-[15px] font-extrabold text-muted">פרטי הימור</span>
+        {(market.creatorId === user.id || user.isAdmin) && (
+          <Link
+            href={`/bets/${market.id}/edit`}
+            className="ms-auto rounded-full border border-border bg-surface px-3 py-1.5 text-sm font-bold"
+          >
+            ערוך
+          </Link>
+        )}
       </div>
 
       <div className="px-[18px]">

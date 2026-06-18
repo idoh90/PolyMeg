@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import OptionBlocks, { type BlockUser } from "@/components/OptionBlocks";
 
 type Mode = "binary" | "custom";
 
@@ -48,6 +49,33 @@ export default function NewBetPage() {
   const [closesAt, setClosesAt] = useState(defaultCloseValue);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [users, setUsers] = useState<BlockUser[]>([]);
+  const [blocks, setBlocks] = useState<Record<string, string[]>>({});
+
+  useEffect(() => {
+    fetch("/api/users")
+      .then((r) => r.json())
+      .then((d) => setUsers(d.users ?? []))
+      .catch(() => {});
+  }, []);
+
+  const blockOptions = (
+    mode === "binary"
+      ? ["כן", "לא"]
+      : customOptions.map((o) => o.trim()).filter(Boolean)
+  ).map((label) => ({ key: label, label }));
+
+  function toggleBlock(key: string, userId: string) {
+    setBlocks((prev) => {
+      const cur = prev[key] ?? [];
+      return {
+        ...prev,
+        [key]: cur.includes(userId)
+          ? cur.filter((u) => u !== userId)
+          : [...cur, userId],
+      };
+    });
+  }
 
   async function onPickImage(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -78,6 +106,7 @@ export default function NewBetPage() {
         minStake: Number(minStake),
         closesAt: new Date(closesAt).toISOString(),
         options,
+        blocks: options.map((l) => blocks[l] ?? []),
       }),
     });
     if (res.ok) {
@@ -190,6 +219,17 @@ export default function NewBetPage() {
             </div>
           )}
         </Field>
+
+        {blockOptions.length > 0 && users.length > 0 && (
+          <Field label="חסימות (לא חובה)" hint="מנע ממשתתף להמר על אפשרות">
+            <OptionBlocks
+              options={blockOptions}
+              users={users}
+              value={blocks}
+              onToggle={toggleBlock}
+            />
+          </Field>
+        )}
 
         <div className="grid grid-cols-2 gap-4">
           <Field label="סכום מינימלי (₪)">

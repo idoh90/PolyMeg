@@ -22,6 +22,12 @@ export async function POST(req: Request) {
   const labels: string[] = Array.isArray(body.options)
     ? body.options.map((o: unknown) => String(o).trim()).filter(Boolean)
     : [];
+  // blocks[i] = userIds barred from option i (parallel to options).
+  const blocks: string[][] = Array.isArray(body.blocks)
+    ? body.blocks.map((arr: unknown) =>
+        Array.isArray(arr) ? arr.map((u) => String(u)) : [],
+      )
+    : [];
 
   // Validation.
   if (!title) return bad("נא להוסיף כותרת.");
@@ -44,7 +50,11 @@ export async function POST(req: Request) {
       closesAt,
       status: MarketStatus.OPEN,
       options: {
-        create: labels.map((label, i) => ({ label, sortOrder: i })),
+        create: labels.map((label, i) => ({
+          label,
+          sortOrder: i,
+          blockedUserIds: blocks[i] ?? [],
+        })),
       },
     },
   });

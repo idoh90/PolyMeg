@@ -18,9 +18,17 @@ export async function POST(
 
   const market = await prisma.market.findUnique({
     where: { id },
-    include: { options: { select: { id: true, label: true } } },
+    include: { options: { select: { id: true, label: true, blockedUserIds: true } } },
   });
   if (!market) return NextResponse.json({ error: "ההימור לא נמצא" }, { status: 404 });
+
+  const chosen = market.options.find((o) => o.id === optionId);
+  if (chosen?.blockedUserIds.includes(user.id)) {
+    return NextResponse.json(
+      { error: "אינך יכול להמר על האפשרות הזו." },
+      { status: 403 },
+    );
+  }
 
   if (
     market.status !== MarketStatus.OPEN ||
