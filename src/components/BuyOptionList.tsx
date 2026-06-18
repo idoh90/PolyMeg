@@ -40,7 +40,7 @@ export default function BuyOptionList({
               </span>
               <span className="flex items-center gap-3">
                 <span className="text-base font-extrabold" style={{ color: SOLID[k] }}>
-                  {o.pct}¢
+                  {o.pct}%
                 </span>
                 {isOpen && (
                   <span

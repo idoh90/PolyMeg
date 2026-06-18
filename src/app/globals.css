@@ -54,6 +54,29 @@ body {
   scrollbar-width: none;
 }
 
+/* iOS/Android-like tactile press feedback. Uses the CSS `scale` property so it
+   composes with any Tailwind `transform` (e.g. translate) already on the element. */
+button,
+a,
+[role="button"],
+label,
+summary {
+  -webkit-tap-highlight-color: transparent;
+}
+button,
+.pressable {
+  transition:
+    scale 0.12s ease,
+    opacity 0.12s ease,
+    filter 0.12s ease;
+}
+button:not(:disabled):active {
+  scale: 0.95;
+}
+.pressable:active {
+  scale: 0.98;
+}
+
 /* Hide number input spinners. */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {

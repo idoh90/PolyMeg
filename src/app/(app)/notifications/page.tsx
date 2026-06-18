@@ -4,6 +4,13 @@ import { getCurrentUserId } from "@/lib/session";
 import { timeUntil } from "@/lib/format";
 import MarkAllRead from "@/components/MarkAllRead";
 
+const NOTIF_ICON: Record<string, string> = {
+  NEW_MARKET: "🆕",
+  BET_PLACED: "💸",
+  MARKET_CLOSED: "🔒",
+  MARKET_RESOLVED: "🏁",
+};
+
 export default async function NotificationsPage() {
   const userId = await getCurrentUserId();
   const notifications = await prisma.notification.findMany({
@@ -26,21 +33,20 @@ export default async function NotificationsPage() {
           {notifications.map((n) => {
             const body = (
               <div
-                className={`flex items-start gap-3 rounded-xl border px-4 py-3 ${
+                className={`flex items-center gap-3 rounded-xl border px-4 py-3 transition active:scale-[0.99] ${
                   n.read
                     ? "border-border bg-surface"
                     : "border-accent/40 bg-surface-2"
                 }`}
               >
-                {!n.read && (
-                  <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-accent" />
-                )}
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-2 text-lg">
+                  {NOTIF_ICON[n.type] ?? "🔔"}
+                </span>
                 <div className="flex-1">
-                  <p className="text-sm">{n.message}</p>
-                  <p className="mt-0.5 text-xs text-muted">
-                    {timeUntil(n.createdAt)}
-                  </p>
+                  <p className="text-sm font-medium leading-snug">{n.message}</p>
+                  <p className="mt-0.5 text-xs text-muted">{timeUntil(n.createdAt)}</p>
                 </div>
+                {!n.read && <span className="h-2 w-2 shrink-0 rounded-full bg-accent" />}
               </div>
             );
             return (

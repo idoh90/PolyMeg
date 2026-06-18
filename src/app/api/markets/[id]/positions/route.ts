@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/currentUser";
 import { shekelsToAgorot, formatAgorot } from "@/lib/money";
-import { MarketStatus } from "@/lib/constants";
+import { MarketStatus, NotificationType } from "@/lib/constants";
 
 export async function POST(
   req: Request,
@@ -18,7 +18,7 @@ export async function POST(
 
   const market = await prisma.market.findUnique({
     where: { id },
-    include: { options: { select: { id: true } } },
+    include: { options: { select: { id: true, label: true } } },
   });
   if (!market) return NextResponse.json({ error: "ההימור לא נמצא" }, { status: 404 });
 
@@ -48,6 +48,23 @@ export async function POST(
   await prisma.position.create({
     data: { marketId: id, optionId, userId: user.id, amount },
   });
+
+  // Notify everyone else about the buy.
+  const optLabel = market.options.find((o) => o.id === optionId)?.label ?? "";
+  const others = await prisma.user.findMany({
+    where: { id: { not: user.id } },
+    select: { id: true },
+  });
+  if (others.length > 0) {
+    await prisma.notification.createMany({
+      data: others.map((u) => ({
+        userId: u.id,
+        type: NotificationType.BET_PLACED,
+        marketId: id,
+        message: `${user.name} קנה ${optLabel} ב-${formatAgorot(amount)} · ${market.title}`,
+      })),
+    });
+  }
 
   return NextResponse.json({ ok: true });
 }

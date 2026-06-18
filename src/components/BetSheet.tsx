@@ -172,7 +172,7 @@ function BetSheet({
                         : "border-border bg-surface text-muted"
                     }`}
                   >
-                    {o.label} · {o.pct}¢
+                    {o.label} · {o.pct}%
                   </button>
                 );
               })}

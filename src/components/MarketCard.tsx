@@ -51,7 +51,7 @@ export default function MarketCard({ market }: { market: MarketCardData }) {
   return (
     <div
       onClick={() => router.push(`/bets/${market.id}`)}
-      className="cursor-pointer rounded-[18px] border border-border bg-surface p-[15px] shadow-[0_1px_2px_rgba(15,19,32,.03)] transition hover:border-accent/40"
+      className="pressable cursor-pointer rounded-[18px] border border-border bg-surface p-[15px] shadow-[0_1px_2px_rgba(15,19,32,.03)] transition hover:border-accent/40"
     >
       <div className="flex items-start gap-3">
         <Tile imageUrl={market.imageUrl} />
@@ -155,7 +155,7 @@ function SideButton({
       disabled={disabled}
       className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl border px-3 py-[11px] text-sm font-extrabold disabled:opacity-60 ${cls}`}
     >
-      {label} <span className="opacity-65">{pct}¢</span>
+      {label} <span className="opacity-65">{pct}%</span>
     </button>
   );
 }

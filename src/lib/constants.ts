@@ -9,6 +9,7 @@ export type MarketStatus = (typeof MarketStatus)[keyof typeof MarketStatus];
 
 export const NotificationType = {
   NEW_MARKET: "NEW_MARKET",
+  BET_PLACED: "BET_PLACED",
   MARKET_CLOSED: "MARKET_CLOSED",
   MARKET_RESOLVED: "MARKET_RESOLVED",
 } as const;

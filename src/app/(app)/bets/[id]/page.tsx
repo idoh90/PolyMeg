@@ -12,6 +12,7 @@ import PriceChart from "@/components/PriceChart";
 import BuyOptionList from "@/components/BuyOptionList";
 import ResolveBet from "@/components/ResolveBet";
 import AdminBetControls from "@/components/AdminBetControls";
+import PositionDeleteControl from "@/components/PositionDeleteControl";
 import type { SheetMarket } from "@/components/BetSheet";
 
 const SIDE_HEX = { yes: "#15b87a", no: "#f0405a", accent: "#2b6ef2" };
@@ -198,21 +199,29 @@ export default async function BetDetailPage({
             const opt = market.options.find((o) => o.id === p.optionId);
             const k = sideKind(opt?.label ?? "");
             return (
-              <Link
-                href={`/profile/${p.userId}`}
-                key={p.id}
-                className="flex items-center gap-2.5 py-2.5"
-              >
-                <Avatar name={p.user.name} src={p.user.avatarUrl} size={34} />
-                <div className="min-w-0 flex-1 text-[13.5px] font-semibold leading-tight">
-                  <span className="font-extrabold">{p.user.name}</span> קנה{" "}
-                  <span className="font-extrabold" style={{ color: SIDE_HEX[k] }}>
-                    {opt?.label}
-                  </span>
-                  <div className="text-xs font-semibold text-faint">{timeUntil(p.createdAt)}</div>
-                </div>
+              <div key={p.id} className="flex items-center gap-2.5 py-2.5">
+                <Link
+                  href={`/profile/${p.userId}`}
+                  className="flex min-w-0 flex-1 items-center gap-2.5"
+                >
+                  <Avatar name={p.user.name} src={p.user.avatarUrl} size={34} />
+                  <div className="min-w-0 flex-1 text-[13.5px] font-semibold leading-tight">
+                    <span className="font-extrabold">{p.user.name}</span> קנה{" "}
+                    <span className="font-extrabold" style={{ color: SIDE_HEX[k] }}>
+                      {opt?.label}
+                    </span>
+                    <div className="text-xs font-semibold text-faint">{timeUntil(p.createdAt)}</div>
+                  </div>
+                </Link>
                 <span className="text-sm font-extrabold">{formatAgorot(p.amount)}</span>
-              </Link>
+                <PositionDeleteControl
+                  positionId={p.id}
+                  createdAtMs={p.createdAt.getTime()}
+                  mine={p.userId === user.id}
+                  isAdmin={user.isAdmin}
+                  marketOpen={isOpen}
+                />
+              </div>
             );
           })}
         </div>
