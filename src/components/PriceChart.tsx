@@ -10,6 +10,7 @@ export default function PriceChart({ series }: { series: ChartSeries[] }) {
       height={200}
       yMin={0}
       yMax={100}
+      midline={50}
       formatY={(v) => `${Math.round(v)}%`}
       formatX={(v) =>
         new Date(v).toLocaleString("he-IL", {

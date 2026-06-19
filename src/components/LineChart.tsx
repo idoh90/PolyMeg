@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 
 export type ChartPoint = { x: number; y: number };
 export type ChartSeries = { label: string; color: string; points: ChartPoint[] };
@@ -10,17 +10,17 @@ interface Props {
   height?: number;
   yMin?: number;
   yMax?: number;
+  midline?: number; // emphasized reference line (e.g. 50 on probability charts)
   formatY?: (v: number) => string;
   formatX?: (v: number) => string;
-  area?: boolean; // fill under the first series (nice for a single portfolio line)
+  area?: boolean; // kept for API compat; gradient fill is always drawn
 }
 
-const W = 700; // viewBox width; chart scales responsively to its container
+const W = 700;
 const PAD_X = 8;
-const PAD_TOP = 12;
+const PAD_TOP = 14;
 const PAD_BOTTOM = 22;
 
-// Step-aware linear value lookup for a series at an arbitrary x.
 function valueAt(points: ChartPoint[], x: number): number {
   if (points.length === 0) return 0;
   if (x <= points[0].x) return points[0].y;
@@ -37,17 +37,39 @@ function valueAt(points: ChartPoint[], x: number): number {
   return last.y;
 }
 
+// Catmull-Rom -> cubic bezier through px points [[x,y],...].
+function smoothPath(pts: [number, number][]): string {
+  if (!pts.length) return "";
+  if (pts.length === 1) return `M${pts[0][0]} ${pts[0][1]}`;
+  if (pts.length === 2)
+    return `M${pts[0][0]} ${pts[0][1]} L${pts[1][0]} ${pts[1][1]}`;
+  let d = `M${pts[0][0]} ${pts[0][1]}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] || pts[i];
+    const p1 = pts[i];
+    const p2 = pts[i + 1];
+    const p3 = pts[i + 2] || p2;
+    const c1x = p1[0] + (p2[0] - p0[0]) / 6;
+    const c1y = p1[1] + (p2[1] - p0[1]) / 6;
+    const c2x = p2[0] - (p3[0] - p1[0]) / 6;
+    const c2y = p2[1] - (p3[1] - p1[1]) / 6;
+    d += ` C${c1x.toFixed(1)} ${c1y.toFixed(1)},${c2x.toFixed(1)} ${c2y.toFixed(1)},${p2[0]} ${p2[1]}`;
+  }
+  return d;
+}
+
 export default function LineChart({
   series,
   height = 200,
   yMin,
   yMax,
+  midline,
   formatY = (v) => v.toFixed(0),
   formatX = (v) => new Date(v).toLocaleDateString("he-IL", { day: "2-digit", month: "short" }),
-  area = false,
 }: Props) {
-  const [hoverX, setHoverX] = useState<number | null>(null); // data-space x
-  const [tipLeft, setTipLeft] = useState(0); // px within container
+  const uid = useId().replace(/:/g, "");
+  const [hoverX, setHoverX] = useState<number | null>(null);
+  const [tipLeft, setTipLeft] = useState(0);
 
   const H = height;
   const all = series.flatMap((s) => s.points);
@@ -71,12 +93,11 @@ export default function LineChart({
   let lo = yMin ?? Math.min(...ys);
   let hi = yMax ?? Math.max(...ys);
   if (yMin === undefined && yMax === undefined) {
-    // pad and always include 0 for context
     lo = Math.min(lo, 0);
     hi = Math.max(hi, 0);
     const span = hi - lo || 1;
-    lo -= span * 0.1;
-    hi += span * 0.1;
+    lo -= span * 0.12;
+    hi += span * 0.12;
   }
   if (lo === hi) {
     lo -= 1;
@@ -87,12 +108,13 @@ export default function LineChart({
   const plotW = W - PAD_X * 2;
   const plotTop = PAD_TOP;
   const plotH = H - PAD_TOP - PAD_BOTTOM;
+  const baseY = plotTop + plotH;
 
   const sx = (x: number) => plotLeft + ((x - xMin) / (xMax - xMin)) * plotW;
   const sy = (y: number) => plotTop + (1 - (y - lo) / (hi - lo)) * plotH;
 
-  const ticks = 4;
-  const gridYs = Array.from({ length: ticks + 1 }, (_, i) => lo + ((hi - lo) * i) / ticks);
+  // light reference gridlines at quarters
+  const quarters = [0.25, 0.5, 0.75].map((f) => plotTop + f * plotH);
 
   function onMove(e: React.MouseEvent<SVGSVGElement>) {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -114,116 +136,76 @@ export default function LineChart({
         onMouseLeave={() => setHoverX(null)}
         style={{ overflow: "visible" }}
       >
-        {/* gridlines + y labels */}
-        {gridYs.map((gy, i) => (
-          <g key={i}>
-            <line
-              x1={plotLeft}
-              x2={plotLeft + plotW}
-              y1={sy(gy)}
-              y2={sy(gy)}
-              stroke="var(--border)"
-              strokeWidth={1}
-              strokeDasharray={Math.abs(gy) < 1e-9 ? "0" : "3 4"}
-              opacity={Math.abs(gy) < 1e-9 ? 0.9 : 0.5}
-            />
-            <text
-              x={plotLeft + 2}
-              y={sy(gy) - 3}
-              fill="var(--muted)"
-              fontSize={11}
-              fontFamily="var(--font-sans)"
-            >
-              {formatY(gy)}
-            </text>
-          </g>
-        ))}
+        <defs>
+          {series.map((s, i) => (
+            <linearGradient key={i} id={`${uid}-g${i}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor={s.color} stopOpacity="0.28" />
+              <stop offset="0.75" stopColor={s.color} stopOpacity="0.03" />
+              <stop offset="1" stopColor={s.color} stopOpacity="0" />
+            </linearGradient>
+          ))}
+        </defs>
 
-        {/* area fill under first series */}
-        {area && series[0] && series[0].points.length > 1 && (
-          <path
-            d={
-              `M ${sx(series[0].points[0].x)} ${sy(series[0].points[0].y)} ` +
-              series[0].points.map((p) => `L ${sx(p.x)} ${sy(p.y)}`).join(" ") +
-              ` L ${sx(series[0].points[series[0].points.length - 1].x)} ${sy(lo)}` +
-              ` L ${sx(series[0].points[0].x)} ${sy(lo)} Z`
-            }
-            fill={series[0].color}
-            opacity={0.12}
-          />
+        {/* light gridlines */}
+        {quarters.map((gy, i) => (
+          <line key={i} x1={plotLeft} x2={plotLeft + plotW} y1={gy} y2={gy} stroke="#eef0f5" strokeWidth={1} />
+        ))}
+        {midline !== undefined && (
+          <line x1={plotLeft} x2={plotLeft + plotW} y1={sy(midline)} y2={sy(midline)} stroke="#cdd3df" strokeWidth={1} />
         )}
 
-        {/* series lines */}
-        {series.map((s) => (
-          <polyline
-            key={s.label}
-            points={s.points.map((p) => `${sx(p.x)},${sy(p.y)}`).join(" ")}
-            fill="none"
-            stroke={s.color}
-            strokeWidth={2}
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            vectorEffect="non-scaling-stroke"
-          />
-        ))}
+        {series.map((s, i) => {
+          const px = s.points.map((p) => [+sx(p.x).toFixed(1), +sy(p.y).toFixed(1)] as [number, number]);
+          const line = smoothPath(px);
+          const last = px[px.length - 1];
+          const areaD = `${line} L ${last[0]} ${baseY} L ${px[0][0]} ${baseY} Z`;
+          return (
+            <g key={s.label}>
+              <path d={areaD} fill={`url(#${uid}-g${i})`} />
+              <path
+                d={line}
+                fill="none"
+                stroke={s.color}
+                strokeWidth={2.6}
+                strokeLinejoin="round"
+                strokeLinecap="round"
+                vectorEffect="non-scaling-stroke"
+              />
+              <circle cx={last[0]} cy={last[1]} r={8} fill={s.color} opacity={0.16} />
+              <circle cx={last[0]} cy={last[1]} r={4.2} fill={s.color} stroke="var(--surface)" strokeWidth={2.5} vectorEffect="non-scaling-stroke" />
+            </g>
+          );
+        })}
 
         {/* crosshair + dots */}
         {hoverPx !== null && (
           <>
-            <line
-              x1={hoverPx}
-              x2={hoverPx}
-              y1={plotTop}
-              y2={plotTop + plotH}
-              stroke="var(--muted)"
-              strokeWidth={1}
-              opacity={0.6}
-            />
+            <line x1={hoverPx} x2={hoverPx} y1={plotTop} y2={plotTop + plotH} stroke="var(--muted)" strokeWidth={1} opacity={0.5} />
             {series.map((s) => (
-              <circle
-                key={s.label}
-                cx={hoverPx}
-                cy={sy(valueAt(s.points, hoverX!))}
-                r={3.5}
-                fill={s.color}
-                stroke="var(--bg)"
-                strokeWidth={1.5}
-                vectorEffect="non-scaling-stroke"
-              />
+              <circle key={s.label} cx={hoverPx} cy={sy(valueAt(s.points, hoverX!))} r={3.5} fill={s.color} stroke="var(--surface)" strokeWidth={1.5} vectorEffect="non-scaling-stroke" />
             ))}
           </>
         )}
 
-        {/* x axis end labels */}
-        <text x={plotLeft} y={H - 6} fill="var(--muted)" fontSize={11} fontFamily="var(--font-sans)">
+        <text x={plotLeft} y={H - 5} fill="var(--faint)" fontSize={11} fontFamily="var(--font-sans)">
           {formatX(xMin)}
         </text>
-        <text
-          x={plotLeft + plotW}
-          y={H - 6}
-          fill="var(--muted)"
-          fontSize={11}
-          textAnchor="end"
-          fontFamily="var(--font-sans)"
-        >
-          {formatX(xMax)}
+        <text x={plotLeft + plotW} y={H - 5} fill="var(--faint)" fontSize={11} textAnchor="end" fontFamily="var(--font-sans)">
+          עכשיו
         </text>
       </svg>
 
-      {/* tooltip */}
       {hoverX !== null && (
         <div
           className="pointer-events-none absolute top-0 z-10 -translate-x-1/2 rounded-lg border border-border bg-surface-2 px-2.5 py-1.5 text-xs shadow-lg"
-          style={{
-            left: Math.min(Math.max(tipLeft, 60), 9999),
-          }}
+          style={{ left: Math.min(Math.max(tipLeft, 60), 9999) }}
         >
           <div className="mb-1 text-muted">{formatX(hoverX)}</div>
           {series.map((s) => (
             <div key={s.label} className="flex items-center gap-1.5 whitespace-nowrap">
               <span className="inline-block h-2 w-2 rounded-full" style={{ background: s.color }} />
               <span className="text-muted">{s.label}</span>
-              <span className="ml-auto font-semibold">{formatY(valueAt(s.points, hoverX))}</span>
+              <span className="ms-auto font-semibold">{formatY(valueAt(s.points, hoverX))}</span>
             </div>
           ))}
         </div>

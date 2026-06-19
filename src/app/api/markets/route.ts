@@ -12,7 +12,8 @@ export async function POST(req: Request) {
   if (!body) return NextResponse.json({ error: "בקשה שגויה" }, { status: 400 });
 
   const title = String(body.title ?? "").trim();
-  const criteria = String(body.criteria ?? "").trim();
+  // Criteria is optional in the new create flow; fall back to the title.
+  const criteria = String(body.criteria ?? "").trim() || title;
   const imageUrl =
     typeof body.imageUrl === "string" && body.imageUrl.length > 0
       ? body.imageUrl

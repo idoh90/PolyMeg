@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f4f5f8; --surface:#ffffff; --surf2:#f1f3f7; --border:#e9ebf1;
+    --ink:#0f1320; --muted:#737b8c; --faint:#9aa1b1;
+    --accent:#2b6ef2; --accent-soft:#e9f0fe;
+    --yes:#15b87a; --yes-b:#e6f6ef; --no:#f0405a; --no-b:#fdebee;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{margin:0;}
+  ::-webkit-scrollbar{width:0;height:0;}
+  @keyframes pm-marq{from{transform:translateX(0)}to{transform:translateX(50%)}}
+  @keyframes pm-rise{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  @keyframes pm-fade{from{opacity:0}to{opacity:1}}
+  @keyframes pm-screen{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes pm-pop{0%{transform:scale(0)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+  @keyframes pm-draw{from{stroke-dashoffset:340}to{stroke-dashoffset:0}}
+  @keyframes pm-grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+  @keyframes pm-spin{to{transform:rotate(360deg)}}
+  @keyframes pm-draw2{from{stroke-dashoffset:100}to{stroke-dashoffset:0}}
+  @keyframes pm-step{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:translateX(0)}}
+  @keyframes pm-confetti{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(150px) rotate(300deg);opacity:0}}
+  button{transition:transform .15s cubic-bezier(.34,1.4,.5,1),filter .16s ease,background-color .16s ease,border-color .16s ease,box-shadow .16s ease;}
+  button:active{transform:scale(.955);}
+  @media(hover:hover){button:hover{filter:brightness(.985);}}
+  input,textarea{transition:border-color .18s ease,box-shadow .18s ease;-webkit-appearance:none;}
+  input::placeholder,textarea::placeholder{color:var(--faint);font-weight:500;}
+  input[type=number]{-moz-appearance:textfield;}
+  input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  [data-field]{transition:border-color .18s ease,box-shadow .18s ease;}
+  [data-field]:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft);}
+</style>
+</helmet>
+
+<div style="min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;background:#e6e8ee;padding:24px;font-family:Heebo,system-ui,sans-serif;">
+  <div dir="rtl" lang="he" style="position:relative;width:390px;height:844px;background:var(--bg);border-radius:46px;box-shadow:0 2px 6px rgba(15,19,32,.04),0 30px 70px -20px rgba(15,19,32,.35);overflow:hidden;border:1px solid #dfe2ea;color:var(--ink);display:flex;flex-direction:column;">
+
+    <!-- status bar -->
+    <div style="flex:0 0 auto;height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 26px 0 22px;font-size:14px;font-weight:700;letter-spacing:.3px;">
+      <span>9:41</span>
+      <div style="display:flex;align-items:center;gap:7px;">
+        <svg width="17" height="11" viewBox="0 0 17 11" fill="var(--ink)"><rect x="0" y="6" width="3" height="5" rx="1"/><rect x="4.5" y="4" width="3" height="7" rx="1"/><rect x="9" y="2" width="3" height="9" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+        <svg width="16" height="11" viewBox="0 0 16 11" fill="var(--ink)"><path d="M8 2.2c2 0 3.8.75 5.2 2l1.1-1.2A9 9 0 0 0 8 .5 9 9 0 0 0 1.7 3l1.1 1.2A7.4 7.4 0 0 1 8 2.2Z"/><path d="M8 5.4c1.1 0 2.1.42 2.9 1.1l1.1-1.2A6 6 0 0 0 8 3.7a6 6 0 0 0-4 1.6l1.1 1.2A4.3 4.3 0 0 1 8 5.4Z"/><circle cx="8" cy="9" r="1.6"/></svg>
+        <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0.5" y="0.5" width="21" height="11" rx="3" fill="none" stroke="var(--ink)" stroke-opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="var(--ink)"/><rect x="23" y="4" width="2" height="4" rx="1" fill="var(--ink)" fill-opacity=".4"/></svg>
+      </div>
+    </div>
+
+    <!-- ============ SCROLLABLE CONTENT ============ -->
+    <div style="flex:1 1 auto;overflow-y:auto;overflow-x:hidden;position:relative;">
+
+      <!-- ====== MARKETS (HOME) ====== -->
+      <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+      <div key="{{ screen }}" style="animation:pm-screen .28s ease both;padding-bottom:30px;">
+        <!-- app bar -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 18px 12px;">
+          <div style="font-size:23px;font-weight:800;letter-spacing:-.5px;">Poly<span style="color:var(--accent);">meg</span></div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--border);padding:7px 12px;border-radius:999px;font-weight:700;font-size:14px;box-shadow:0 1px 2px rgba(15,19,32,.03);">
+              <span style="width:8px;height:8px;border-radius:50%;background:var(--yes);"></span>{{ balanceText }}
+            </div>
+            <div style="position:relative;width:38px;height:38px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;">א
+              <span style="position:absolute;top:-1px;left:-1px;width:11px;height:11px;border-radius:50%;background:var(--no);border:2px solid var(--surface);"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- live ticker -->
+        <div style="margin:0 0 14px;height:34px;background:var(--ink);overflow:hidden;display:flex;align-items:center;position:relative;">
+          <span style="position:absolute;right:0;z-index:2;height:100%;display:flex;align-items:center;gap:6px;background:var(--ink);color:#fff;font-size:11px;font-weight:800;padding:0 12px;letter-spacing:.4px;">
+            <span style="width:7px;height:7px;border-radius:50%;background:var(--no);animation:pm-fade 1s ease-in-out infinite alternate;"></span>חי
+          </span>
+          <div style="display:flex;width:max-content;animation:pm-marq 26s linear infinite;white-space:nowrap;">
+            <div style="display:flex;">
+              <sc-for list="{{ ticker }}" as="t" hint-placeholder-count="5">
+                <span style="display:inline-flex;align-items:center;gap:7px;color:#cdd4e0;font-size:12.5px;font-weight:500;padding:0 16px;">
+                  <span style="font-weight:700;color:#fff;">{{ t.user }}</span>{{ t.verb }}
+                  <span style="font-weight:700;color:{{ t.color }};">{{ t.side }}</span>· <span style="color:#8b94a6;">{{ t.market }}</span>
+                </span>
+              </sc-for>
+            </div>
+            <div style="display:flex;" aria-hidden="true">
+              <sc-for list="{{ ticker }}" as="t" hint-placeholder-count="5">
+                <span style="display:inline-flex;align-items:center;gap:7px;color:#cdd4e0;font-size:12.5px;font-weight:500;padding:0 16px;">
+                  <span style="font-weight:700;color:#fff;">{{ t.user }}</span>{{ t.verb }}
+                  <span style="font-weight:700;color:{{ t.color }};">{{ t.side }}</span>· <span style="color:#8b94a6;">{{ t.market }}</span>
+                </span>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <!-- search -->
+        <div style="padding:0 18px;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:11px 14px;color:var(--faint);">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
+            <span style="font-size:14.5px;font-weight:500;">חיפוש הימור…</span>
+          </div>
+        </div>
+
+        <!-- filter chips -->
+        <div style="display:flex;gap:8px;padding:0 18px 14px;overflow-x:auto;">
+          <sc-for list="{{ filters }}" as="f" hint-placeholder-count="4">
+            <button onClick="{{ f.onClick }}" style="flex:0 0 auto;border:1px solid {{ f.bd }};background:{{ f.bg }};color:{{ f.fg }};padding:8px 15px;border-radius:999px;font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s;">{{ f.label }}</button>
+          </sc-for>
+        </div>
+
+        <!-- featured -->
+        <div style="padding:0 18px;margin-bottom:18px;">
+          <div onClick="{{ featured.onOpen }}" style="cursor:pointer;border-radius:22px;padding:18px;background:linear-gradient(135deg,#1f2a4d,#0f1320);color:#fff;position:relative;overflow:hidden;box-shadow:0 14px 30px -14px rgba(15,19,32,.6);transition:transform .18s cubic-bezier(.2,.8,.2,1);" style-active="transform:scale(.985);">
+            <div style="position:absolute;top:-40px;left:-30px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(43,110,242,.5),transparent 70%);"></div>
+            <div style="position:relative;">
+              <div style="display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:.5px;color:#aeb7c9;margin-bottom:12px;"><span style="background:rgba(43,110,242,.25);color:#9cc0ff;padding:3px 9px;border-radius:999px;">מומלץ</span><span style="color:#aeb7c9;">{{ featured.timeText }}</span></div>
+              <div style="display:flex;align-items:flex-start;gap:13px;">
+                <div style="flex:0 0 auto;width:50px;height:50px;border-radius:14px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:26px;">{{ featured.emoji }}</div>
+                <div style="flex:1;min-width:0;">
+                  <div dir="auto" style="font-size:18px;font-weight:800;line-height:1.25;">{{ featured.title }}</div>
+                </div>
+                <div style="text-align:center;">
+                  <div style="font-size:30px;font-weight:900;line-height:1;color:var(--yes);">{{ featured.topPct }}<span style="font-size:16px;">¢</span></div>
+                  <div style="font-size:11px;color:#aeb7c9;font-weight:600;margin-top:2px;">{{ featured.topLabel }}</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:10px;margin-top:16px;">
+                <button onClick="{{ featured.onYes }}" style="flex:1;border:none;background:var(--yes);color:#04130c;padding:13px;border-radius:13px;font-weight:800;font-size:15px;font-family:inherit;cursor:pointer;">קנה Yes · {{ featured.topPct }}¢</button>
+                <button onClick="{{ featured.onNo }}" style="flex:1;border:none;background:var(--no);color:#1a0509;padding:13px;border-radius:13px;font-weight:800;font-size:15px;font-family:inherit;cursor:pointer;">קנה No · {{ featured.botPct }}¢</button>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:13px;font-size:12px;color:#aeb7c9;font-weight:600;">
+                <span>קופה {{ featured.potText }}</span><span>{{ featured.betCount }} הימורים</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- leaderboard hub card -->
+        <div onClick="{{ onBoard }}" style="margin:0 18px 18px;cursor:pointer;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:14px 15px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 2px rgba(15,19,32,.03);transition:transform .16s cubic-bezier(.2,.8,.2,1),box-shadow .15s;" style-active="transform:scale(.985);" style-hover="box-shadow:0 6px 18px -10px rgba(15,19,32,.18);">
+          <div style="flex:0 0 auto;width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#ffd24a,#f0a93a);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px -6px #f0a93a;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7a4d00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:15px;font-weight:800;">טבלת המובילים</div>
+            <div style="font-size:12.5px;color:var(--muted);font-weight:600;margin-top:2px;">{{ boardLeader }} מוביל · ראה דירוג מלא</div>
+          </div>
+          <div style="display:flex;flex-direction:row-reverse;align-items:center;padding-left:6px;">
+            <sc-for list="{{ boardTop3 }}" as="b" hint-placeholder-count="3">
+              <div style="width:30px;height:30px;border-radius:50%;background:{{ b.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;border:2px solid var(--surface);margin-right:-9px;">{{ b.initial }}</div>
+            </sc-for>
+          </div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--faint)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1);flex:0 0 auto;"><path d="m9 18 6-6-6-6"/></svg>
+        </div>
+
+        <!-- section label -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0 18px 10px;">
+          <span style="font-size:16px;font-weight:800;">{{ listTitle }}</span>
+          <span style="font-size:13px;font-weight:700;color:var(--muted);">{{ marketCount }}</span>
+        </div>
+
+        <!-- market list -->
+        <div style="display:flex;flex-direction:column;gap:11px;padding:0 18px;">
+          <sc-for list="{{ markets }}" as="m" hint-placeholder-count="4">
+            <div onClick="{{ m.onOpen }}" style="cursor:pointer;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:15px;box-shadow:0 1px 2px rgba(15,19,32,.03);transition:transform .16s cubic-bezier(.2,.8,.2,1),border-color .15s,box-shadow .15s;" style-active="transform:scale(.985);" style-hover="border-color:#d7dbe6;box-shadow:0 6px 18px -10px rgba(15,19,32,.18);">
+              <div style="display:flex;align-items:flex-start;gap:12px;">
+                <div style="flex:0 0 auto;width:44px;height:44px;border-radius:12px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:23px;">{{ m.emoji }}</div>
+                <div style="flex:1;min-width:0;">
+                  <div dir="auto" style="font-size:15px;font-weight:700;line-height:1.3;">{{ m.title }}</div>
+                  <div style="font-size:12px;color:var(--faint);margin-top:3px;font-weight:600;">מאת {{ m.creator }}</div>
+                </div>
+                <span style="flex:0 0 auto;font-size:10.5px;font-weight:800;padding:4px 9px;border-radius:999px;background:{{ m.stBg }};color:{{ m.stFg }};">{{ m.stLabel }}</span>
+              </div>
+
+              <!-- binary buttons -->
+              <sc-if value="{{ m.isBinary }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;gap:9px;margin-top:13px;">
+                  <button onClick="{{ m.onYes }}" style="flex:1;border:1px solid var(--yes-b);background:var(--yes-b);color:var(--yes);padding:11px;border-radius:12px;font-weight:800;font-size:14px;font-family:inherit;cursor:pointer;display:flex;justify-content:center;gap:6px;">Yes <span style="opacity:.65;">{{ m.yesPct }}¢</span></button>
+                  <button onClick="{{ m.onNo }}" style="flex:1;border:1px solid var(--no-b);background:var(--no-b);color:var(--no);padding:11px;border-radius:12px;font-weight:800;font-size:14px;font-family:inherit;cursor:pointer;display:flex;justify-content:center;gap:6px;">No <span style="opacity:.65;">{{ m.noPct }}¢</span></button>
+                </div>
+              </sc-if>
+
+              <!-- multi bars -->
+              <sc-if value="{{ m.isMulti }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;flex-direction:column;gap:7px;margin-top:13px;">
+                  <sc-for list="{{ m.options }}" as="o" hint-placeholder-count="3">
+                    <div style="position:relative;height:30px;border-radius:9px;background:var(--surf2);overflow:hidden;">
+                      <div style="position:absolute;inset:0 auto 0 0;width:{{ o.pct }}%;background:{{ o.fill }};transition:width .5s cubic-bezier(.2,.8,.2,1);"></div>
+                      <div style="position:relative;height:100%;display:flex;align-items:center;justify-content:space-between;padding:0 11px;font-size:13px;font-weight:700;">
+                        <span>{{ o.label }}{{ o.check }}</span><span style="color:var(--muted);">{{ o.pct }}%</span>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <div style="display:flex;justify-content:space-between;margin-top:12px;font-size:12px;color:var(--muted);font-weight:600;">
+                <span>קופה {{ m.potText }}</span><span>{{ m.timeText }}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ====== MARKET DETAIL ====== -->
+      <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ true }}">
+      <div key="d{{ detailId }}" style="animation:pm-screen .28s ease both;padding-bottom:30px;">
+        <div style="display:flex;align-items:center;gap:12px;padding:6px 18px 14px;">
+          <button onClick="{{ onBack }}" style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1);"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <span style="font-size:15px;font-weight:800;color:var(--muted);">פרטי הימור</span>
+        </div>
+
+        <div style="padding:0 18px;">
+          <div style="display:flex;align-items:flex-start;gap:13px;margin-bottom:18px;">
+            <div style="flex:0 0 auto;width:54px;height:54px;border-radius:15px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:28px;">{{ detail.emoji }}</div>
+            <div style="flex:1;min-width:0;">
+              <div dir="auto" style="font-size:20px;font-weight:800;line-height:1.25;">{{ detail.title }}</div>
+              <div style="font-size:12.5px;color:var(--faint);margin-top:4px;font-weight:600;">מאת {{ detail.creator }} · קופה {{ detail.potText }}</div>
+            </div>
+          </div>
+
+          <!-- big price -->
+          <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:4px;">
+            <span style="font-size:44px;font-weight:900;line-height:1;color:{{ detail.topColor }};">{{ detail.topPct }}<span style="font-size:22px;">%</span></span>
+            <span style="font-size:15px;font-weight:700;color:var(--faint);">{{ detail.topLabel }}</span>
+            <span style="margin-right:auto;font-size:14px;font-weight:800;color:{{ detail.changeColor }};">{{ detail.changeText }}</span>
+          </div>
+          <div style="font-size:13px;color:var(--muted);font-weight:600;margin-bottom:12px;">סיכוי משתמע מתוך הקופה</div>
+
+          <!-- chart -->
+          <div style="position:relative;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:12px 14px 10px;margin-bottom:10px;box-shadow:0 1px 2px rgba(15,19,32,.03);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+              <span style="font-size:11.5px;font-weight:800;color:var(--muted);">מגמת הסיכוי · {{ detail.topLabel }}</span>
+              <span style="font-size:13px;font-weight:800;color:{{ detail.topColor }};">{{ detail.topPct }}%</span>
+            </div>
+            <svg viewBox="0 0 330 150" width="100%" height="150" preserveAspectRatio="none" style="overflow:visible;display:block;">
+              <defs>
+                <linearGradient id="pm-grad-d" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="{{ detail.topHex }}" stop-opacity="0.28"/>
+                  <stop offset="0.75" stop-color="{{ detail.topHex }}" stop-opacity="0.03"/>
+                  <stop offset="1" stop-color="{{ detail.topHex }}" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <line x1="8" y1="44" x2="322" y2="44" stroke="#eef0f5" stroke-width="1"/>
+              <line x1="8" y1="104" x2="322" y2="104" stroke="#eef0f5" stroke-width="1"/>
+              <line x1="8" y1="74" x2="322" y2="74" stroke="#cdd3df" stroke-width="1"/>
+              <path d="{{ detail.area }}" fill="url(#pm-grad-d)"/>
+              <path d="{{ detail.line }}" fill="none" stroke="{{ detail.topHex }}" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" pathLength="100" style="stroke-dasharray:100;animation:pm-draw2 1.2s ease forwards;"/>
+              <circle cx="{{ detail.dotX }}" cy="{{ detail.dotY }}" r="8" fill="{{ detail.topHex }}" opacity="0.16"/>
+              <circle cx="{{ detail.dotX }}" cy="{{ detail.dotY }}" r="4.2" fill="{{ detail.topHex }}" stroke="var(--surface)" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
+            </svg>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 2px 0;font-size:11px;color:var(--faint);font-weight:600;">
+              <span>{{ detail.xStart }}</span>
+              <span style="display:flex;align-items:center;gap:4px;"><span style="width:5px;height:5px;border-radius:50%;background:{{ detail.topColor }};"></span>עכשיו</span>
+            </div>
+          </div>
+
+          <!-- timeframe -->
+          <div style="display:flex;gap:7px;margin-bottom:20px;justify-content:center;">
+            <sc-for list="{{ timeframes }}" as="t" hint-placeholder-count="4">
+              <button onClick="{{ t.onClick }}" style="border:none;background:{{ t.bg }};color:{{ t.fg }};padding:6px 16px;border-radius:9px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;">{{ t.label }}</button>
+            </sc-for>
+          </div>
+
+          <!-- options to buy -->
+          <div style="font-size:15px;font-weight:800;margin-bottom:11px;">{{ detail.buyTitle }}</div>
+          <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:22px;">
+            <sc-for list="{{ detail.options }}" as="o" hint-placeholder-count="2">
+              <button onClick="{{ o.onBuy }}" style="position:relative;overflow:hidden;border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:0;cursor:pointer;font-family:inherit;text-align:right;">
+                <div style="position:absolute;inset:0 auto 0 0;width:{{ o.pct }}%;background:{{ o.fillSoft }};"></div>
+                <div style="position:relative;display:flex;align-items:center;justify-content:space-between;padding:14px 15px;">
+                  <span style="font-size:15px;font-weight:700;">{{ o.label }}{{ o.check }}</span>
+                  <span style="display:flex;align-items:center;gap:12px;">
+                    <span style="font-size:16px;font-weight:800;color:{{ o.priceColor }};">{{ o.pct }}¢</span>
+                    <span style="font-size:12px;font-weight:800;color:#fff;background:{{ o.btn }};padding:7px 14px;border-radius:9px;">קנה</span>
+                  </span>
+                </div>
+              </button>
+            </sc-for>
+          </div>
+
+          <!-- criteria -->
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:15px;margin-bottom:22px;">
+            <div style="font-size:13px;font-weight:800;color:var(--muted);margin-bottom:6px;">איך זה נסגר</div>
+            <div dir="auto" style="font-size:14px;line-height:1.5;color:var(--ink);">{{ detail.criteria }}</div>
+          </div>
+
+          <!-- activity -->
+          <div style="font-size:15px;font-weight:800;margin-bottom:11px;">פעילות אחרונה</div>
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            <sc-for list="{{ detail.activity }}" as="a" hint-placeholder-count="4">
+              <div style="display:flex;align-items:center;gap:11px;padding:10px 2px;">
+                <div style="flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:{{ a.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;">{{ a.initial }}</div>
+                <div style="flex:1;min-width:0;font-size:13.5px;font-weight:600;line-height:1.3;">
+                  <span style="font-weight:800;">{{ a.user }}</span> קנה <span style="font-weight:800;color:{{ a.sideColor }};">{{ a.side }}</span>
+                  <div style="font-size:12px;color:var(--faint);font-weight:600;">{{ a.timeText }}</div>
+                </div>
+                <span style="font-size:14px;font-weight:800;">{{ a.amount }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ====== LEADERBOARD ====== -->
+      <sc-if value="{{ isBoard }}" hint-placeholder-val="{{ true }}">
+      <div key="{{ screen }}" style="animation:pm-screen .28s ease both;padding:6px 18px 30px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <button onClick="{{ onBack }}" style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1);"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <span style="font-size:15px;font-weight:800;color:var(--muted);">חזרה לבית</span>
+        </div>
+        <div style="font-size:24px;font-weight:800;margin-bottom:4px;">טבלת המובילים</div>
+        <div style="font-size:13.5px;color:var(--muted);font-weight:600;margin-bottom:18px;">רווח והפסד נטו מכל ההימורים שהוכרעו</div>
+
+        <!-- podium -->
+        <div style="display:flex;align-items:flex-end;gap:9px;margin-bottom:22px;">
+          <sc-for list="{{ podium }}" as="p" hint-placeholder-count="3">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;">
+              <div style="position:relative;width:{{ p.size }}px;height:{{ p.size }}px;border-radius:50%;background:{{ p.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:{{ p.font }}px;box-shadow:0 8px 18px -8px {{ p.color }};">{{ p.initial }}
+                <span style="position:absolute;-bottom:6px;bottom:-6px;width:22px;height:22px;border-radius:50%;background:{{ p.medal }};color:#3a2c00;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;border:2px solid var(--bg);">{{ p.rank }}</span>
+              </div>
+              <div style="font-size:13px;font-weight:800;margin-top:5px;">{{ p.name }}</div>
+              <div style="font-size:13px;font-weight:800;color:{{ p.netColor }};background:{{ p.netBg }};padding:3px 10px;border-radius:999px;">{{ p.netText }}</div>
+              <div style="width:100%;height:{{ p.bar }}px;background:linear-gradient(180deg,{{ p.color }},{{ p.color }}00);border-radius:10px 10px 0 0;opacity:.18;animation:pm-grow .6s ease both;transform-origin:bottom;"></div>
+            </div>
+          </sc-for>
+        </div>
+
+        <!-- full list -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;">
+          <sc-for list="{{ board }}" as="b" hint-placeholder-count="5">
+            <div style="display:flex;align-items:center;gap:12px;padding:14px 15px;border-bottom:1px solid var(--border);background:{{ b.rowBg }};">
+              <span style="flex:0 0 auto;width:20px;font-size:14px;font-weight:800;color:var(--faint);text-align:center;">{{ b.rank }}</span>
+              <div style="flex:0 0 auto;width:38px;height:38px;border-radius:50%;background:{{ b.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;">{{ b.initial }}</div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:14.5px;font-weight:800;">{{ b.name }}{{ b.youTag }}</div>
+                <div style="font-size:12px;color:var(--faint);font-weight:600;">{{ b.wins }} ניצחונות · {{ b.bets }} הימורים</div>
+              </div>
+              <span style="font-size:15px;font-weight:800;color:{{ b.netColor }};">{{ b.netText }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ====== NEWS ====== -->
+      <sc-if value="{{ isNews }}" hint-placeholder-val="{{ true }}">
+      <div key="{{ screen }}" style="animation:pm-screen .28s ease both;padding:6px 18px 30px;">
+        <div style="font-size:24px;font-weight:800;margin-bottom:4px;">מה חדש</div>
+        <div style="font-size:13.5px;color:var(--muted);font-weight:600;margin-bottom:18px;">כל מה שקרה בחבר׳ה — מי פתח, מי הימר ומה הוכרע.</div>
+
+        <sc-for list="{{ newsGroups }}" as="g" hint-placeholder-count="2">
+          <div style="font-size:12px;font-weight:800;color:var(--faint);letter-spacing:.5px;margin:6px 2px 11px;">{{ g.label }}</div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
+            <sc-for list="{{ g.items }}" as="e" hint-placeholder-count="4">
+              <div onClick="{{ e.onOpen }}" style="cursor:pointer;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:13px;display:flex;align-items:flex-start;gap:12px;box-shadow:0 1px 2px rgba(15,19,32,.03);transition:transform .16s cubic-bezier(.2,.8,.2,1),box-shadow .15s;" style-active="transform:scale(.985);" style-hover="box-shadow:0 6px 18px -10px rgba(15,19,32,.18);">
+                <sc-if value="{{ e.isTrophy }}" hint-placeholder-val="{{ false }}">
+                  <div style="flex:0 0 auto;width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#ffd24a,#f0a93a);display:flex;align-items:center;justify-content:center;font-size:20px;">🏆</div>
+                </sc-if>
+                <sc-if value="{{ e.notTrophy }}" hint-placeholder-val="{{ true }}">
+                  <div style="flex:0 0 auto;width:40px;height:40px;border-radius:50%;background:{{ e.avColor }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;">{{ e.initial }}</div>
+                </sc-if>
+
+                <div style="flex:1;min-width:0;">
+                  <div style="font-size:14px;font-weight:600;line-height:1.35;">
+                    <span style="font-weight:800;">{{ e.user }}</span> {{ e.action }}
+                    <sc-if value="{{ e.hasSide }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-weight:800;color:{{ e.sideColor }};background:{{ e.sideBg }};padding:1px 8px;border-radius:6px;margin:0 2px;">{{ e.sideLabel }}</span>
+                    </sc-if>
+                    <sc-if value="{{ e.hasAmount }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-weight:800;">· {{ e.amountText }}</span>
+                    </sc-if>
+                  </div>
+                  <div dir="auto" style="display:flex;align-items:center;gap:6px;margin-top:5px;">
+                    <span style="font-size:14px;flex:0 0 auto;">{{ e.emoji }}</span>
+                    <span style="font-size:12.5px;color:var(--muted);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ e.marketTitle }}</span>
+                  </div>
+                </div>
+
+                <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+                  <sc-if value="{{ e.isNew }}" hint-placeholder-val="{{ false }}">
+                    <span style="font-size:9px;font-weight:900;letter-spacing:.5px;color:#fff;background:var(--accent);padding:2px 7px;border-radius:999px;">חדש</span>
+                  </sc-if>
+                  <span style="font-size:11px;color:var(--faint);font-weight:600;white-space:nowrap;">{{ e.timeText }}</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-for>
+      </div>
+      </sc-if>
+
+      <!-- ====== PORTFOLIO ====== -->
+      <sc-if value="{{ isPortfolio }}" hint-placeholder-val="{{ true }}">
+      <div key="{{ screen }}" style="animation:pm-screen .28s ease both;padding:6px 18px 30px;">
+        <div style="font-size:24px;font-weight:800;margin-bottom:16px;">התיק שלי</div>
+
+        <div style="background:linear-gradient(135deg,#1f2a4d,#0f1320);border-radius:22px;padding:20px;color:#fff;margin-bottom:16px;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:-50px;left:-20px;width:170px;height:170px;border-radius:50%;background:radial-gradient(circle,rgba(43,110,242,.45),transparent 70%);"></div>
+          <div style="position:relative;">
+            <div style="font-size:12.5px;color:#aeb7c9;font-weight:700;letter-spacing:.3px;">יתרה זמינה</div>
+            <div style="font-size:38px;font-weight:900;letter-spacing:-1px;margin:4px 0 12px;">{{ port.balance }}</div>
+            <div style="display:flex;gap:22px;">
+              <div><div style="font-size:11px;color:#aeb7c9;font-weight:700;">רווח כולל</div><div style="font-size:17px;font-weight:800;color:{{ port.pnlColor }};margin-top:2px;">{{ port.pnl }}</div></div>
+              <div><div style="font-size:11px;color:#aeb7c9;font-weight:700;">פוזיציות פתוחות</div><div style="font-size:17px;font-weight:800;margin-top:2px;">{{ port.openCount }}</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- portfolio chart -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:12px 14px 10px;margin-bottom:20px;box-shadow:0 1px 2px rgba(15,19,32,.03);">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:13px;font-weight:800;color:var(--muted);">שווי לאורך זמן</span>
+            <span style="font-size:12.5px;font-weight:800;color:var(--yes);">{{ port.pnl }}</span>
+          </div>
+          <svg viewBox="0 0 330 130" width="100%" height="130" preserveAspectRatio="none" style="overflow:visible;display:block;">
+            <defs>
+              <linearGradient id="pm-grad-p" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#2b6ef2" stop-opacity="0.26"/>
+                <stop offset="0.8" stop-color="#2b6ef2" stop-opacity="0.03"/>
+                <stop offset="1" stop-color="#2b6ef2" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <line x1="8" y1="38" x2="322" y2="38" stroke="#eef0f5" stroke-width="1"/>
+            <line x1="8" y1="66" x2="322" y2="66" stroke="#eef0f5" stroke-width="1"/>
+            <line x1="8" y1="94" x2="322" y2="94" stroke="#eef0f5" stroke-width="1"/>
+            <path d="{{ port.area }}" fill="url(#pm-grad-p)"/>
+            <path d="{{ port.line }}" fill="none" stroke="#2b6ef2" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" pathLength="100" style="stroke-dasharray:100;animation:pm-draw2 1.2s ease forwards;"/>
+            <circle cx="{{ port.dotX }}" cy="{{ port.dotY }}" r="8" fill="#2b6ef2" opacity="0.16"/>
+            <circle cx="{{ port.dotX }}" cy="{{ port.dotY }}" r="4.2" fill="#2b6ef2" stroke="var(--surface)" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
+          </svg>
+        </div>
+
+        <div style="font-size:16px;font-weight:800;margin-bottom:11px;">פוזיציות פתוחות</div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:22px;">
+          <sc-for list="{{ port.positions }}" as="p" hint-placeholder-count="2">
+            <div onClick="{{ p.onOpen }}" style="cursor:pointer;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px;">
+              <div style="display:flex;align-items:flex-start;gap:11px;">
+                <div style="flex:0 0 auto;width:38px;height:38px;border-radius:11px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:20px;">{{ p.emoji }}</div>
+                <div style="flex:1;min-width:0;">
+                  <div dir="auto" style="font-size:14px;font-weight:700;line-height:1.3;">{{ p.title }}</div>
+                  <div style="margin-top:5px;font-size:12px;font-weight:700;"><span style="color:{{ p.sideColor }};background:{{ p.sideBg }};padding:2px 8px;border-radius:6px;">{{ p.side }}</span></div>
+                </div>
+                <div style="text-align:left;">
+                  <div style="font-size:11px;color:var(--faint);font-weight:700;">הימרת</div>
+                  <div style="font-size:15px;font-weight:800;">{{ p.stake }}</div>
+                  <div style="font-size:11px;color:var(--yes);font-weight:700;margin-top:2px;">זכייה {{ p.toWin }}</div>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="font-size:16px;font-weight:800;margin-bottom:11px;">היסטוריה</div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <sc-for list="{{ port.history }}" as="h" hint-placeholder-count="2">
+            <div style="display:flex;align-items:center;gap:11px;padding:11px 2px;border-bottom:1px solid var(--border);">
+              <div style="flex:0 0 auto;width:34px;height:34px;border-radius:10px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:17px;">{{ h.emoji }}</div>
+              <div style="flex:1;min-width:0;"><div dir="auto" style="font-size:13.5px;font-weight:700;line-height:1.3;">{{ h.title }}</div><div style="font-size:12px;color:var(--faint);font-weight:600;">{{ h.outcome }}</div></div>
+              <span style="font-size:15px;font-weight:800;color:{{ h.color }};">{{ h.amount }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ====== SETTLEMENT ====== -->
+      <sc-if value="{{ isSettle }}" hint-placeholder-val="{{ true }}">
+      <div key="{{ screen }}" style="animation:pm-screen .28s ease both;padding:6px 18px 30px;">
+        <div style="font-size:24px;font-weight:800;margin-bottom:4px;">התחשבנות</div>
+        <div style="font-size:13.5px;color:var(--muted);font-weight:600;margin-bottom:18px;line-height:1.5;">מאזן כולל מכל ההימורים שהוכרעו. הכסף לא עובר באפליקציה — שלמו אחד לשני ישירות.</div>
+
+        <div style="background:var(--surface);border:1.5px solid var(--accent-soft);border-radius:18px;padding:16px;margin-bottom:20px;box-shadow:0 8px 22px -16px var(--accent);">
+          <div style="font-size:14px;font-weight:800;margin-bottom:12px;">ההתחשבנות שלך</div>
+          <div style="display:flex;flex-direction:column;gap:9px;">
+            <sc-for list="{{ settle.mine }}" as="t" hint-placeholder-count="2">
+              <div style="display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:12px;background:{{ t.bg }};">
+                <div style="flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:{{ t.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;">{{ t.initial }}</div>
+                <span style="flex:1;font-size:14px;font-weight:700;">{{ t.verb }} <strong>{{ t.who }}</strong></span>
+                <span style="font-size:16px;font-weight:800;color:{{ t.amtColor }};">{{ t.amount }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="font-size:16px;font-weight:800;margin-bottom:11px;">מי משלם למי</div>
+        <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:22px;">
+          <sc-for list="{{ settle.transfers }}" as="t" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:13px 14px;font-size:13.5px;font-weight:700;">
+              <span>{{ t.from }}</span>
+              <svg width="20" height="14" viewBox="0 0 24 14" fill="none" stroke="var(--faint)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1);"><path d="M2 7h18m0 0-6-5m6 5-6 5"/></svg>
+              <span>{{ t.to }}</span>
+              <span style="margin-right:auto;font-size:15px;font-weight:800;">{{ t.amount }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="font-size:16px;font-weight:800;margin-bottom:11px;">מאזן כולל</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <sc-for list="{{ board }}" as="b" hint-placeholder-count="5">
+            <div style="display:flex;align-items:center;gap:11px;background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:11px 14px;">
+              <div style="flex:0 0 auto;width:30px;height:30px;border-radius:50%;background:{{ b.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;">{{ b.initial }}</div>
+              <span style="flex:1;font-size:14px;font-weight:700;">{{ b.name }}{{ b.youTag }}</span>
+              <span style="font-size:14.5px;font-weight:800;color:{{ b.netColor }};">{{ b.netText }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+    </div>
+
+    <!-- ============ BOTTOM NAV ============ -->
+    <div style="flex:0 0 auto;position:relative;height:78px;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-around;padding:9px 8px 0;">
+      <sc-for list="{{ nav }}" as="n" hint-placeholder-count="5">
+        <button onClick="{{ n.onClick }}" style="flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;font-family:inherit;padding:0;color:{{ n.color }};">
+          <span style="display:flex;" innerHTML="{{ n.icon }}"></span>
+          <span style="font-size:10.5px;font-weight:700;">{{ n.label }}</span>
+        </button>
+      </sc-for>
+      <button onClick="{{ onNewBet }}" style="position:absolute;top:-20px;left:50%;transform:translateX(-50%);width:56px;height:56px;border-radius:18px;border:4px solid var(--surface);background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 10px 22px -8px var(--accent);">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+    </div>
+
+    <!-- ============ BET SHEET ============ -->
+    <sc-if value="{{ sheetOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;z-index:40;">
+        <div onClick="{{ onCloseSheet }}" style="position:absolute;inset:0;background:rgba(15,19,32,.5);animation:pm-fade .25s ease both;"></div>
+        <div style="position:absolute;left:0;right:0;bottom:0;background:var(--surface);border-radius:26px 26px 0 0;padding:8px 20px 26px;animation:pm-rise .34s cubic-bezier(.2,.9,.25,1) both;box-shadow:0 -14px 40px -10px rgba(15,19,32,.3);">
+          <div style="width:40px;height:5px;border-radius:99px;background:#d7dbe4;margin:6px auto 16px;"></div>
+
+          <!-- success -->
+          <sc-if value="{{ placed }}" hint-placeholder-val="{{ false }}">
+            <div style="text-align:center;padding:14px 0 8px;">
+              <div style="width:78px;height:78px;border-radius:50%;background:var(--yes-b);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;animation:pm-pop .45s cubic-bezier(.2,.9,.25,1) both;">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--yes)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              </div>
+              <div style="font-size:21px;font-weight:800;margin-bottom:6px;">ההימור נקלט! 🎉</div>
+              <div style="font-size:14px;color:var(--muted);font-weight:600;margin-bottom:6px;">הימרת {{ sheet.amountText }} על <span style="font-weight:800;color:{{ sheet.optColor }};">{{ sheet.optLabel }}</span></div>
+              <div dir="auto" style="font-size:13px;color:var(--faint);font-weight:600;margin-bottom:22px;">{{ sheet.title }}</div>
+              <div style="display:flex;justify-content:space-around;background:var(--surf2);border-radius:14px;padding:14px;margin-bottom:20px;">
+                <div><div style="font-size:11px;color:var(--muted);font-weight:700;">זכייה אפשרית</div><div style="font-size:18px;font-weight:800;color:var(--yes);margin-top:2px;">{{ sheet.payoutText }}</div></div>
+                <div><div style="font-size:11px;color:var(--muted);font-weight:700;">רווח</div><div style="font-size:18px;font-weight:800;color:var(--yes);margin-top:2px;">{{ sheet.profitText }}</div></div>
+              </div>
+              <button onClick="{{ onCloseSheet }}" style="width:100%;border:none;background:var(--ink);color:#fff;padding:15px;border-radius:14px;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;">סיום</button>
+            </div>
+          </sc-if>
+
+          <!-- form -->
+          <sc-if value="{{ sheetForm }}" hint-placeholder-val="{{ true }}">
+            <div>
+              <div style="display:flex;align-items:center;gap:11px;margin-bottom:18px;">
+                <div style="flex:0 0 auto;width:42px;height:42px;border-radius:12px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:22px;">{{ sheet.emoji }}</div>
+                <div dir="auto" style="flex:1;font-size:15px;font-weight:800;line-height:1.25;">{{ sheet.title }}</div>
+              </div>
+
+              <div style="font-size:13px;font-weight:800;color:var(--muted);margin-bottom:9px;">בחר אפשרות</div>
+              <div style="display:flex;gap:9px;margin-bottom:18px;flex-wrap:wrap;">
+                <sc-for list="{{ sheet.options }}" as="o" hint-placeholder-count="2">
+                  <button onClick="{{ o.onPick }}" style="flex:1;min-width:calc(50% - 5px);border:1.5px solid {{ o.bd }};background:{{ o.bg }};color:{{ o.fg }};padding:13px;border-radius:13px;font-size:15px;font-weight:800;font-family:inherit;cursor:pointer;transition:all .15s;">{{ o.label }} · {{ o.pct }}¢</button>
+                </sc-for>
+              </div>
+
+              <div style="font-size:13px;font-weight:800;color:var(--muted);margin-bottom:9px;">סכום</div>
+              <div data-field style="display:flex;align-items:center;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:4px 16px;margin-bottom:11px;">
+                <span style="font-size:24px;font-weight:800;color:var(--faint);">₪</span>
+                <input type="number" value="{{ amount }}" onInput="{{ onAmount }}" placeholder="0" style="flex:1;border:none;background:none;outline:none;font-family:inherit;font-size:30px;font-weight:800;color:var(--ink);padding:10px;width:100%;text-align:right;"/>
+              </div>
+              <div style="display:flex;gap:8px;margin-bottom:18px;">
+                <sc-for list="{{ chips }}" as="c" hint-placeholder-count="4">
+                  <button onClick="{{ c.onClick }}" style="flex:1;border:1px solid var(--border);background:var(--surface);color:var(--ink);padding:10px;border-radius:11px;font-size:13.5px;font-weight:800;font-family:inherit;cursor:pointer;">{{ c.label }}</button>
+                </sc-for>
+              </div>
+
+              <div style="display:flex;justify-content:space-between;background:var(--surf2);border-radius:14px;padding:14px 16px;margin-bottom:16px;">
+                <div><div style="font-size:11.5px;color:var(--muted);font-weight:700;">זכייה אפשרית</div><div style="font-size:19px;font-weight:800;color:var(--yes);margin-top:3px;">{{ sheet.payoutText }}</div></div>
+                <div style="text-align:left;"><div style="font-size:11.5px;color:var(--muted);font-weight:700;">רווח פוטנציאלי</div><div style="font-size:19px;font-weight:800;color:var(--yes);margin-top:3px;">{{ sheet.profitText }}</div></div>
+              </div>
+
+              <button onClick="{{ onPlace }}" style="width:100%;border:none;background:{{ sheet.ctaBg }};color:#fff;padding:16px;border-radius:15px;font-size:17px;font-weight:800;font-family:inherit;cursor:{{ sheet.ctaCursor }};opacity:{{ sheet.ctaOpacity }};transition:all .2s;">{{ sheet.ctaText }}</button>
+              <div style="text-align:center;font-size:11.5px;color:var(--faint);font-weight:600;margin-top:10px;">פארימוצ׳ואל · כל ההימורים נכנסים לקופה אחת והזוכים מתחלקים בה</div>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ============ CREATE BET FLOW ============ -->
+    <sc-if value="{{ createOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;z-index:50;">
+        <div onClick="{{ onCloseCreate }}" style="position:absolute;inset:0;background:rgba(15,19,32,.55);animation:pm-fade .25s ease both;"></div>
+        <div style="position:absolute;left:0;right:0;bottom:0;top:30px;background:var(--bg);border-radius:28px 28px 0 0;display:flex;flex-direction:column;overflow:hidden;animation:pm-rise .38s cubic-bezier(.2,.9,.25,1) both;box-shadow:0 -14px 40px -10px rgba(15,19,32,.35);">
+
+          <!-- SUCCESS -->
+          <sc-if value="{{ create.created }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;position:relative;overflow:hidden;">
+              <div style="position:absolute;top:16%;left:0;right:0;display:flex;justify-content:space-around;pointer-events:none;">
+                <span style="font-size:18px;animation:pm-confetti 1.1s ease-out .05s both;">🎉</span>
+                <span style="font-size:14px;animation:pm-confetti 1.3s ease-out .15s both;">🎲</span>
+                <span style="font-size:16px;animation:pm-confetti 1s ease-out .1s both;">✨</span>
+                <span style="font-size:14px;animation:pm-confetti 1.25s ease-out .2s both;">🎉</span>
+                <span style="font-size:16px;animation:pm-confetti 1.15s ease-out 0s both;">💸</span>
+              </div>
+              <div style="width:84px;height:84px;border-radius:50%;background:var(--yes-b);display:flex;align-items:center;justify-content:center;margin-bottom:20px;animation:pm-pop .5s cubic-bezier(.2,.9,.25,1) both;">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--yes)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              </div>
+              <div style="font-size:23px;font-weight:800;margin-bottom:8px;">ההימור עלה לאוויר!</div>
+              <div dir="auto" style="font-size:14.5px;color:var(--muted);font-weight:600;line-height:1.5;max-width:280px;margin-bottom:26px;">{{ create.previewTitle }} — החבר׳ה כבר יכולים להמר.</div>
+              <button onClick="{{ onCloseCreate }}" style="width:100%;max-width:300px;border:none;background:var(--ink);color:#fff;padding:16px;border-radius:15px;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;">סיום</button>
+            </div>
+          </sc-if>
+
+          <!-- FORM -->
+          <sc-if value="{{ createForm }}" hint-placeholder-val="{{ true }}">
+            <!-- header -->
+            <div style="flex:0 0 auto;padding:16px 18px 12px;">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+                <button onClick="{{ create.onHeaderBack }}" style="width:36px;height:36px;border-radius:11px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1);"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+                <div style="flex:1;font-size:16px;font-weight:800;text-align:center;">הימור חדש</div>
+                <button onClick="{{ onCloseCreate }}" style="width:36px;height:36px;border-radius:11px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
+              </div>
+              <div style="display:flex;gap:6px;">
+                <sc-for list="{{ create.segs }}" as="s" hint-placeholder-count="3">
+                  <div style="flex:1;height:5px;border-radius:99px;background:{{ s.bg }};transition:background-color .3s;"></div>
+                </sc-for>
+              </div>
+            </div>
+
+            <!-- scroll body -->
+            <div style="flex:1 1 auto;overflow-y:auto;">
+
+              <!-- STEP 0 -->
+              <sc-if value="{{ create.isStep0 }}" hint-placeholder-val="{{ true }}">
+              <div key="cs0" style="animation:pm-step .3s ease both;padding:10px 20px 24px;">
+                <div style="font-size:13px;font-weight:800;color:var(--accent);letter-spacing:.3px;margin-bottom:6px;">שלב 1 · הרעיון</div>
+                <div style="font-size:23px;font-weight:800;margin-bottom:6px;">על מה ההימור?</div>
+                <div style="font-size:14px;color:var(--muted);font-weight:600;margin-bottom:18px;line-height:1.45;">נסחו שאלה ברורה שאפשר להכריע עליה.</div>
+                <input value="{{ create.title }}" onInput="{{ onCTitle }}" dir="auto" placeholder="{{ create.suggestion }}" style="width:100%;border:1.5px solid var(--border);background:var(--surface);border-radius:14px;padding:15px 16px;font-family:inherit;font-size:16px;font-weight:700;color:var(--ink);outline:none;box-shadow:0 1px 2px rgba(15,19,32,.03);" style-focus="border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft);"/>
+                <div style="display:flex;gap:8px;margin-top:12px;">
+                  <button onClick="{{ create.useSuggestion }}" key="{{ create.cIdx }}" style="flex:1;min-width:0;display:flex;align-items:center;gap:8px;text-align:right;border:1px solid var(--accent-soft);background:var(--accent-soft);color:var(--accent);padding:11px 13px;border-radius:12px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;animation:pm-fade .45s ease both;">
+                    <span style="font-size:15px;flex:0 0 auto;">💡</span>
+                    <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ create.suggestion }}</span>
+                    <span style="font-size:11px;color:var(--faint);font-weight:800;flex:0 0 auto;">השתמש</span>
+                  </button>
+                  <button onClick="{{ create.shuffle }}" style="flex:0 0 auto;width:44px;border:1px solid var(--border);background:var(--surface);color:var(--muted);border-radius:12px;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="m15 15 6 6"/><path d="M4 4l5 5"/></svg>
+                  </button>
+                </div>
+                <div style="margin-top:24px;font-size:13px;font-weight:800;color:var(--muted);margin-bottom:9px;">תמונה <span style="color:var(--faint);font-weight:600;">(לא חובה)</span></div>
+                <button onClick="{{ onToggleImg }}" style="width:100%;border:none;background:none;padding:0;cursor:pointer;font-family:inherit;">
+                  <sc-if value="{{ create.img }}" hint-placeholder-val="{{ false }}">
+                    <div style="height:118px;border-radius:16px;background:linear-gradient(135deg,#e9f0fe,#dbe6fb);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border:1.5px solid var(--accent-soft);">
+                      <div style="font-size:30px;">🖼️</div>
+                      <div style="font-size:12.5px;font-weight:700;color:var(--accent);">תמונה נבחרה · הקש להסרה</div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ create.imgEmpty }}" hint-placeholder-val="{{ true }}">
+                    <div style="height:96px;border-radius:16px;background:var(--surf2);border:1.5px dashed #c7cdda;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--faint);">
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                      <div style="font-size:12.5px;font-weight:700;">הוסף תמונה</div>
+                    </div>
+                  </sc-if>
+                </button>
+              </div>
+              </sc-if>
+
+              <!-- STEP 1 -->
+              <sc-if value="{{ create.isStep1 }}" hint-placeholder-val="{{ false }}">
+              <div key="cs1" style="animation:pm-step .3s ease both;padding:10px 20px 24px;">
+                <div style="font-size:13px;font-weight:800;color:var(--accent);letter-spacing:.3px;margin-bottom:6px;">שלב 2 · האפשרויות</div>
+                <div style="font-size:23px;font-weight:800;margin-bottom:6px;">איך מכריעים?</div>
+                <div style="font-size:14px;color:var(--muted);font-weight:600;margin-bottom:18px;line-height:1.45;">כן/לא לשאלה פשוטה, או כמה אפשרויות לבחירה.</div>
+                <div style="display:flex;gap:6px;background:var(--surf2);padding:5px;border-radius:14px;margin-bottom:20px;">
+                  <button onClick="{{ create.onTypeBinary }}" style="flex:1;border:none;padding:11px;border-radius:10px;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;background:{{ create.binBg }};color:{{ create.binFg }};box-shadow:{{ create.binSh }};">כן / לא</button>
+                  <button onClick="{{ create.onTypeMulti }}" style="flex:1;border:none;padding:11px;border-radius:10px;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;background:{{ create.mulBg }};color:{{ create.mulFg }};box-shadow:{{ create.mulSh }};">בחירה מרובה</button>
+                </div>
+                <sc-if value="{{ create.isBinary }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:flex;gap:10px;">
+                    <div style="flex:1;text-align:center;padding:20px;border-radius:14px;background:var(--yes-b);color:var(--yes);font-size:18px;font-weight:800;">כן</div>
+                    <div style="flex:1;text-align:center;padding:20px;border-radius:14px;background:var(--no-b);color:var(--no);font-size:18px;font-weight:800;">לא</div>
+                  </div>
+                  <div style="text-align:center;font-size:12.5px;color:var(--faint);font-weight:600;margin-top:12px;">המשתתפים יקנו צד אחד מהשניים.</div>
+                </sc-if>
+                <sc-if value="{{ create.isMulti }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;flex-direction:column;gap:10px;">
+                    <sc-for list="{{ create.opts }}" as="o" hint-placeholder-count="2">
+                      <div style="display:flex;align-items:center;gap:9px;">
+                        <div style="flex:0 0 auto;width:26px;height:26px;border-radius:8px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;">{{ o.num }}</div>
+                        <input value="{{ o.value }}" onInput="{{ o.onInput }}" dir="auto" placeholder="שם האפשרות" style="flex:1;border:1.5px solid var(--border);background:var(--surface);border-radius:12px;padding:12px 14px;font-family:inherit;font-size:15px;font-weight:700;color:var(--ink);outline:none;" style-focus="border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft);"/>
+                        <sc-if value="{{ o.canRemove }}" hint-placeholder-val="{{ true }}">
+                          <button onClick="{{ o.onRemove }}" style="flex:0 0 auto;width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--faint);display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:inherit;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                          </button>
+                        </sc-if>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <sc-if value="{{ create.canAddOpt }}" hint-placeholder-val="{{ true }}">
+                    <button onClick="{{ onAddOpt }}" style="margin-top:12px;width:100%;border:1.5px dashed #c7cdda;background:none;color:var(--accent);padding:12px;border-radius:12px;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;">+ הוסף אפשרות</button>
+                  </sc-if>
+                </sc-if>
+              </div>
+              </sc-if>
+
+              <!-- STEP 2 -->
+              <sc-if value="{{ create.isStep2 }}" hint-placeholder-val="{{ false }}">
+              <div key="cs2" style="animation:pm-step .3s ease both;padding:10px 20px 24px;">
+                <div style="font-size:13px;font-weight:800;color:var(--accent);letter-spacing:.3px;margin-bottom:6px;">שלב 3 · פרטים אחרונים</div>
+                <div style="font-size:23px;font-weight:800;margin-bottom:18px;">כמעט שם!</div>
+
+                <div style="border-radius:18px;padding:16px;background:linear-gradient(135deg,#1f2a4d,#0f1320);color:#fff;margin-bottom:22px;position:relative;overflow:hidden;">
+                  <div style="position:absolute;top:-30px;left:-20px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(43,110,242,.45),transparent 70%);"></div>
+                  <div style="position:relative;">
+                    <div style="display:flex;align-items:center;gap:11px;margin-bottom:14px;">
+                      <div style="flex:0 0 auto;width:44px;height:44px;border-radius:13px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:24px;">{{ create.previewEmoji }}</div>
+                      <div dir="auto" style="flex:1;font-size:15px;font-weight:800;line-height:1.3;">{{ create.previewTitle }}</div>
+                    </div>
+                    <div style="display:flex;flex-wrap:wrap;gap:7px;">
+                      <sc-for list="{{ create.previewOpts }}" as="o" hint-placeholder-count="2">
+                        <span style="font-size:13px;font-weight:800;padding:7px 14px;border-radius:10px;background:{{ o.bg }};color:{{ o.color }};">{{ o.label }}</span>
+                      </sc-for>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="font-size:13px;font-weight:800;color:var(--muted);margin-bottom:9px;">סכום מינימלי להשתתפות</div>
+                <div data-field style="display:flex;align-items:center;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:2px 16px;margin-bottom:22px;box-shadow:0 1px 2px rgba(15,19,32,.03);">
+                  <span style="font-size:22px;font-weight:800;color:var(--faint);">₪</span>
+                  <input type="number" value="{{ create.stake }}" onInput="{{ onCStake }}" placeholder="5" style="flex:1;border:none;background:none;outline:none;font-family:inherit;font-size:22px;font-weight:800;color:var(--ink);padding:13px 10px;width:100%;text-align:right;"/>
+                </div>
+
+                <div style="font-size:13px;font-weight:800;color:var(--muted);margin-bottom:9px;">מתי ההימור נסגר?</div>
+                <div style="display:flex;gap:8px;">
+                  <sc-for list="{{ create.closeChips }}" as="c" hint-placeholder-count="4">
+                    <button onClick="{{ c.onClick }}" style="flex:1;border:1px solid {{ c.bd }};background:{{ c.bg }};color:{{ c.fg }};padding:12px 6px;border-radius:12px;font-size:13.5px;font-weight:800;font-family:inherit;cursor:pointer;">{{ c.label }}</button>
+                  </sc-for>
+                </div>
+              </div>
+              </sc-if>
+            </div>
+
+            <!-- footer -->
+            <div style="flex:0 0 auto;padding:13px 18px 20px;border-top:1px solid var(--border);background:var(--surface);">
+              <sc-if value="{{ create.notLast }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ onCNext }}" style="width:100%;border:none;background:var(--ink);color:#fff;padding:16px;border-radius:15px;font-size:16px;font-weight:800;font-family:inherit;cursor:{{ create.nextCursor }};opacity:{{ create.nextOpacity }};">המשך</button>
+              </sc-if>
+              <sc-if value="{{ create.isLast }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ onCreateBet }}" style="width:100%;border:none;background:var(--accent);color:#fff;padding:16px;border-radius:15px;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;box-shadow:0 10px 22px -10px var(--accent);">🎲 צור הימור</button>
+              </sc-if>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844}}">
+class Component extends DCLogic {
+  state = {
+    screen: 'markets', detailId: null, filter: 'all', tf: 'all',
+    sheetOpen: false, sheetMarketId: null, sheetOption: null, amount: '', placed: false,
+    createOpen: false, cStep: 0, cTitle: '', cType: 'binary', cOpts: ['', ''],
+    cStake: '5', cClose: '2d', cImg: false, cCreated: false, cIdx: 0,
+  };
+
+  // ---------- static world ----------
+  DAY = 86400000;
+  _now = Date.now();
+  me = 'Ido';
+
+  suggestions = [
+    'אופק יחזור לאקסית עד סוף החודש?',
+    'אידו ייכנס להריון השנה?',
+    'עמרי יגיע בזמן ולו פעם אחת בחיים?',
+    'אלעד יסיים מרתון בלי לעצור לסלפי?',
+    'ינאי יזמין את כולם לדינר ולא יתחרט?',
+    'מי מהחבר׳ה יתחתן ראשון?',
+    'אופק ישבור טלפון נוסף החודש?',
+    'עמרי יענה להודעה תוך פחות מ-3 שעות?',
+    'אלעד יתחיל דיאטה וישרוד שבוע שלם?',
+    'ינאי יוריד את המשחק החדש לפני כולם?',
+    'אידו יקנה אייפון חדש ויתחרט?',
+    'מי יפספס את הטיסה הקרובה?',
+    'אופק יחליף תספורת ויתחרט תוך יום?',
+    'עמרי יתחיל חדר כושר וימשיך חודש?',
+    'אלעד יירדם ראשון במסיבה?',
+    'ינאי ישכח יום הולדת של מישהו מהחבר׳ה?',
+    'אידו יזכה בהימור הזה בכלל?',
+    'מי ישלם הכי הרבה על קפה החודש?',
+    'אופק יתארס לפני סוף השנה?',
+    'עמרי יוריד שוב אפליקציית דייטינג?',
+    'אלעד יחטוף קנס חניה החודש?',
+    'ינאי ינצח את כולם בפיפא הערב?',
+    'אידו יגדל זקן עד החורף?',
+    'מי יאכל הכי הרבה בדינר הקרוב?',
+    'אופק יבטל תוכניות ברגע האחרון (שוב)?',
+    'עמרי יקנה גאדג׳ט חדש ולא ישתמש בו?',
+    'אלעד ישכח איפה החנה את האוטו?',
+    'ינאי יעבור דירה עד הקיץ?',
+    'מי יישן הכי מעט השבוע?',
+    'אופק ישכנע מישהו לצאת בלילה אמצע שבוע?',
+    'עמרי יישאר ער עד 4 לפנות בוקר?',
+    'אלעד יקנה כרטיס להופעה וימכור ברגע האחרון?',
+    'ינאי יחליף עבודה השנה?',
+    'אידו יעשה כושר 3 פעמים השבוע?',
+    'מי ישכח את הארנק בבית בפעם הבאה?',
+    'אופק יחזיר את הכסף שהוא חייב לכולם?',
+    'עמרי יזמין שווארמה אחרי חצות?',
+    'אלעד יתקע בפקק יותר משעה מחר?',
+    'ינאי יקנה מניה ויהפוך למיליונר?',
+    'אידו יספר את אותה בדיחה בפעם המאה?',
+    'מי ייכנס לזוגיות ראשון מבין כולם?',
+    'אופק יתחיל ללמוד גיטרה ויפסיק תוך שבוע?',
+    'עמרי ינצח את אלעד במאבק ידיים?',
+    'אלעד יבריז מהאימון ביום שלישי?',
+    'ינאי ישכנע את כולם להזמין סושי?',
+    'אידו יאחר לחתונה של עצמו?',
+    'מי יאבד את הראש ראשון על המגרש?',
+    'אופק יקנה רכב יד שנייה שמתפרק תוך חודש?',
+    'עמרי יבטיח להפסיק לעשן ויחזיק יומיים?',
+    'אלעד יזכה בהגרלה ויעלם לחו״ל?',
+  ];
+
+  friends = {
+    Ido:   { color: '#2b6ef2' },
+    Omri:  { color: '#ef7d3a' },
+    Elad:  { color: '#15b87a' },
+    Yanai: { color: '#a855f7' },
+    Ofek:  { color: '#ec4899' },
+  };
+
+  initial(name){ return name[0]; }
+  color(name){ return (this.friends[name] || {}).color || '#737b8c'; }
+
+  // net standings (agorot) computed from resolved bets — see seed/payout engine
+  nets = { Ido: 4600, Omri: 400, Ofek: 0, Elad: -2000, Yanai: -3000 };
+  winsBy = { Ido: 1, Omri: 1, Elad: 0, Yanai: 0, Ofek: 0 };
+  betsBy = { Ido: 7, Omri: 6, Elad: 6, Yanai: 4, Ofek: 3 };
+
+  markets = (() => {
+    const S = n => n * 100;
+    const ago = d => this._now - d * this.DAY;
+    const fut = d => this._now + d * this.DAY;
+    return [
+      {
+        id: 'rain', emoji: '🌧️', title: 'Will it rain in Tel Aviv this weekend?',
+        creator: 'Ido', status: 'OPEN', featured: true, createdAt: ago(3), closesAt: fut(2), minStake: S(5),
+        criteria: 'YES אם תרד כמות גשם מדידה כלשהי בתל אביב בין שבת לראשון.',
+        options: [
+          { id: 'y', label: 'Yes' }, { id: 'n', label: 'No' },
+        ],
+        positions: [
+          { user: 'Omri', opt: 'n', amount: S(20), t: ago(2.8) },
+          { user: 'Ido',  opt: 'y', amount: S(30), t: ago(2.2) },
+          { user: 'Elad', opt: 'n', amount: S(25), t: ago(1.5) },
+          { user: 'Yanai',opt: 'y', amount: S(40), t: ago(0.8) },
+          { user: 'Ofek', opt: 'n', amount: S(15), t: ago(0.2) },
+        ],
+      },
+      {
+        id: 'marathon', emoji: '🏃', title: 'Will Elad finish the marathon under 4h?',
+        creator: 'Yanai', status: 'OPEN', createdAt: ago(4), closesAt: fut(5), minStake: S(10),
+        criteria: 'YES אם הזמן הרשמי של אלעד מתחת ל־4:00:00.',
+        options: [{ id: 'y', label: 'Yes' }, { id: 'n', label: 'No' }],
+        positions: [
+          { user: 'Ido',  opt: 'y', amount: S(20), t: ago(3.4) },
+          { user: 'Elad', opt: 'n', amount: S(40), t: ago(2.6) },
+          { user: 'Omri', opt: 'n', amount: S(15), t: ago(1.1) },
+          { user: 'Yanai',opt: 'y', amount: S(30), t: ago(0.5) },
+        ],
+      },
+      {
+        id: 'ex', emoji: '💔', title: 'Will Ofek get back with his ex before July?',
+        creator: 'Omri', status: 'OPEN', createdAt: ago(5), closesAt: fut(12), minStake: S(5),
+        criteria: 'YES אם אופק ואקסית׳ו חוזרים רשמית לפני 1 ביולי. עדויות מתקבלות בקבוצה.',
+        options: [{ id: 'y', label: 'Yes' }, { id: 'n', label: 'No' }],
+        positions: [
+          { user: 'Ido',  opt: 'n', amount: S(25), t: ago(4.5) },
+          { user: 'Omri', opt: 'y', amount: S(10), t: ago(3.8) },
+          { user: 'Yanai',opt: 'n', amount: S(20), t: ago(2.3) },
+          { user: 'Elad', opt: 'y', amount: S(15), t: ago(1.2) },
+          { user: 'Ofek', opt: 'n', amount: S(30), t: ago(0.4) },
+        ],
+      },
+      {
+        id: 'dinner', emoji: '🍕', title: 'Who pays for dinner Saturday?',
+        creator: 'Elad', status: 'OPEN', createdAt: ago(2), closesAt: fut(3), minStake: S(10),
+        criteria: 'מי שמפסיד בהצבעה הקבוצתית במוצ״ש משלם על כולם.',
+        options: [{ id: 'i', label: 'Ido' }, { id: 'o', label: 'Omri' }, { id: 'e', label: 'Elad' }],
+        positions: [
+          { user: 'Omri', opt: 'i', amount: S(20), t: ago(1.7) },
+          { user: 'Ido',  opt: 'o', amount: S(15), t: ago(1.3) },
+          { user: 'Yanai',opt: 'e', amount: S(25), t: ago(0.9) },
+          { user: 'Elad', opt: 'o', amount: S(10), t: ago(0.3) },
+        ],
+      },
+      {
+        id: 'election', emoji: '🗳️', title: 'Will Israel hold a snap election before 2027?',
+        creator: 'Ido', status: 'OPEN', createdAt: ago(6), closesAt: fut(40), minStake: S(5),
+        criteria: 'YES אם מוכרזות בחירות כלליות מוקדמות לפני 1.1.2027.',
+        options: [{ id: 'y', label: 'Yes' }, { id: 'n', label: 'No' }],
+        positions: [
+          { user: 'Ido',  opt: 'n', amount: S(20), t: ago(5.2) },
+          { user: 'Elad', opt: 'y', amount: S(30), t: ago(4.1) },
+          { user: 'Omri', opt: 'y', amount: S(25), t: ago(2.7) },
+          { user: 'Ofek', opt: 'n', amount: S(10), t: ago(1.0) },
+        ],
+      },
+      {
+        id: 'late', emoji: '⏰', title: 'Will Omri show up on time Friday?',
+        creator: 'Ido', status: 'RESOLVED', winner: 'y', createdAt: ago(6), closesAt: ago(1), resolvedAt: ago(1), minStake: S(5),
+        criteria: 'YES אם עמרי הגיע לפני 20:00. הוכרע: הגיע ב־19:52.',
+        options: [{ id: 'y', label: 'Yes' }, { id: 'n', label: 'No' }],
+        positions: [
+          { user: 'Ido',  opt: 'y', amount: S(50), t: ago(5.5) },
+          { user: 'Omri', opt: 'n', amount: S(40), t: ago(5.0) },
+          { user: 'Elad', opt: 'y', amount: S(20), t: ago(3.5) },
+          { user: 'Yanai',opt: 'n', amount: S(30), t: ago(2.0) },
+        ],
+      },
+      {
+        id: 'fifa', emoji: '🎮', title: 'Who wins FIFA night?',
+        creator: 'Elad', status: 'RESOLVED', winner: 'o', createdAt: ago(4), closesAt: ago(0.5), resolvedAt: ago(0.5), minStake: S(10),
+        criteria: 'מנצח הטורניר. הוכרע: עמרי.',
+        options: [{ id: 'o', label: 'Omri' }, { id: 'e', label: 'Elad' }, { id: 'i', label: 'Ido' }],
+        positions: [
+          { user: 'Omri', opt: 'o', amount: S(30), t: ago(3.5) },
+          { user: 'Elad', opt: 'e', amount: S(40), t: ago(3.0) },
+          { user: 'Ido',  opt: 'i', amount: S(25), t: ago(2.5) },
+          { user: 'Ido',  opt: 'o', amount: S(15), t: ago(1.2) },
+        ],
+      },
+    ];
+  })();
+
+  // ---------- helpers ----------
+  fmt(a){
+    const v = a / 100;
+    const s = Math.abs(v).toLocaleString('en-US', { maximumFractionDigits: Number.isInteger(v) ? 0 : 2 });
+    return '\u2066' + (v < 0 ? '-' : '') + '₪' + s + '\u2069';
+  }
+  fmtSigned(a){ return '\u2066' + (a > 0 ? '+' : a < 0 ? '-' : '') + '₪' + Math.abs(a / 100).toLocaleString('en-US', { maximumFractionDigits: Number.isInteger(a/100)?0:2 }) + '\u2069'; }
+
+  timeUntil(ms){
+    const diff = ms - this._now; const past = diff < 0; const abs = Math.abs(diff);
+    const m = Math.round(abs/60000), h = Math.round(abs/3600000), d = Math.round(abs/86400000);
+    let s; if (m < 60) s = m + ' דק׳'; else if (h < 48) s = h + ' שע׳'; else s = d + ' ימים';
+    return past ? 'לפני ' + s : 'בעוד ' + s;
+  }
+
+  pool(m){
+    const tot = {}; let pot = 0;
+    for (const p of m.positions){ tot[p.opt] = (tot[p.opt]||0) + p.amount; pot += p.amount; }
+    const opts = m.options.map(o => ({
+      id: o.id, label: o.label, total: tot[o.id]||0,
+      pct: pot > 0 ? Math.round((tot[o.id]||0)/pot*100) : 0,
+      isWinner: m.winner === o.id,
+    }));
+    return { opts, pot, totals: tot };
+  }
+
+  // Catmull-Rom -> cubic bezier for a smooth line through points [[x,y],...]
+  smoothPath(pts){
+    if (!pts.length) return '';
+    if (pts.length === 1) return 'M'+pts[0][0]+' '+pts[0][1];
+    if (pts.length === 2) return 'M'+pts[0][0]+' '+pts[0][1]+' L'+pts[1][0]+' '+pts[1][1];
+    let d = 'M'+pts[0][0]+' '+pts[0][1];
+    for (let i = 0; i < pts.length-1; i++){
+      const p0 = pts[i-1]||pts[i], p1 = pts[i], p2 = pts[i+1], p3 = pts[i+2]||p2;
+      const c1x = p1[0]+(p2[0]-p0[0])/6, c1y = p1[1]+(p2[1]-p0[1])/6;
+      const c2x = p2[0]-(p3[0]-p1[0])/6, c2y = p2[1]-(p3[1]-p1[1])/6;
+      d += ' C'+c1x.toFixed(1)+' '+c1y.toFixed(1)+','+c2x.toFixed(1)+' '+c2y.toFixed(1)+','+p2[0]+' '+p2[1];
+    }
+    return d;
+  }
+  // build smoothed chart path for option `optId` (its % of pot over time)
+  chartPaths(m, optId, W, H){
+    const padTop = 14, padBot = 16, padX = 8;
+    const sorted = [...m.positions].sort((a,b)=>a.t-b.t);
+    const tot = {}; let pot = 0;
+    const raw = [{ x: m.createdAt, y: 50 }];
+    for (const p of sorted){
+      tot[p.opt] = (tot[p.opt]||0) + p.amount; pot += p.amount;
+      raw.push({ x: p.t, y: Math.round((tot[optId]||0)/pot*100) });
+    }
+    raw.push({ x: this._now, y: raw[raw.length-1].y });
+    const xs = raw.map(p=>p.x); let xMin = Math.min(...xs), xMax = Math.max(...xs);
+    if (xMin === xMax) xMax = xMin + 1;
+    const plotW = W - padX*2, plotH = H - padTop - padBot;
+    const sx = x => padX + (x-xMin)/(xMax-xMin)*plotW;
+    const sy = y => padTop + (1 - y/100)*plotH;
+    const pts = raw.map(p => [ +sx(p.x).toFixed(1), +sy(p.y).toFixed(1) ]);
+    const line = this.smoothPath(pts);
+    const last = pts[pts.length-1];
+    const area = line + ' L '+last[0]+' '+(H-padBot)+' L '+pts[0][0]+' '+(H-padBot)+' Z';
+    return { line, area, dotX: last[0], dotY: last[1], xStart: this.timeUntil(m.createdAt) };
+  }
+
+  statusInfo(s){
+    if (s === 'OPEN') return { label: 'פתוח', bg: 'var(--yes-b)', fg: 'var(--yes)' };
+    if (s === 'CLOSED') return { label: 'ממתין', bg: 'var(--surf2)', fg: 'var(--muted)' };
+    return { label: 'הוכרע', bg: 'var(--accent-soft)', fg: 'var(--accent)' };
+  }
+
+  // ---------- nav actions ----------
+  go(screen){ this.setState({ screen, detailId: null }); this.scrollTop(); }
+  openDetail(id){ this.setState({ screen: 'detail', detailId: id }); this.scrollTop(); }
+  back(){ this.setState({ screen: 'markets', detailId: null }); }
+  scrollTop(){ try{ const el = this.base && this.base.querySelector('[style*="overflow-y"]'); }catch(e){} }
+
+  openSheet(marketId, optId){ this.setState({ sheetOpen: true, sheetMarketId: marketId, sheetOption: optId, amount: '', placed: false }); }
+  closeSheet(){ this.setState({ sheetOpen: false, placed: false }); }
+  place(){
+    const amt = parseFloat(this.state.amount);
+    if (!this.state.sheetOption || !amt || amt <= 0) return;
+    this.setState({ placed: true });
+  }
+
+  // ---------- create flow ----------
+  openCreate(){ this.setState({ createOpen:true, cStep:0, cTitle:'', cType:'binary', cOpts:['',''], cStake:'5', cClose:'2d', cImg:false, cCreated:false }); }
+  closeCreate(){ this.setState({ createOpen:false }); }
+  canNext(){
+    const s = this.state;
+    if (s.cStep === 0) return s.cTitle.trim().length >= 3;
+    if (s.cStep === 1) return s.cType === 'binary' || s.cOpts.filter(o=>o.trim()).length >= 2;
+    return true;
+  }
+  cNext(){ if (this.canNext()) this.setState(s => ({ cStep: Math.min(2, s.cStep+1) })); }
+  cBack(){ this.setState(s => ({ cStep: Math.max(0, s.cStep-1) })); }
+  setOpt(i,v){ this.setState(s => { const o=[...s.cOpts]; o[i]=v; return { cOpts:o }; }); }
+  addOpt(){ this.setState(s => s.cOpts.length>=5 ? {} : ({ cOpts:[...s.cOpts, ''] })); }
+  removeOpt(i){ this.setState(s => s.cOpts.length<=2 ? {} : ({ cOpts: s.cOpts.filter((_,j)=>j!==i) })); }
+  createBet(){ this.setState({ cCreated:true }); }
+  componentDidMount(){ this._sugTimer = setInterval(() => { if (this.state.createOpen && this.state.cStep === 0) this.setState(s => ({ cIdx: s.cIdx + 1 })); }, 2600); }
+  componentWillUnmount(){ clearInterval(this._sugTimer); }
+
+  // ---------- news feed ----------
+  buildNews(){
+    const ev = [];
+    for (const m of this.markets){
+      ev.push({ kind:'open', user:m.creator, market:m, t:m.createdAt });
+      for (const p of m.positions){
+        const o = m.options.find(x => x.id === p.opt);
+        ev.push({ kind:'buy', user:p.user, side:o.label, amount:p.amount, market:m, t:p.t });
+      }
+      if (m.status === 'RESOLVED'){
+        const o = m.options.find(x => x.id === m.winner);
+        ev.push({ kind:'resolve', market:m, winnerLabel:o?o.label:'', t:m.resolvedAt });
+      }
+    }
+    return ev.sort((a,b) => b.t - a.t);
+  }
+
+  // ---------- render ----------
+  renderVals(){
+    const st = this.state;
+    const filtMap = { all: null, open: 'OPEN', closed: 'CLOSED', resolved: 'RESOLVED' };
+    const wantStatus = filtMap[st.filter];
+    const visible = this.markets.filter(m => !wantStatus || m.status === wantStatus);
+
+    // featured
+    const feat = this.markets.find(m => m.featured);
+    const fp = this.pool(feat);
+    const featTop = fp.opts[0], featBot = fp.opts[1];
+    const featured = {
+      emoji: feat.emoji, title: feat.title, timeText: this.timeUntil(feat.closesAt),
+      topPct: featTop.pct, botPct: featBot.pct, topLabel: featTop.label,
+      potText: this.fmt(fp.pot), betCount: feat.positions.length,
+      onOpen: () => this.openDetail(feat.id),
+      onYes: () => this.openSheet(feat.id, featTop.id),
+      onNo:  () => this.openSheet(feat.id, featBot.id),
+    };
+
+    // market cards
+    const markets = visible.map(m => {
+      const pl = this.pool(m);
+      const si = this.statusInfo(m.status);
+      const isBinary = m.options.length === 2 && m.options[0].label === 'Yes';
+      const yes = pl.opts[0], no = pl.opts[1];
+      return {
+        id: m.id, emoji: m.emoji, title: m.title, creator: m.creator,
+        stLabel: si.label, stBg: si.bg, stFg: si.fg,
+        potText: this.fmt(pl.pot),
+        timeText: m.status === 'OPEN' ? 'נסגר ' + this.timeUntil(m.closesAt) : (m.status==='RESOLVED' ? 'הוכרע' : 'ממתין לתוצאה'),
+        isBinary, isMulti: !isBinary,
+        yesPct: isBinary ? yes.pct : 0, noPct: isBinary ? no.pct : 0,
+        options: pl.opts.map(o => ({
+          label: o.label, pct: o.pct, check: o.isWinner ? ' ✓' : '',
+          fill: o.isWinner ? 'var(--yes-b)' : 'var(--accent-soft)',
+        })),
+        onOpen: () => this.openDetail(m.id),
+        onYes: () => this.openSheet(m.id, yes.id),
+        onNo:  () => this.openSheet(m.id, no.id),
+      };
+    });
+
+    const filters = [
+      { key: 'all', label: 'הכול' }, { key: 'open', label: 'פתוחים' },
+      { key: 'closed', label: 'ממתינים' }, { key: 'resolved', label: 'הוכרעו' },
+    ].map(f => ({
+      label: f.label,
+      bg: st.filter === f.key ? 'var(--ink)' : 'var(--surface)',
+      fg: st.filter === f.key ? '#fff' : 'var(--muted)',
+      bd: st.filter === f.key ? 'var(--ink)' : 'var(--border)',
+      onClick: () => this.setState({ filter: f.key }),
+    }));
+
+    // ticker
+    const ticker = [
+      { user: 'עמרי', verb: 'קנה', side: 'No', color: '#f0405a', market: 'גשם בת״א' },
+      { user: 'ינאי', verb: 'קנה', side: 'Yes', color: '#15b87a', market: 'גשם בת״א' },
+      { user: 'אלעד', verb: 'הניח על', side: 'Yes', color: '#15b87a', market: 'אקסית של אופק' },
+      { user: 'אידו', verb: 'קנה', side: 'No', color: '#f0405a', market: 'בחירות מוקדמות' },
+      { user: 'אופק', verb: 'קנה', side: 'No', color: '#f0405a', market: 'גשם בת״א' },
+      { user: 'אלעד', verb: 'פתח הימור', side: 'חדש', color: '#2b6ef2', market: 'דינר במוצ״ש' },
+    ];
+
+    // ---- detail ----
+    let detail = null;
+    if (st.screen === 'detail' && st.detailId){
+      const m = this.markets.find(x => x.id === st.detailId);
+      const pl = this.pool(m);
+      const top = [...pl.opts].sort((a,b)=>b.pct-a.pct)[0] || pl.opts[0];
+      const topColor = (top.id === pl.opts[0].id && m.options[0].label==='Yes') ? 'var(--yes)' : (top.label==='No' ? 'var(--no)' : 'var(--accent)');
+      const topHex = topColor === 'var(--yes)' ? '#15b87a' : topColor === 'var(--no)' ? '#f0405a' : '#2b6ef2';
+      const paths = this.chartPaths(m, top.id, 330, 150);
+      const isBinary = m.options.length === 2 && m.options[0].label === 'Yes';
+      detail = {
+        emoji: m.emoji, title: m.title, creator: m.creator, potText: this.fmt(pl.pot),
+        topPct: top.pct, topLabel: top.label, topColor, topHex,
+        changeText: m.status==='RESOLVED' ? 'הוכרע' : '▲ 6% היום', changeColor: m.status==='RESOLVED' ? 'var(--muted)' : 'var(--yes)',
+        line: paths.line, area: paths.area, dotX: paths.dotX, dotY: paths.dotY, xStart: paths.xStart,
+        buyTitle: m.status === 'OPEN' ? 'קנה אפשרות' : 'תוצאות',
+        options: pl.opts.map(o => {
+          const isNo = o.label === 'No';
+          const c = isNo ? 'var(--no)' : (m.options[0].label==='Yes' ? 'var(--yes)' : 'var(--accent)');
+          return {
+            label: o.label, pct: o.pct, check: o.isWinner ? '  ✓ זוכה' : '',
+            fillSoft: isNo ? 'var(--no-b)' : (m.options[0].label==='Yes' ? 'var(--yes-b)' : 'var(--accent-soft)'),
+            priceColor: c, btn: c,
+            onBuy: () => m.status === 'OPEN' ? this.openSheet(m.id, o.id) : null,
+          };
+        }),
+        criteria: m.criteria,
+        activity: [...m.positions].sort((a,b)=>b.t-a.t).map(p => {
+          const o = m.options.find(x=>x.id===p.opt);
+          const isNo = o.label === 'No';
+          return {
+            user: p.user, initial: this.initial(p.user), color: this.color(p.user),
+            side: o.label, sideColor: isNo ? 'var(--no)' : (o.label==='Yes' ? 'var(--yes)' : 'var(--accent)'),
+            amount: this.fmt(p.amount), timeText: this.timeUntil(p.t),
+          };
+        }),
+      };
+    }
+
+    // ---- leaderboard ----
+    const ranked = Object.keys(this.friends).map(name => ({ name, net: this.nets[name] }))
+      .sort((a,b)=>b.net-a.net);
+    const board = ranked.map((r, i) => ({
+      rank: i+1, name: r.name, initial: this.initial(r.name), color: this.color(r.name),
+      youTag: r.name === this.me ? '  (אתה)' : '',
+      wins: this.winsBy[r.name] || 0, bets: this.betsBy[r.name] || 0,
+      netText: this.fmtSigned(r.net),
+      netColor: r.net > 0 ? 'var(--yes)' : r.net < 0 ? 'var(--no)' : 'var(--muted)',
+      rowBg: r.name === this.me ? 'var(--accent-soft)' : 'var(--surface)',
+    }));
+    const medals = ['#ffd24a', '#cdd4e0', '#e6a06a'];
+    const podSizes = [70, 60, 52], podFonts = [26, 22, 19], podBars = [60, 44, 32];
+    const podOrder = [ranked[1], ranked[0], ranked[2]]; // 2nd, 1st, 3rd
+    const podium = podOrder.map((r) => {
+      const realRank = ranked.indexOf(r);
+      return {
+        name: r.name, initial: this.initial(r.name), color: this.color(r.name),
+        rank: realRank+1, medal: medals[realRank], size: podSizes[realRank], font: podFonts[realRank], bar: podBars[realRank],
+        netText: this.fmtSigned(r.net),
+        netColor: r.net > 0 ? 'var(--yes)' : r.net < 0 ? 'var(--no)' : 'var(--muted)',
+        netBg: r.net > 0 ? 'var(--yes-b)' : r.net < 0 ? 'var(--no-b)' : 'var(--surf2)',
+      };
+    });
+
+    // ---- portfolio (Ido) ----
+    const myStake = {};
+    for (const m of this.markets) for (const p of m.positions) if (p.user === this.me){
+      const o = m.options.find(x=>x.id===p.opt);
+    }
+    const openMine = [];
+    for (const m of this.markets){
+      if (m.status !== 'OPEN') continue;
+      for (const p of m.positions){
+        if (p.user !== this.me) continue;
+        const pl = this.pool(m);
+        const o = pl.opts.find(x=>x.id===p.opt);
+        const toWin = o.total>0 ? Math.round(p.amount/o.total*pl.pot) : p.amount;
+        const isNo = o.label === 'No';
+        openMine.push({
+          id: m.id, emoji: m.emoji, title: m.title, side: o.label,
+          sideColor: isNo ? 'var(--no)' : (o.label==='Yes'?'var(--yes)':'var(--accent)'),
+          sideBg: isNo ? 'var(--no-b)' : (o.label==='Yes'?'var(--yes-b)':'var(--accent-soft)'),
+          stake: this.fmt(p.amount), toWin: this.fmt(toWin),
+          onOpen: () => this.openDetail(m.id),
+        });
+      }
+    }
+    const history = [
+      { emoji: '⏰', title: 'Will Omri show up on time Friday?', outcome: 'הימרת Yes · זכית', amount: '+₪50', color: 'var(--yes)' },
+      { emoji: '🎮', title: 'Who wins FIFA night?', outcome: 'הימרת Ido · הפסדת', amount: '-₪4', color: 'var(--no)' },
+    ];
+    // portfolio value series
+    const pv = [820, 870, 910, 1080, 1040, 1190, 1240];
+    const pvW = 330, pvH = 130, pPadX = 8, pPadT = 10, pPadB = 8;
+    const lo = Math.min(...pv) - 60, hi = Math.max(...pv) + 60;
+    const psx = i => pPadX + i/(pv.length-1)*(pvW-pPadX*2);
+    const psy = v => pPadT + (1-(v-lo)/(hi-lo))*(pvH-pPadT-pPadB);
+    const pvPts = pv.map((v,i)=>[ +psx(i).toFixed(1), +psy(v).toFixed(1) ]);
+    const pLine = this.smoothPath(pvPts);
+    const pArea = pLine + ' L '+pvPts[pvPts.length-1][0]+' '+(pvH-pPadB)+' L '+pvPts[0][0]+' '+(pvH-pPadB)+' Z';
+    const port = {
+      balance: this.fmt(124000), pnl: this.fmtSigned(this.nets.Ido), pnlColor: 'var(--yes)',
+      openCount: openMine.length,
+      line: pLine, area: pArea, dotX: psx(pv.length-1).toFixed(1), dotY: psy(pv[pv.length-1]).toFixed(1),
+      positions: openMine, history,
+    };
+
+    // ---- settlement ----
+    const transfers = [
+      { from: 'Yanai', to: 'Ido', amount: 3000 },
+      { from: 'Elad', to: 'Ido', amount: 1600 },
+      { from: 'Elad', to: 'Omri', amount: 400 },
+    ].map(t => ({ from: t.from, to: t.to, amount: this.fmt(t.amount) }));
+    const mine = [
+      { from: 'Yanai', amount: 3000 }, { from: 'Elad', amount: 1600 },
+    ].map(t => ({
+      verb: 'גבה מ־', who: t.from, initial: this.initial(t.from), color: this.color(t.from),
+      amount: this.fmt(t.amount), amtColor: 'var(--yes)', bg: 'var(--yes-b)',
+    }));
+    const settle = { transfers, mine };
+
+    // ---- bet sheet ----
+    let sheet = { options: [], title: '', emoji: '', payoutText: '₪0', profitText: '+₪0', ctaText: 'בחר סכום', ctaBg: '#c5cad6', ctaCursor: 'default', ctaOpacity: '1', optLabel: '', optColor: 'var(--ink)', amountText: '', payoutText: '₪0' };
+    if (st.sheetMarketId){
+      const m = this.markets.find(x => x.id === st.sheetMarketId);
+      const pl = this.pool(m);
+      const amtAg = (parseFloat(st.amount) || 0) * 100;
+      const sel = pl.opts.find(o => o.id === st.sheetOption);
+      const newOptPool = (sel ? sel.total : 0) + amtAg;
+      const newPot = pl.pot + amtAg;
+      const payout = (amtAg > 0 && newOptPool > 0) ? amtAg / newOptPool * newPot : 0;
+      const profit = payout - amtAg;
+      const valid = sel && amtAg > 0;
+      sheet = {
+        emoji: m.emoji, title: m.title,
+        options: pl.opts.map(o => {
+          const on = st.sheetOption === o.id;
+          const isNo = o.label === 'No';
+          const c = isNo ? 'var(--no)' : (m.options[0].label==='Yes'?'var(--yes)':'var(--accent)');
+          return {
+            label: o.label, pct: o.pct,
+            bg: on ? (isNo?'var(--no-b)':(m.options[0].label==='Yes'?'var(--yes-b)':'var(--accent-soft)')) : 'var(--surface)',
+            fg: on ? c : 'var(--muted)', bd: on ? c : 'var(--border)',
+            onPick: () => this.setState({ sheetOption: o.id }),
+          };
+        }),
+        payoutText: this.fmt(Math.round(payout)),
+        profitText: this.fmtSigned(Math.round(profit)),
+        ctaText: !sel ? 'בחר אפשרות' : (!amtAg ? 'הזן סכום' : 'קנה ' + sel.label + ' · ' + this.fmt(amtAg)),
+        ctaBg: valid ? 'var(--ink)' : '#c5cad6',
+        ctaCursor: valid ? 'pointer' : 'default',
+        ctaOpacity: valid ? '1' : '1',
+        optLabel: sel ? sel.label : '', optColor: sel ? (sel.label==='No'?'var(--no)':(sel.label==='Yes'?'var(--yes)':'var(--accent)')) : 'var(--ink)',
+        amountText: this.fmt(amtAg),
+      };
+    }
+    const chips = [10, 25, 50, 100].map(v => ({ label: '₪'+v, onClick: () => this.setState({ amount: String(v) }) }));
+
+    // ---- news feed ----
+    const evs = this.buildNews();
+    const dayKey = ms => { const d = new Date(ms); return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate(); };
+    const todayK = dayKey(this._now), yK = dayKey(this._now - this.DAY);
+    const groupsMap = [];
+    evs.forEach((e, idx) => {
+      const k = dayKey(e.t);
+      const label = k === todayK ? 'היום' : (k === yK ? 'אתמול' : 'מוקדם יותר');
+      let g = groupsMap.find(x => x.label === label);
+      if (!g){ g = { label, items: [] }; groupsMap.push(g); }
+      const m = e.market;
+      const view = { emoji: m.emoji, marketTitle: m.title, timeText: this.timeUntil(e.t), isNew: idx === 0, onOpen: () => this.openDetail(m.id), hasSide: false, hasAmount: false };
+      if (e.kind === 'open'){
+        Object.assign(view, { isTrophy:false, notTrophy:true, initial:this.initial(e.user), avColor:this.color(e.user), user:e.user, action:'פתח הימור חדש' });
+      } else if (e.kind === 'buy'){
+        const isNo = e.side === 'No';
+        Object.assign(view, { isTrophy:false, notTrophy:true, initial:this.initial(e.user), avColor:this.color(e.user), user:e.user, action:'הימר על', hasSide:true, sideLabel:e.side, sideColor: isNo?'var(--no)':(e.side==='Yes'?'var(--yes)':'var(--accent)'), sideBg: isNo?'var(--no-b)':(e.side==='Yes'?'var(--yes-b)':'var(--accent-soft)'), hasAmount:true, amountText:this.fmt(e.amount) });
+      } else {
+        Object.assign(view, { isTrophy:true, notTrophy:false, initial:'', avColor:'#ffd24a', user:'', action:'הימור הוכרע · '+e.winnerLabel+' ניצח' });
+      }
+      g.items.push(view);
+    });
+    const newsGroups = groupsMap;
+
+    // ---- create flow ----
+    const ct = st.cType;
+    const cValid = st.cOpts.filter(o => o.trim());
+    const sug = this.suggestions[((st.cIdx % this.suggestions.length) + this.suggestions.length) % this.suggestions.length];
+    const create = {
+      created: st.cCreated,
+      title: st.cTitle, img: st.cImg, imgEmpty: !st.cImg, stake: st.cStake,
+      isStep0: st.cStep === 0, isStep1: st.cStep === 1, isStep2: st.cStep === 2,
+      notLast: st.cStep < 2, isLast: st.cStep === 2,
+      isBinary: ct === 'binary', isMulti: ct === 'multi',
+      segs: [0,1,2].map(i => ({ bg: i <= st.cStep ? 'var(--accent)' : 'var(--border)' })),
+      cIdx: st.cIdx, suggestion: sug,
+      useSuggestion: () => this.setState({ cTitle: sug }),
+      shuffle: () => this.setState(s => ({ cIdx: s.cIdx + 1 })),
+      opts: st.cOpts.map((v,i) => ({ value:v, num:i+1, onInput:(e)=>this.setOpt(i, e.target.value), onRemove:()=>this.removeOpt(i), canRemove: st.cOpts.length>2 })),
+      canAddOpt: st.cOpts.length < 5,
+      binBg: ct==='binary'?'var(--surface)':'transparent', binFg: ct==='binary'?'var(--ink)':'var(--muted)', binSh: ct==='binary'?'0 1px 3px rgba(15,19,32,.12)':'none',
+      mulBg: ct==='multi'?'var(--surface)':'transparent', mulFg: ct==='multi'?'var(--ink)':'var(--muted)', mulSh: ct==='multi'?'0 1px 3px rgba(15,19,32,.12)':'none',
+      onTypeBinary: () => this.setState({ cType:'binary' }),
+      onTypeMulti: () => this.setState({ cType:'multi' }),
+      previewTitle: st.cTitle.trim() || 'הכותרת של ההימור',
+      previewEmoji: st.cImg ? '🖼️' : '🎲',
+      previewOpts: ct==='binary'
+        ? [{ label:'כן', color:'var(--yes)', bg:'rgba(21,184,122,.18)' }, { label:'לא', color:'var(--no)', bg:'rgba(240,64,90,.18)' }]
+        : (cValid.length ? cValid : ['אפשרות 1','אפשרות 2']).map(o => ({ label:o, color:'#cdd6ea', bg:'rgba(255,255,255,.1)' })),
+      closeChips: [{k:'1d',l:'יום'},{k:'2d',l:'3 ימים'},{k:'1w',l:'שבוע'},{k:'1m',l:'חודש'}].map(c => ({ label:c.l, bg: st.cClose===c.k?'var(--ink)':'var(--surface)', fg: st.cClose===c.k?'#fff':'var(--muted)', bd: st.cClose===c.k?'var(--ink)':'var(--border)', onClick:()=>this.setState({ cClose:c.k }) })),
+      nextOpacity: this.canNext() ? '1' : '.45',
+      nextCursor: this.canNext() ? 'pointer' : 'not-allowed',
+      onHeaderBack: () => st.cStep > 0 ? this.cBack() : this.closeCreate(),
+    };
+
+    // ---- nav ----
+    const icon = (path) => '<svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+path+'</svg>';
+    const navDefs = [
+      { key: 'markets', label: 'הימורים', path: '<path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>' },
+      { key: 'news', label: 'חדשות', path: '<path d="M5 4h11a1 1 0 0 1 1 1v13a2 2 0 0 0 2 2H6a2 2 0 0 1-2-2V5a1 1 0 0 1 1-1Z"/><path d="M17 7h2a1 1 0 0 1 1 1v10a2 2 0 0 1-2 2"/><path d="M8 8.5h6M8 12h6M8 15.5h3"/>' },
+      { key: 'spacer' },
+      { key: 'portfolio', label: 'התיק', path: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>' },
+      { key: 'settle', label: 'חשבון', path: '<path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>' },
+    ];
+    const activeFor = st.screen === 'detail' ? 'markets' : st.screen;
+    const nav = navDefs.filter(n => n.key !== 'spacer').map(n => ({
+      label: n.label, icon: icon(n.path),
+      color: activeFor === n.key ? 'var(--accent)' : 'var(--faint)',
+      onClick: () => this.go(n.key),
+    }));
+    // insert a spacer placeholder in middle for the FAB
+    nav.splice(2, 0, { label: '', icon: '<span style="width:23px;height:23px;display:block;"></span>', color: 'transparent', onClick: () => {} });
+
+    return {
+      screen: st.screen,
+      isHome: st.screen === 'markets',
+      isDetail: st.screen === 'detail',
+      isBoard: st.screen === 'leaderboard',
+      isPortfolio: st.screen === 'portfolio',
+      isSettle: st.screen === 'settle',
+      isNews: st.screen === 'news',
+      detailId: st.detailId,
+      balanceText: this.fmt(124000),
+      ticker, filters, featured, markets, detail, board, podium, port, settle,
+      listTitle: st.filter === 'all' ? 'כל ההימורים' : (st.filter==='open'?'הימורים פתוחים':st.filter==='closed'?'ממתינים לתוצאה':'הוכרעו'),
+      marketCount: markets.length + ' הימורים',
+      timeframes: [
+        { key: '1h', label: '1ש׳' }, { key: '1d', label: '1י׳' }, { key: '1w', label: 'שבוע' }, { key: 'all', label: 'הכול' },
+      ].map(t => ({
+        label: t.label,
+        bg: st.tf === t.key ? 'var(--ink)' : 'var(--surf2)',
+        fg: st.tf === t.key ? '#fff' : 'var(--muted)',
+        onClick: () => this.setState({ tf: t.key }),
+      })),
+      onBack: () => this.back(),
+      nav, onNewBet: () => this.openCreate(),
+      createOpen: st.createOpen,
+      newsGroups, create, createForm: !st.cCreated,
+      boardLeader: ranked[0] ? ranked[0].name : '',
+      boardTop3: ranked.slice(0,3).map(r => ({ initial:this.initial(r.name), color:this.color(r.name) })),
+      onBoard: () => this.go('leaderboard'),
+      onCloseCreate: () => this.closeCreate(),
+      onCNext: () => this.cNext(),
+      onCTitle: (e) => this.setState({ cTitle: e.target.value }),
+      onCStake: (e) => this.setState({ cStake: e.target.value }),
+      onToggleImg: () => this.setState(s => ({ cImg: !s.cImg })),
+      onAddOpt: () => this.addOpt(),
+      onCreateBet: () => this.createBet(),
+      sheetOpen: st.sheetOpen, placed: st.placed, sheetForm: !st.placed,
+      sheet, chips, amount: st.amount,
+      onAmount: (e) => this.setState({ amount: e.target.value }),
+      onPlace: () => this.place(),
+      onCloseSheet: () => this.closeSheet(),
+    };
+  }
+}
+</script>
+</body>
+</html>

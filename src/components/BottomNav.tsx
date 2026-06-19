@@ -14,12 +14,6 @@ export default function BottomNav({ myId }: { myId: string }) {
       active: pathname === "/dashboard" || pathname.startsWith("/bets/"),
     },
     {
-      href: "/leaderboard",
-      label: "טבלה",
-      icon: <path d="M8 21V10M16 21V4M3 21h18" />,
-      active: pathname === "/leaderboard",
-    },
-    {
       href: "/news",
       label: "חדשות",
       icon: (

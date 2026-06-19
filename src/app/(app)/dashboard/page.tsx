@@ -210,6 +210,33 @@ export default async function DashboardPage({
           <span className="text-[14.5px] font-medium">חיפוש הימור…</span>
         </div>
 
+        {/* leaderboard hub card */}
+        <Link
+          href="/leaderboard"
+          className="pressable mb-3.5 flex items-center gap-3 rounded-[18px] border border-border bg-surface px-3.5 py-3.5 shadow-[0_1px_2px_rgba(15,19,32,.03)]"
+        >
+          <div
+            className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-[13px] text-xl shadow-[0_6px_14px_-6px_#f0a93a]"
+            style={{ background: "linear-gradient(135deg,#ffd24a,#f0a93a)" }}
+          >
+            🏆
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-[15px] font-extrabold">טבלת המובילים</div>
+            <div className="text-xs font-semibold text-faint">מי מוביל ברווחים</div>
+          </div>
+          <div className="flex flex-row-reverse">
+            {board.slice(0, 3).map((b, i) => (
+              <div key={b.userId} className="rounded-full ring-2 ring-surface" style={{ marginInlineStart: i === 0 ? 0 : -10 }}>
+                <Avatar name={b.name} src={b.avatarUrl} size={30} />
+              </div>
+            ))}
+          </div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--faint)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "scaleX(-1)" }}>
+            <path d="m9 18 6-6-6-6" />
+          </svg>
+        </Link>
+
         {/* filters */}
         <div className="mb-3.5 flex gap-2 overflow-x-auto">
           {FILTERS.map((f) => {

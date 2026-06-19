@@ -9,7 +9,7 @@ export default function PortfolioChart({ series }: { series: ChartSeries }) {
     <LineChart
       series={[series]}
       height={220}
-      area
+      midline={0}
       formatY={(v) => formatAgorot(Math.round(v))}
       formatX={(v) =>
         new Date(v).toLocaleDateString("he-IL", { day: "2-digit", month: "short" })

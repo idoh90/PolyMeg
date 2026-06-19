@@ -146,18 +146,14 @@ export default async function BetDetailPage({
         </div>
         <div className="mb-3 text-[13px] font-semibold text-muted">סיכוי משתמע מתוך הקופה</div>
 
-        {/* chart */}
-        {market.positions.length > 0 ? (
-          <div className="mb-5 rounded-[18px] border border-border bg-surface p-2">
-            <PriceChart series={priceSeries} />
-            <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 px-2 pb-1">
-              {priceSeries.map((s) => (
-                <span key={s.label} className="flex items-center gap-1.5 text-xs">
-                  <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: s.color }} />
-                  <span className="text-muted">{s.label}</span>
-                </span>
-              ))}
+        {/* chart — leading option's probability trend */}
+        {market.positions.length > 0 && topSeries ? (
+          <div className="mb-5 rounded-[18px] border border-border bg-surface p-3 shadow-[0_1px_2px_rgba(15,19,32,.03)]">
+            <div className="mb-1.5 flex items-center justify-between px-1">
+              <span className="text-[11.5px] font-extrabold text-muted">מגמת הסיכוי · {top.label}</span>
+              <span className="text-[13px] font-extrabold" style={{ color: topColor }}>{top.pct}%</span>
             </div>
+            <PriceChart series={[{ ...topSeries, color: topColor }]} />
           </div>
         ) : (
           <div className="mb-5 rounded-[18px] border border-dashed border-border p-6 text-center text-sm text-muted">
