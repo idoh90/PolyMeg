@@ -37,25 +37,11 @@ function valueAt(points: ChartPoint[], x: number): number {
   return last.y;
 }
 
-// Catmull-Rom -> cubic bezier through px points [[x,y],...].
-function smoothPath(pts: [number, number][]): string {
+// Straight segments through px points [[x,y],...]. Clean finance-style line
+// (Yahoo/TradingView): exact, no curve overshoot on uneven time gaps.
+function linePath(pts: [number, number][]): string {
   if (!pts.length) return "";
-  if (pts.length === 1) return `M${pts[0][0]} ${pts[0][1]}`;
-  if (pts.length === 2)
-    return `M${pts[0][0]} ${pts[0][1]} L${pts[1][0]} ${pts[1][1]}`;
-  let d = `M${pts[0][0]} ${pts[0][1]}`;
-  for (let i = 0; i < pts.length - 1; i++) {
-    const p0 = pts[i - 1] || pts[i];
-    const p1 = pts[i];
-    const p2 = pts[i + 1];
-    const p3 = pts[i + 2] || p2;
-    const c1x = p1[0] + (p2[0] - p0[0]) / 6;
-    const c1y = p1[1] + (p2[1] - p0[1]) / 6;
-    const c2x = p2[0] - (p3[0] - p1[0]) / 6;
-    const c2y = p2[1] - (p3[1] - p1[1]) / 6;
-    d += ` C${c1x.toFixed(1)} ${c1y.toFixed(1)},${c2x.toFixed(1)} ${c2y.toFixed(1)},${p2[0]} ${p2[1]}`;
-  }
-  return d;
+  return "M" + pts.map((p) => `${p[0]} ${p[1]}`).join(" L ");
 }
 
 export default function LineChart({
@@ -156,7 +142,7 @@ export default function LineChart({
 
         {series.map((s, i) => {
           const px = s.points.map((p) => [+sx(p.x).toFixed(1), +sy(p.y).toFixed(1)] as [number, number]);
-          const line = smoothPath(px);
+          const line = linePath(px);
           const last = px[px.length - 1];
           const areaD = `${line} L ${last[0]} ${baseY} L ${px[0][0]} ${baseY} Z`;
           return (
