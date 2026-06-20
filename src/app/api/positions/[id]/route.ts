@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/currentUser";
+import { getMembership, isAdminRole } from "@/lib/membership";
 import { MarketStatus } from "@/lib/constants";
 
 export const DELETE_WINDOW_MS = 6 * 60 * 60 * 1000; // 6 hours
@@ -17,11 +18,12 @@ export async function DELETE(
   const { id } = await params;
   const pos = await prisma.position.findUnique({
     where: { id },
-    include: { market: { select: { status: true } } },
+    include: { market: { select: { status: true, groupId: true } } },
   });
   if (!pos) return NextResponse.json({ error: "ההימור לא נמצא" }, { status: 404 });
 
-  if (!user.isAdmin) {
+  const membership = await getMembership(user.id, pos.market.groupId);
+  if (!isAdminRole(membership?.role)) {
     if (pos.userId !== user.id)
       return NextResponse.json({ error: "לא ההימור שלך" }, { status: 403 });
     if (pos.market.status !== MarketStatus.OPEN)

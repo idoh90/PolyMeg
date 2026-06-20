@@ -34,6 +34,7 @@ export async function resolveMarket(marketId: string, winningOptionId: string) {
     await prisma.notification.createMany({
       data: participants.map((p) => ({
         userId: p.userId,
+        groupId: market.groupId,
         type: NotificationType.MARKET_RESOLVED,
         marketId,
         message: `ההימור "${market.title}" הוכרע: ${winner.label} ניצח. בדוק את ההתחשבנות שלך.`,

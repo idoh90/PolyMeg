@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useBetSheet, type SheetMarket } from "@/components/BetSheet";
 
 export interface FeaturedData {
+  groupId: string;
   sheet: SheetMarket;
   emojiImage: string | null;
   title: string;
@@ -20,7 +21,7 @@ export default function FeaturedCard({ data }: { data: FeaturedData }) {
 
   return (
     <div
-      onClick={() => router.push(`/bets/${data.sheet.id}`)}
+      onClick={() => router.push(`/g/${data.groupId}/bets/${data.sheet.id}`)}
       className="pressable relative cursor-pointer overflow-hidden rounded-[22px] p-[18px] text-white shadow-[0_14px_30px_-14px_rgba(15,19,32,.6)]"
       style={{ background: "linear-gradient(135deg,#1f2a4d,#0f1320)" }}
     >

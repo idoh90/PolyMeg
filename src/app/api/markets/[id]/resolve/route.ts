@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/currentUser";
+import { getMembership, isAdminRole } from "@/lib/membership";
 import { MarketStatus } from "@/lib/constants";
 import { resolveMarket } from "@/lib/markets";
 
@@ -26,7 +27,8 @@ export async function POST(
     include: { options: { select: { id: true } } },
   });
   if (!market) return NextResponse.json({ error: "ההימור לא נמצא" }, { status: 404 });
-  if (market.creatorId !== user.id && !user.isAdmin)
+  const membership = await getMembership(user.id, market.groupId);
+  if (market.creatorId !== user.id && !isAdminRole(membership?.role))
     return NextResponse.json({ error: "רק יוצר ההימור יכול להכריע." }, { status: 403 });
   if (market.status === MarketStatus.RESOLVED)
     return NextResponse.json({ error: "ההימור כבר הוכרע." }, { status: 400 });

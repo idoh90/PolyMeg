@@ -3,18 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export default function BottomNav({ myId }: { myId: string }) {
+export default function BottomNav({ myId, groupId }: { myId: string; groupId: string }) {
   const pathname = usePathname();
+  const base = `/g/${groupId}`;
 
   const items = [
     {
-      href: "/dashboard",
+      href: base,
       label: "הימורים",
       icon: <path d="M3 3v18h18M19 9l-5 5-4-4-3 3" />,
-      active: pathname === "/dashboard" || pathname.startsWith("/bets/"),
+      active: pathname === base || pathname.startsWith(`${base}/bets/`),
     },
     {
-      href: "/news",
+      href: `${base}/news`,
       label: "חדשות",
       icon: (
         <>
@@ -23,10 +24,10 @@ export default function BottomNav({ myId }: { myId: string }) {
           <path d="M10 7h8M10 11h8M10 15h5" />
         </>
       ),
-      active: pathname === "/news",
+      active: pathname === `${base}/news`,
     },
     {
-      href: `/profile/${myId}`,
+      href: `${base}/u/${myId}`,
       label: "התיק",
       icon: (
         <>
@@ -34,13 +35,13 @@ export default function BottomNav({ myId }: { myId: string }) {
           <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
         </>
       ),
-      active: pathname.startsWith("/profile/"),
+      active: pathname.startsWith(`${base}/u/`),
     },
     {
-      href: "/settlement",
+      href: `${base}/settlement`,
       label: "חשבון",
       icon: <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />,
-      active: pathname === "/settlement",
+      active: pathname === `${base}/settlement`,
     },
   ];
 
@@ -56,7 +57,7 @@ export default function BottomNav({ myId }: { myId: string }) {
       ))}
 
       <Link
-        href="/bets/new"
+        href={`${base}/bets/new`}
         aria-label="הימור חדש"
         className="absolute left-1/2 top-[-20px] flex h-14 w-14 -translate-x-1/2 items-center justify-center rounded-[18px] border-4 border-surface bg-accent text-white shadow-[0_10px_22px_-8px_var(--accent)] transition active:scale-95"
       >

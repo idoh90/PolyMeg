@@ -9,8 +9,8 @@ const heebo = Heebo({
 });
 
 export const metadata: Metadata = {
-  title: "Polymeg",
-  description: "שוק ניבויים פרטי בשבילך ובשביל החברים שלך.",
+  title: "GRUbet",
+  description: "שוק הניבויים של כל קבוצת חברים.",
 };
 
 export default function RootLayout({

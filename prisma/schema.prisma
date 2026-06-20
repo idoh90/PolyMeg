@@ -1,11 +1,11 @@
-// Polymeg data model.
+// GRUbet data model — multi-tenant betting groups.
 //
-// For local development we use SQLite. To deploy on Supabase, change the
-// datasource provider to "postgresql" and point DATABASE_URL at the Supabase
-// connection string. The models below avoid native enums and other
-// Postgres-only features so the schema is portable across both.
+// One global account (User) joins many Groups (Membership). All markets,
+// options, positions and notifications are scoped to a Group. Money is stored
+// as an integer number of agorot (₪ × 100) everywhere.
 //
-// Money is stored as an integer number of agorot (₪ × 100) everywhere.
+// GRUbet tables live in a dedicated Postgres schema (set via ?schema=grubet in
+// DATABASE_URL) so the original Polymeg `public` schema is never touched.
 
 generator client {
   provider = "prisma-client-js"
@@ -16,36 +16,75 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ---- Global account (app-level identity) ----
 model User {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  avatarUrl String? // data URL (small base64 image) or external URL
-  pinHash   String // bcrypt hash of the 4-digit PIN
-  isAdmin   Boolean  @default(false)
-  createdAt DateTime @default(now())
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  displayName  String
+  avatarUrl    String? // data URL or external URL
+  createdAt    DateTime @default(now())
 
+  memberships    Membership[]
+  groupsOwned    Group[]        @relation("GroupOwner")
   marketsCreated Market[]       @relation("MarketCreator")
   positions      Position[]
   notifications  Notification[]
 }
 
+// ---- A betting group / community ----
+model Group {
+  id           String   @id @default(cuid())
+  name         String
+  code         String   @unique // short shareable join code
+  passwordHash String? // optional password for CODE-mode groups
+  description  String?
+  imageUrl     String?
+  joinMode     String   @default("CODE") // CODE | APPROVAL
+  ownerId      String
+  owner        User     @relation("GroupOwner", fields: [ownerId], references: [id])
+  createdAt    DateTime @default(now())
+
+  members Membership[]
+  markets Market[]
+}
+
+// ---- Account <-> Group link ----
+model Membership {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  groupId   String
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  role      String   @default("MEMBER") // OWNER | ADMIN | MEMBER
+  status    String   @default("ACTIVE") // ACTIVE | PENDING (join request)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, groupId])
+  @@index([groupId])
+}
+
 model Market {
-  id              String   @id @default(cuid())
-  creatorId       String
-  creator         User     @relation("MarketCreator", fields: [creatorId], references: [id])
-  title           String
-  criteria        String // how the bet resolves: what counts as each outcome
-  imageUrl        String?
-  minStake        Int // agorot
-  closesAt        DateTime
-  status          String   @default("OPEN") // OPEN | CLOSED | RESOLVED
-  winningOptionId String? // set when resolved
+  id                    String    @id @default(cuid())
+  groupId               String
+  group                 Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  creatorId             String
+  creator               User      @relation("MarketCreator", fields: [creatorId], references: [id])
+  title                 String
+  criteria              String
+  imageUrl              String?
+  minStake              Int // agorot
+  closesAt              DateTime
+  status                String    @default("OPEN") // OPEN | CLOSED | RESOLVED
+  winningOptionId       String?
   pendingWinnerOptionId String? // creator's scheduled winner; auto-resolves at closesAt
-  resolvedAt      DateTime? // set when resolved; drives portfolio-over-time
-  createdAt       DateTime @default(now())
+  resolvedAt            DateTime?
+  createdAt             DateTime  @default(now())
 
   options   Option[]
   positions Position[]
+
+  @@index([groupId])
 }
 
 model Option {
@@ -54,7 +93,7 @@ model Option {
   market         Market   @relation(fields: [marketId], references: [id], onDelete: Cascade)
   label          String
   sortOrder      Int      @default(0)
-  blockedUserIds String[] @default([]) // users barred from betting this option
+  blockedUserIds String[] @default([]) // account ids barred from this option
 
   positions Position[]
 }
@@ -75,7 +114,8 @@ model Notification {
   id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id])
-  type      String // NEW_MARKET | MARKET_CLOSED | MARKET_RESOLVED
+  groupId   String? // group events scope the in-group bell; null = account-level
+  type      String // NEW_MARKET | BET_PLACED | MARKET_RESOLVED | JOIN_REQUEST | REQUEST_APPROVED
   marketId  String?
   message   String
   read      Boolean  @default(false)

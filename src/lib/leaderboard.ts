@@ -11,20 +11,22 @@ export interface LeaderRow {
   bets: number; // resolved bets participated in
 }
 
-/** Per-user net P/L, wins and bet counts from all resolved markets, ranked. */
-export async function getLeaderboard(): Promise<LeaderRow[]> {
-  const [users, markets] = await Promise.all([
-    prisma.user.findMany({
-      select: { id: true, name: true, avatarUrl: true },
+/** Per-member net P/L, wins and bet counts from a group's resolved markets. */
+export async function getLeaderboard(groupId: string): Promise<LeaderRow[]> {
+  const [members, markets] = await Promise.all([
+    prisma.membership.findMany({
+      where: { groupId, status: "ACTIVE" },
+      select: { user: { select: { id: true, displayName: true, avatarUrl: true } } },
     }),
     prisma.market.findMany({
-      where: { status: MarketStatus.RESOLVED, winningOptionId: { not: null } },
+      where: { groupId, status: MarketStatus.RESOLVED, winningOptionId: { not: null } },
       select: {
         winningOptionId: true,
         positions: { select: { userId: true, optionId: true, amount: true } },
       },
     }),
   ]);
+  const users = members.map((m) => m.user);
 
   const net = new Map<string, number>();
   const wins = new Map<string, number>();
@@ -41,7 +43,7 @@ export async function getLeaderboard(): Promise<LeaderRow[]> {
   return users
     .map((u) => ({
       userId: u.id,
-      name: u.name,
+      name: u.displayName,
       avatarUrl: u.avatarUrl,
       net: net.get(u.id) ?? 0,
       wins: wins.get(u.id) ?? 0,

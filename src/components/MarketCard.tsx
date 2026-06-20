@@ -7,6 +7,7 @@ import { MarketStatus } from "@/lib/constants";
 
 export interface MarketCardData {
   id: string;
+  groupId: string;
   title: string;
   imageUrl: string | null;
   creatorName: string;
@@ -50,7 +51,7 @@ export default function MarketCard({ market }: { market: MarketCardData }) {
 
   return (
     <div
-      onClick={() => router.push(`/bets/${market.id}`)}
+      onClick={() => router.push(`/g/${market.groupId}/bets/${market.id}`)}
       className="pressable cursor-pointer rounded-[18px] border border-border bg-surface p-[15px] shadow-[0_1px_2px_rgba(15,19,32,.03)] transition hover:border-accent/40"
     >
       <div className="flex items-start gap-3">

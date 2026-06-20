@@ -1,22 +1,14 @@
 import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/lib/currentUser";
-import BottomNav from "@/components/BottomNav";
-import { BetSheetProvider } from "@/components/BetSheet";
+import { getCurrentUserId } from "@/lib/session";
 
+// Account shell: any logged-in page that is NOT inside a specific group
+// (groups dashboard, create/join, account). The group shell with the bottom
+// nav lives in g/[groupId]/layout.tsx.
 export default async function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getCurrentUser();
-  if (!user) redirect("/lock");
-
-  return (
-    <BetSheetProvider>
-      <div className="mx-auto min-h-dvh max-w-[480px] bg-bg pb-[78px]">
-        <div className="pm-screen">{children}</div>
-        <BottomNav myId={user.id} />
-      </div>
-    </BetSheetProvider>
-  );
+  if (!(await getCurrentUserId())) redirect("/login");
+  return <div className="mx-auto min-h-dvh max-w-[480px] bg-bg">{children}</div>;
 }

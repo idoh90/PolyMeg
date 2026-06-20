@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/currentUser";
+import { getMembership } from "@/lib/membership";
 import { shekelsToAgorot, formatAgorot } from "@/lib/money";
 import { MarketStatus, NotificationType } from "@/lib/constants";
 
@@ -21,6 +22,10 @@ export async function POST(
     include: { options: { select: { id: true, label: true, blockedUserIds: true } } },
   });
   if (!market) return NextResponse.json({ error: "ההימור לא נמצא" }, { status: 404 });
+
+  const membership = await getMembership(user.id, market.groupId);
+  if (!membership || membership.status !== "ACTIVE")
+    return NextResponse.json({ error: "אינך חבר בקבוצה." }, { status: 403 });
 
   const chosen = market.options.find((o) => o.id === optionId);
   if (chosen?.blockedUserIds.includes(user.id)) {
@@ -57,19 +62,20 @@ export async function POST(
     data: { marketId: id, optionId, userId: user.id, amount },
   });
 
-  // Notify everyone else about the buy.
+  // Notify the rest of the group about the buy.
   const optLabel = market.options.find((o) => o.id === optionId)?.label ?? "";
-  const others = await prisma.user.findMany({
-    where: { id: { not: user.id } },
-    select: { id: true },
+  const others = await prisma.membership.findMany({
+    where: { groupId: market.groupId, status: "ACTIVE", userId: { not: user.id } },
+    select: { userId: true },
   });
   if (others.length > 0) {
     await prisma.notification.createMany({
-      data: others.map((u) => ({
-        userId: u.id,
+      data: others.map((m) => ({
+        userId: m.userId,
+        groupId: market.groupId,
         type: NotificationType.BET_PLACED,
         marketId: id,
-        message: `${user.name} קנה ${optLabel} ב-${formatAgorot(amount)} · ${market.title}`,
+        message: `${user.displayName} קנה ${optLabel} ב-${formatAgorot(amount)} · ${market.title}`,
       })),
     });
   }

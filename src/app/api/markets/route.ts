@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/currentUser";
+import { getMembership } from "@/lib/membership";
 import { shekelsToAgorot } from "@/lib/money";
 import { MarketStatus, NotificationType } from "@/lib/constants";
 
@@ -10,6 +11,11 @@ export async function POST(req: Request) {
 
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: "בקשה שגויה" }, { status: 400 });
+
+  const groupId = String(body.groupId ?? "");
+  const membership = await getMembership(user.id, groupId);
+  if (!membership || membership.status !== "ACTIVE")
+    return NextResponse.json({ error: "אינך חבר בקבוצה." }, { status: 403 });
 
   const title = String(body.title ?? "").trim();
   // Criteria is optional in the new create flow; fall back to the title.
@@ -43,6 +49,7 @@ export async function POST(req: Request) {
 
   const market = await prisma.market.create({
     data: {
+      groupId,
       creatorId: user.id,
       title,
       criteria,
@@ -60,18 +67,19 @@ export async function POST(req: Request) {
     },
   });
 
-  // Notify everyone else about the new bet.
-  const others = await prisma.user.findMany({
-    where: { id: { not: user.id } },
-    select: { id: true },
+  // Notify the rest of the group about the new bet.
+  const others = await prisma.membership.findMany({
+    where: { groupId, status: "ACTIVE", userId: { not: user.id } },
+    select: { userId: true },
   });
   if (others.length > 0) {
     await prisma.notification.createMany({
-      data: others.map((u) => ({
-        userId: u.id,
+      data: others.map((m) => ({
+        userId: m.userId,
+        groupId,
         type: NotificationType.NEW_MARKET,
         marketId: market.id,
-        message: `${user.name} יצר הימור חדש: ${title}`,
+        message: `${user.displayName} יצר הימור חדש: ${title}`,
       })),
     });
   }

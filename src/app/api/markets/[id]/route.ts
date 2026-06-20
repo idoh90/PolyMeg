@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/currentUser";
+import { getMembership, isAdminRole } from "@/lib/membership";
 import { shekelsToAgorot } from "@/lib/money";
 
 // Edit a bet (creator or admin): title, criteria, image, close time, min stake,
@@ -18,7 +19,8 @@ export async function PATCH(
     include: { options: { select: { id: true } } },
   });
   if (!market) return NextResponse.json({ error: "ההימור לא נמצא" }, { status: 404 });
-  if (market.creatorId !== user.id && !user.isAdmin)
+  const membership = await getMembership(user.id, market.groupId);
+  if (market.creatorId !== user.id && !isAdminRole(membership?.role))
     return NextResponse.json({ error: "רק יוצר ההימור יכול לערוך." }, { status: 403 });
 
   const body = await req.json().catch(() => null);
@@ -62,16 +64,21 @@ export async function PATCH(
   return NextResponse.json({ ok: true });
 }
 
-// Admin-only: delete a bet (cascades options + positions) and its notifications.
+// Delete a bet (creator or group admin) — cascades options + positions.
 export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const user = await getCurrentUser();
-  if (!user?.isAdmin)
-    return NextResponse.json({ error: "למנהלים בלבד" }, { status: 403 });
+  if (!user) return NextResponse.json({ error: "לא מורשה" }, { status: 401 });
 
   const { id } = await params;
+  const market = await prisma.market.findUnique({ where: { id }, select: { creatorId: true, groupId: true } });
+  if (!market) return NextResponse.json({ error: "ההימור לא נמצא" }, { status: 404 });
+  const membership = await getMembership(user.id, market.groupId);
+  if (market.creatorId !== user.id && !isAdminRole(membership?.role))
+    return NextResponse.json({ error: "אין הרשאה." }, { status: 403 });
+
   await prisma.notification.deleteMany({ where: { marketId: id } });
   await prisma.market.delete({ where: { id } }).catch(() => null);
   return NextResponse.json({ ok: true });

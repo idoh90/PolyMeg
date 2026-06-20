@@ -30,7 +30,7 @@ export interface ProfileData {
     id: string;
     name: string;
     avatarUrl: string | null;
-    isAdmin: boolean;
+    role: string; // membership role in this group
     createdAt: Date;
   };
   stats: {
@@ -48,13 +48,16 @@ export interface ProfileData {
   history: HistoryItem[];
 }
 
-export async function getProfile(userId: string): Promise<ProfileData | null> {
-  const user = await prisma.user.findUnique({ where: { id: userId } });
+export async function getProfile(userId: string, groupId: string): Promise<ProfileData | null> {
+  const [user, membership] = await Promise.all([
+    prisma.user.findUnique({ where: { id: userId } }),
+    prisma.membership.findUnique({ where: { userId_groupId: { userId, groupId } } }),
+  ]);
   if (!user) return null;
 
   const [positions, betsCreated] = await Promise.all([
     prisma.position.findMany({
-      where: { userId },
+      where: { userId, market: { groupId } },
       orderBy: { createdAt: "desc" },
       include: {
         option: { select: { label: true } },
@@ -63,7 +66,7 @@ export async function getProfile(userId: string): Promise<ProfileData | null> {
         },
       },
     }),
-    prisma.market.count({ where: { creatorId: userId } }),
+    prisma.market.count({ where: { creatorId: userId, groupId } }),
   ]);
 
   const totalStaked = positions.reduce((s, p) => s + p.amount, 0);
@@ -141,9 +144,9 @@ export async function getProfile(userId: string): Promise<ProfileData | null> {
   return {
     user: {
       id: user.id,
-      name: user.name,
+      name: user.displayName,
       avatarUrl: user.avatarUrl,
-      isAdmin: user.isAdmin,
+      role: membership?.role ?? "MEMBER",
       createdAt: user.createdAt,
     },
     stats: {

@@ -3,8 +3,6 @@ import { cookies } from "next/headers";
 
 export interface SessionData {
   userId?: string;
-  name?: string;
-  isAdmin?: boolean;
 }
 
 const password = process.env.SESSION_SECRET;
@@ -17,7 +15,7 @@ if (!password || password.length < 32) {
 
 export const sessionOptions: SessionOptions = {
   password,
-  cookieName: "polymeg_session",
+  cookieName: "grubet_session",
   cookieOptions: {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

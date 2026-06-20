@@ -1,16 +1,19 @@
 import bcrypt from "bcryptjs";
 
-// 4-digit PIN handling. PINs are hashed with bcrypt before storage; we never
-// store the raw PIN.
+// Account password handling (bcrypt). Also used for optional group passwords.
 
-export function isValidPin(pin: string): boolean {
-  return /^\d{4}$/.test(pin);
+export function isValidUsername(u: string): boolean {
+  return /^[a-zA-Z0-9_.]{3,20}$/.test(u);
 }
 
-export async function hashPin(pin: string): Promise<string> {
-  return bcrypt.hash(pin, 10);
+export function isValidPassword(p: string): boolean {
+  return typeof p === "string" && p.length >= 4;
 }
 
-export async function verifyPin(pin: string, hash: string): Promise<boolean> {
-  return bcrypt.compare(pin, hash);
+export async function hashPassword(pw: string): Promise<string> {
+  return bcrypt.hash(pw, 10);
+}
+
+export async function verifyPassword(pw: string, hash: string): Promise<boolean> {
+  return bcrypt.compare(pw, hash);
 }
