@@ -4,8 +4,8 @@ import Avatar from "./Avatar";
 
 export type BlockUser = { id: string; name: string; avatarUrl: string | null };
 
-// Per-option picker: tap a friend to bar them from betting that option
-// (e.g. stop Ofek betting on the "Ofek" option).
+// Per-option picker: tap a member to bar them from betting that option
+// (e.g. stop a member betting on the option that's about them).
 export default function OptionBlocks({
   options,
   users,

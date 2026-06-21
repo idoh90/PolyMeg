@@ -1,4 +1,4 @@
-// All money in Polymeg is stored as an integer number of agorot (₪ × 100)
+// All money in GRUbet is stored as an integer number of agorot (₪ × 100)
 // to avoid floating-point rounding errors. Use these helpers at the edges
 // (DB <-> UI) to convert and format.
 
