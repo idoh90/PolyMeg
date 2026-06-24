@@ -12,6 +12,8 @@ export async function POST(req: Request) {
   const name = String(body.name ?? "").trim();
   const description = String(body.description ?? "").trim() || null;
   const imageUrl = typeof body.imageUrl === "string" && body.imageUrl ? body.imageUrl : null;
+  const emoji = typeof body.emoji === "string" && body.emoji ? body.emoji.slice(0, 8) : null;
+  const category = typeof body.category === "string" && body.category.trim() ? body.category.trim().slice(0, 30) : null;
   const joinMode = body.joinMode === "APPROVAL" ? "APPROVAL" : "CODE";
   const password = String(body.password ?? "");
 
@@ -30,6 +32,8 @@ export async function POST(req: Request) {
       name,
       description,
       imageUrl,
+      emoji,
+      category,
       joinMode,
       code,
       passwordHash: password ? await hashPassword(password) : null,

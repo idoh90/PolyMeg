@@ -24,6 +24,7 @@ export async function POST(req: Request) {
     typeof body.imageUrl === "string" && body.imageUrl.length > 0
       ? body.imageUrl
       : null;
+  const emoji = typeof body.emoji === "string" && body.emoji ? body.emoji.slice(0, 8) : null;
   const minStakeShekels = Number(body.minStake);
   const closesAt = new Date(body.closesAt);
   const labels: string[] = Array.isArray(body.options)
@@ -54,6 +55,7 @@ export async function POST(req: Request) {
       title,
       criteria,
       imageUrl,
+      emoji,
       minStake: shekelsToAgorot(minStakeShekels),
       closesAt,
       status: MarketStatus.OPEN,

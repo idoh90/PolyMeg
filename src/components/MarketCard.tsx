@@ -10,6 +10,7 @@ export interface MarketCardData {
   groupId: string;
   title: string;
   imageUrl: string | null;
+  emoji: string | null;
   creatorName: string;
   status: string;
   minStake: number; // agorot
@@ -36,6 +37,7 @@ export default function MarketCard({ market }: { market: MarketCardData }) {
     id: market.id,
     title: market.title,
     imageUrl: market.imageUrl,
+    emoji: market.emoji,
     minStake: market.minStake,
     pot: market.pot,
     options: market.options.map((o) => ({
@@ -55,7 +57,7 @@ export default function MarketCard({ market }: { market: MarketCardData }) {
       className="pressable cursor-pointer rounded-[18px] border border-border bg-surface p-[15px] shadow-[0_1px_2px_rgba(15,19,32,.03)] transition hover:border-accent/40"
     >
       <div className="flex items-start gap-3">
-        <Tile imageUrl={market.imageUrl} />
+        <Tile imageUrl={market.imageUrl} emoji={market.emoji} />
         <div className="min-w-0 flex-1">
           <div dir="auto" className="text-[15px] font-bold leading-tight">
             {market.title}
@@ -119,14 +121,14 @@ export default function MarketCard({ market }: { market: MarketCardData }) {
   );
 }
 
-function Tile({ imageUrl }: { imageUrl: string | null }) {
+function Tile({ imageUrl, emoji }: { imageUrl: string | null; emoji: string | null }) {
   return (
     <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-surface-2 text-[23px]">
       {imageUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={imageUrl} alt="" className="h-full w-full object-cover" />
       ) : (
-        "🎲"
+        emoji ?? "🎲"
       )}
     </div>
   );
@@ -156,7 +158,7 @@ function SideButton({
       disabled={disabled}
       className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl border px-3 py-[11px] text-sm font-extrabold disabled:opacity-60 ${cls}`}
     >
-      {label} <span className="opacity-65">{pct}%</span>
+      {label} <span className="opacity-65">{pct}¢</span>
     </button>
   );
 }

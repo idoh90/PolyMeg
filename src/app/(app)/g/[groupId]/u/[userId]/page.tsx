@@ -33,6 +33,18 @@ export default async function ProfilePage({
 
   return (
     <div className="px-[18px] pb-8 pt-1.5">
+      {/* back (viewing another member) */}
+      {!isMe && (
+        <div className="mb-4 flex items-center gap-3">
+          <Link href={base} className="flex h-[38px] w-[38px] items-center justify-center rounded-xl border border-border bg-surface">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "scaleX(-1)" }}>
+              <path d="m15 18-6-6 6-6" />
+            </svg>
+          </Link>
+          <span className="text-[15px] font-extrabold text-muted">פרופיל חבר</span>
+        </div>
+      )}
+
       {/* header */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-3">

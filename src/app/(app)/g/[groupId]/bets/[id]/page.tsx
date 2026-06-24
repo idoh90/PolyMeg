@@ -82,6 +82,7 @@ export default async function BetDetailPage({
     id: market.id,
     title: market.title,
     imageUrl: market.imageUrl,
+    emoji: market.emoji,
     minStake: market.minStake,
     pot: totalPot,
     options: options.map((o) => ({ id: o.id, label: o.label, total: o.total, pct: o.pct })),
@@ -120,7 +121,7 @@ export default async function BetDetailPage({
               // eslint-disable-next-line @next/next/no-img-element
               <img src={market.imageUrl} alt="" className="h-full w-full object-cover" />
             ) : (
-              "🎲"
+              market.emoji ?? "🎲"
             )}
           </div>
           <div className="min-w-0 flex-1">

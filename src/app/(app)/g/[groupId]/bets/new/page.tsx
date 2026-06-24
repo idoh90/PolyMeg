@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
+import { EMOJI_OPTIONS } from "@/lib/constants";
 
 // Generic prompts so any community can relate (replace friend-specific jokes).
 const SUGGESTIONS = [
@@ -72,6 +73,7 @@ export default function NewBetPage() {
   const base = `/g/${groupId}`;
   const [step, setStep] = useState(0);
   const [title, setTitle] = useState("");
+  const [emoji, setEmoji] = useState<string>("");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [mode, setMode] = useState<"binary" | "multi">("binary");
   const [opts, setOpts] = useState<string[]>(["", ""]);
@@ -113,6 +115,7 @@ export default function NewBetPage() {
       body: JSON.stringify({
         groupId,
         title: title.trim(),
+        emoji: emoji || null,
         imageUrl,
         minStake: Number(minStake) || 0,
         closesAt: closeISO(days),
@@ -228,6 +231,22 @@ export default function NewBetPage() {
             </div>
 
             <div className="mb-2.5 mt-6 text-[13px] font-extrabold text-muted">
+              סמל <span className="font-semibold text-faint">(לא חובה)</span>
+            </div>
+            <div className="mb-1 flex gap-2 overflow-x-auto pb-1">
+              {EMOJI_OPTIONS.map((e) => (
+                <button
+                  key={e}
+                  onClick={() => setEmoji((cur) => (cur === e ? "" : e))}
+                  className="flex h-[42px] w-[42px] flex-none items-center justify-center rounded-[12px] border-[1.5px] text-[21px]"
+                  style={{ borderColor: emoji === e ? "var(--accent)" : "var(--border)", background: emoji === e ? "var(--accent-soft)" : "var(--surface)" }}
+                >
+                  {e}
+                </button>
+              ))}
+            </div>
+
+            <div className="mb-2.5 mt-6 text-[13px] font-extrabold text-muted">
               תמונה <span className="font-semibold text-faint">(לא חובה)</span>
             </div>
             <label className="block cursor-pointer">
@@ -335,7 +354,7 @@ export default function NewBetPage() {
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={imageUrl} alt="" className="h-full w-full object-cover" />
                     ) : (
-                      "🎲"
+                      emoji || "🎲"
                     )}
                   </div>
                   <div dir="auto" className="flex-1 text-[15px] font-extrabold leading-tight">{title || "ההימור שלך"}</div>

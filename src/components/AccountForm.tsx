@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Avatar from "@/components/Avatar";
 
 function fileToDataUrl(file: File, maxSize = 400): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -27,10 +26,14 @@ function fileToDataUrl(file: File, maxSize = 400): Promise<string> {
   });
 }
 
+type OwnerGroup = { id: string; name: string; emoji: string | null; role: string };
+
 export default function AccountForm({
   initial,
+  ownerGroups,
 }: {
   initial: { username: string; displayName: string; avatarUrl: string | null };
+  ownerGroups: OwnerGroup[];
 }) {
   const router = useRouter();
   const [displayName, setDisplayName] = useState(initial.displayName);
@@ -39,6 +42,7 @@ export default function AccountForm({
   const [newPassword, setNewPassword] = useState("");
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
+  const initialCh = displayName.trim().charAt(0) || "?";
 
   async function save() {
     setBusy(true);
@@ -72,54 +76,67 @@ export default function AccountForm({
   }
 
   return (
-    <div className="flex flex-col gap-5">
-      <div className="flex items-center gap-4">
-        <Avatar name={displayName} src={avatarUrl} size={64} />
-        <label className="pressable cursor-pointer rounded-xl border border-border bg-surface px-3 py-2 text-sm font-bold">
-          שנה תמונה
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={async (e) => {
-              const f = e.target.files?.[0];
-              if (f) setAvatarUrl(await fileToDataUrl(f).catch(() => avatarUrl));
-            }}
-          />
+    <div>
+      {/* avatar + identity */}
+      <div className="mb-6 flex flex-col items-center">
+        <label className="relative mb-[13px] h-[86px] w-[86px] cursor-pointer">
+          {avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={avatarUrl} alt="" className="h-[86px] w-[86px] rounded-full object-cover" />
+          ) : (
+            <div className="flex h-[86px] w-[86px] items-center justify-center rounded-full bg-accent text-[34px] font-extrabold text-white">{initialCh}</div>
+          )}
+          <span className="absolute bottom-0 flex h-[30px] w-[30px] items-center justify-center rounded-full border border-border bg-surface shadow-[0_2px_6px_rgba(15,19,32,.12)]" style={{ insetInlineStart: 0 }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
+          </span>
+          <input type="file" accept="image/*" className="hidden" onChange={async (e) => { const f = e.target.files?.[0]; if (f) setAvatarUrl(await fileToDataUrl(f).catch(() => avatarUrl)); }} />
         </label>
-        {avatarUrl && (
-          <button onClick={() => setAvatarUrl(null)} className="text-xs font-bold text-no">הסר</button>
-        )}
+        <div dir="auto" className="text-[19px] font-extrabold">{displayName}</div>
+        <div className="text-[13px] font-semibold text-faint" style={{ direction: "ltr" }}>@{initial.username}</div>
       </div>
 
-      <label className="flex flex-col gap-1.5">
-        <span className="text-sm font-bold">שם תצוגה</span>
-        <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} className="afield" />
-      </label>
-      <label className="flex flex-col gap-1.5">
-        <span className="text-sm font-bold">שם משתמש</span>
-        <input value={initial.username} disabled className="afield opacity-60" />
-      </label>
-
-      <div className="rounded-[16px] border border-border bg-surface p-4">
-        <div className="mb-2.5 text-sm font-extrabold">שינוי סיסמה</div>
-        <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="סיסמה נוכחית" className="afield mb-2" />
-        <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="סיסמה חדשה" className="afield" />
+      <label className="mb-1.5 block text-[12.5px] font-extrabold text-muted">שם תצוגה</label>
+      <div data-field className="mb-3.5 rounded-[14px] border-[1.5px] border-border bg-surface px-[15px] py-[13px]">
+        <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} dir="auto" className="w-full bg-transparent text-[15.5px] font-bold outline-none" />
+      </div>
+      <label className="mb-1.5 block text-[12.5px] font-extrabold text-muted">שם משתמש</label>
+      <div className="mb-[22px] flex items-center rounded-[14px] border-[1.5px] border-border bg-surface-2 px-[15px] py-[13px]">
+        <input value={initial.username} disabled className="w-full bg-transparent text-[15.5px] font-semibold text-faint outline-none" style={{ direction: "ltr", textAlign: "start" }} />
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--faint)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
       </div>
 
-      {msg && <p className="text-sm font-semibold text-muted">{msg}</p>}
+      <div className="mb-2.5 text-[13px] font-extrabold text-muted">שינוי סיסמה</div>
+      <div data-field className="mb-2.5 rounded-[14px] border-[1.5px] border-border bg-surface px-[15px] py-[13px]">
+        <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="סיסמה נוכחית" className="w-full bg-transparent text-[15px] font-semibold outline-none" />
+      </div>
+      <div data-field className="mb-6 rounded-[14px] border-[1.5px] border-border bg-surface px-[15px] py-[13px]">
+        <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="סיסמה חדשה" className="w-full bg-transparent text-[15px] font-semibold outline-none" />
+      </div>
 
-      <button onClick={save} disabled={busy} className="rounded-[14px] bg-accent py-3.5 text-base font-extrabold text-white disabled:opacity-50">
+      {ownerGroups.length > 0 && (
+        <>
+          <div className="mb-2.5 text-[13px] font-extrabold text-muted">קבוצות שאני מנהל</div>
+          <div className="mb-6 overflow-hidden rounded-[16px] border border-border bg-surface">
+            {ownerGroups.map((o) => (
+              <div key={o.id} className="flex items-center gap-[11px] border-b border-border px-[15px] py-[13px] last:border-b-0">
+                <div className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-[11px] bg-surface-2 text-[19px]">{o.emoji ?? "🎲"}</div>
+                <span dir="auto" className="flex-1 text-[14.5px] font-bold">{o.name}</span>
+                <span className="rounded-full bg-accent-soft px-2.5 py-1 text-[11px] font-extrabold text-accent">{o.role}</span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {msg && <p className="mb-3 text-sm font-semibold text-muted">{msg}</p>}
+
+      <button onClick={save} disabled={busy} className="mb-3 w-full rounded-[14px] bg-accent py-3.5 text-base font-extrabold text-white disabled:opacity-50">
         {busy ? "שומר…" : "שמור שינויים"}
       </button>
-      <button onClick={logout} className="rounded-[14px] border border-border bg-surface py-3 text-sm font-bold text-no">
-        התנתק
+      <button onClick={logout} className="flex w-full items-center justify-center gap-2 rounded-[14px] border border-no-b bg-no-b py-[15px] text-[15.5px] font-extrabold text-no">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="m16 17 5-5-5-5M21 12H9" /></svg>
+        התנתקות
       </button>
-
-      <style>{`
-        .afield { width:100%; border-radius:14px; border:1.5px solid var(--border); background:var(--surface); padding:13px 15px; font-weight:700; color:var(--text); outline:none; }
-        .afield:focus { border-color:var(--accent); box-shadow:0 0 0 4px var(--accent-soft); }
-      `}</style>
     </div>
   );
 }

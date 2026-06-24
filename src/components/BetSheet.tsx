@@ -15,6 +15,7 @@ export interface SheetMarket {
   id: string;
   title: string;
   imageUrl: string | null;
+  emoji?: string | null;
   minStake: number; // agorot
   pot: number; // agorot
   options: { id: string; label: string; total: number; pct: number }[];
@@ -149,7 +150,7 @@ function BetSheet({
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={market.imageUrl} alt="" className="h-full w-full object-cover" />
                 ) : (
-                  "🎲"
+                  market.emoji ?? "🎲"
                 )}
               </div>
               <div dir="auto" className="flex-1 text-[15px] font-extrabold leading-tight">

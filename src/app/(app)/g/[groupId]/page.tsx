@@ -3,12 +3,14 @@ import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/currentUser";
 import { autoCloseExpired, poolFor, isBinaryMarket, sideKind } from "@/lib/markets";
 import { getLeaderboard } from "@/lib/leaderboard";
+import { getMyGroups } from "@/lib/groups";
 import { MarketStatus } from "@/lib/constants";
 import { formatAgorot } from "@/lib/money";
 import { timeUntil } from "@/lib/format";
 import Avatar from "@/components/Avatar";
 import MarketCard, { type MarketCardData } from "@/components/MarketCard";
 import FeaturedCard, { type FeaturedData } from "@/components/FeaturedCard";
+import GroupSwitcher, { type SwitcherGroup } from "@/components/GroupSwitcher";
 
 const FILTERS = [
   { key: "all", label: "הכול" },
@@ -41,7 +43,7 @@ export default async function GroupHomePage({
           ? MarketStatus.RESOLVED
           : undefined;
 
-  const [allMarkets, board, unread, recent] = await Promise.all([
+  const [allMarkets, board, unread, recent, my] = await Promise.all([
     prisma.market.findMany({
       where: { groupId },
       orderBy: { createdAt: "desc" },
@@ -65,9 +67,19 @@ export default async function GroupHomePage({
         market: { select: { title: true } },
       },
     }),
+    user ? getMyGroups(user.id) : Promise.resolve({ groups: [], pending: [] }),
   ]);
 
-  const myNet = board.find((b) => b.userId === user?.id)?.net ?? 0;
+  const current = my.groups.find((g) => g.id === groupId);
+  const switcherGroups: SwitcherGroup[] = my.groups.map((g) => ({
+    id: g.id,
+    name: g.name,
+    emoji: g.emoji,
+    membersText: `${g.memberCount} חברים`,
+    unread: g.unread > 0,
+    active: g.id === groupId,
+  }));
+  const isAdmin = (current?.role ?? "MEMBER") !== "MEMBER";
 
   function toCard(m: (typeof allMarkets)[number]): MarketCardData {
     const { options, totalPot } = poolFor(m.options, m.positions, m.winningOptionId);
@@ -76,6 +88,7 @@ export default async function GroupHomePage({
       groupId,
       title: m.title,
       imageUrl: m.imageUrl,
+      emoji: m.emoji,
       creatorName: m.creator.displayName,
       status: m.status,
       minStake: m.minStake,
@@ -111,11 +124,13 @@ export default async function GroupHomePage({
         id: featMarket.id,
         title: featMarket.title,
         imageUrl: featMarket.imageUrl,
+        emoji: featMarket.emoji,
         minStake: featMarket.minStake,
         pot: totalPot,
         options: options.map((o) => ({ id: o.id, label: o.label, total: o.total, pct: o.pct })),
       },
       emojiImage: featMarket.imageUrl,
+      emoji: featMarket.emoji,
       title: featMarket.title,
       timeText: `נסגר ${timeUntil(featMarket.closesAt)}`,
       potText: formatAgorot(totalPot),
@@ -137,30 +152,32 @@ export default async function GroupHomePage({
 
   return (
     <div className="pb-8">
-      {/* app bar */}
-      <div className="flex items-center justify-end gap-2.5 px-[18px] pb-3 pt-2.5">
-        <Link
-          href={`${base}/settlement`}
-          className="flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-[7px] text-sm font-bold shadow-[0_1px_2px_rgba(15,19,32,.03)]"
-        >
-          <span className="h-2 w-2 rounded-full" style={{ background: myNet < 0 ? "var(--no)" : "var(--yes)" }} />
-          {myNet > 0 ? "+" : ""}
-          {formatAgorot(myNet)}
-        </Link>
-        <Link href={`${base}/notifications`} className="relative" aria-label="התראות">
-          <div className="flex h-[38px] w-[38px] items-center justify-center rounded-full border border-border bg-surface text-muted">
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+      {/* group header: switcher + bell + account */}
+      <div className="flex items-center justify-between px-4 pb-3 pt-2">
+        <GroupSwitcher
+          groupId={groupId}
+          current={{
+            name: current?.name ?? "",
+            emoji: current?.emoji ?? null,
+            membersText: `${current?.memberCount ?? 0} חברים`,
+          }}
+          groups={switcherGroups}
+          isAdmin={isAdmin}
+        />
+        <div className="flex items-center gap-2">
+          <Link href={`${base}/notifications`} className="relative flex h-[38px] w-[38px] items-center justify-center rounded-xl border border-border bg-surface" aria-label="התראות">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+              <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
             </svg>
-          </div>
-          {unread > 0 && <span className="absolute -left-0.5 -top-0.5 h-[11px] w-[11px] rounded-full border-2 border-bg bg-no" />}
-        </Link>
-        {user && (
-          <Link href={`${base}/u/${user.id}`}>
-            <Avatar name={user.displayName} src={user.avatarUrl} size={38} />
+            {unread > 0 && <span className="absolute left-[7px] top-1.5 h-2 w-2 rounded-full border-[1.5px] border-surface bg-no" />}
           </Link>
-        )}
+          {user && (
+            <Link href={`${base}/u/${user.id}`} className="flex h-[38px] w-[38px] items-center justify-center rounded-full bg-accent text-[15px] font-extrabold text-white">
+              {user.displayName.trim().charAt(0) || "?"}
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* live ticker */}

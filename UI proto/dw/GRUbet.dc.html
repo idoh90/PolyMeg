@@ -1,0 +1,2147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f4f5f8; --surface:#ffffff; --surf2:#f1f3f7; --border:#e9ebf1;
+    --ink:#0f1320; --muted:#737b8c; --faint:#9aa1b1;
+    --accent:#2b6ef2; --accent-soft:#e9f0fe;
+    --yes:#15b87a; --yes-b:#e6f6ef; --no:#f0405a; --no-b:#fdebee;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{margin:0;}
+  ::-webkit-scrollbar{width:0;height:0;}
+  @keyframes pm-marq{from{transform:translateX(0)}to{transform:translateX(50%)}}
+  @keyframes pm-rise{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  @keyframes pm-fade{from{opacity:0}to{opacity:1}}
+  @keyframes pm-screen{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes pm-pop{0%{transform:scale(0)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+  @keyframes pm-draw{from{stroke-dashoffset:340}to{stroke-dashoffset:0}}
+  @keyframes pm-grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+  @keyframes pm-spin{to{transform:rotate(360deg)}}
+  @keyframes pm-draw2{from{stroke-dashoffset:100}to{stroke-dashoffset:0}}
+  @keyframes pm-step{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:translateX(0)}}
+  @keyframes pm-confetti{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(150px) rotate(300deg);opacity:0}}
+  button{transition:transform .15s cubic-bezier(.34,1.4,.5,1),filter .16s ease,background-color .16s ease,border-color .16s ease,box-shadow .16s ease;}
+  button:active{transform:scale(.955);}
+  @media(hover:hover){button:hover{filter:brightness(.985);}}
+  input,textarea{transition:border-color .18s ease,box-shadow .18s ease;-webkit-appearance:none;}
+  input::placeholder,textarea::placeholder{color:var(--faint);font-weight:500;}
+  input[type=number]{-moz-appearance:textfield;}
+  input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  [data-field]{transition:border-color .18s ease,box-shadow .18s ease;}
+  [data-field]:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft);}
+</style>
+</helmet>
+
+<div style="min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;background:#e6e8ee;padding:24px;font-family:Heebo,system-ui,sans-serif;">
+  <div dir="rtl" lang="he" style="position:relative;width:390px;height:844px;background:var(--bg);border-radius:46px;box-shadow:0 2px 6px rgba(15,19,32,.04),0 30px 70px -20px rgba(15,19,32,.35);overflow:hidden;border:1px solid #dfe2ea;color:var(--ink);display:flex;flex-direction:column;">
+
+    <!-- status bar -->
+    <div style="flex:0 0 auto;height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 26px 0 22px;font-size:14px;font-weight:700;letter-spacing:.3px;">
+      <span>9:41</span>
+      <div style="display:flex;align-items:center;gap:7px;">
+        <svg width="17" height="11" viewBox="0 0 17 11" fill="var(--ink)"><rect x="0" y="6" width="3" height="5" rx="1"/><rect x="4.5" y="4" width="3" height="7" rx="1"/><rect x="9" y="2" width="3" height="9" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+        <svg width="16" height="11" viewBox="0 0 16 11" fill="var(--ink)"><path d="M8 2.2c2 0 3.8.75 5.2 2l1.1-1.2A9 9 0 0 0 8 .5 9 9 0 0 0 1.7 3l1.1 1.2A7.4 7.4 0 0 1 8 2.2Z"/><path d="M8 5.4c1.1 0 2.1.42 2.9 1.1l1.1-1.2A6 6 0 0 0 8 3.7a6 6 0 0 0-4 1.6l1.1 1.2A4.3 4.3 0 0 1 8 5.4Z"/><circle cx="8" cy="9" r="1.6"/></svg>
+        <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0.5" y="0.5" width="21" height="11" rx="3" fill="none" stroke="var(--ink)" stroke-opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="var(--ink)"/><rect x="23" y="4" width="2" height="4" rx="1" fill="var(--ink)" fill-opacity=".4"/></svg>
+      </div>
+    </div>
+
+    <!-- ============ SCROLLABLE CONTENT ============ -->
+    <div style="flex:1 1 auto;overflow-y:auto;overflow-x:hidden;position:relative;">
+
+      <!-- ====== SHELL: LOGIN ====== -->
+      <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+      <div key="s-login" style="animation:pm-screen .3s ease both;min-height:100%;display:flex;flex-direction:column;justify-content:center;padding:30px 26px 48px;">
+        <div style="text-align:center;margin-bottom:32px;">
+          <div style="display:inline-flex;align-items:center;gap:10px;">
+            <svg width="30" height="30" viewBox="0 0 24 24"><rect x="3" y="13" width="5" height="8" rx="1.5" fill="var(--accent)"/><rect x="9.5" y="8" width="5" height="13" rx="1.5" fill="var(--accent)"/><rect x="16" y="3" width="5" height="18" rx="1.5" fill="var(--accent)"/></svg>
+            <span style="font-size:30px;font-weight:900;letter-spacing:-1px;">GRU<span style="color:var(--accent);">bet</span></span>
+          </div>
+          <div style="font-size:14.5px;color:var(--muted);font-weight:600;margin-top:13px;">שוק הניבויים של החבר׳ה שלך</div>
+        </div>
+        <div style="font-size:21px;font-weight:800;margin-bottom:16px;">התחברות</div>
+        <sc-if value="{{ liErr }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:8px;background:var(--no-b);color:var(--no);border-radius:12px;padding:11px 14px;font-size:13.5px;font-weight:700;margin-bottom:14px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+            שם משתמש או סיסמה שגויים
+          </div>
+        </sc-if>
+        <label style="font-size:12.5px;font-weight:800;color:var(--muted);display:block;margin-bottom:7px;">שם משתמש</label>
+        <div data-field style="display:flex;align-items:center;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:13px 15px;margin-bottom:14px;">
+          <input value="{{ liUser }}" onInput="{{ onLiUser }}" dir="auto" placeholder="שם המשתמש שלך" style="flex:1;border:none;background:none;outline:none;font-family:inherit;font-size:15.5px;font-weight:600;color:var(--ink);width:100%;"/>
+        </div>
+        <label style="font-size:12.5px;font-weight:800;color:var(--muted);display:block;margin-bottom:7px;">סיסמה</label>
+        <div data-field style="display:flex;align-items:center;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:5px 15px;margin-bottom:22px;">
+          <input type="{{ liType }}" value="{{ liPass }}" onInput="{{ onLiPass }}" placeholder="הסיסמה שלך" style="flex:1;border:none;background:none;outline:none;font-family:inherit;font-size:15.5px;font-weight:600;color:var(--ink);width:100%;padding:9px 0;"/>
+          <button onClick="{{ onLiEye }}" style="border:none;background:none;cursor:pointer;color:var(--faint);display:flex;padding:6px;font-family:inherit;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <button onClick="{{ onLogin }}" style="width:100%;border:none;background:var(--accent);color:#fff;padding:16px;border-radius:15px;font-size:16.5px;font-weight:800;font-family:inherit;cursor:pointer;box-shadow:0 12px 24px -12px var(--accent);">התחבר</button>
+        <div style="text-align:center;font-size:14px;color:var(--muted);font-weight:600;margin-top:20px;">אין לך חשבון? <button onClick="{{ goSignup }}" style="border:none;background:none;color:var(--accent);font-weight:800;font-family:inherit;font-size:14px;cursor:pointer;padding:0;">הרשמה</button></div>
+      </div>
+      </sc-if>
+
+      <!-- ====== SHELL: SIGNUP ====== -->
+      <sc-if value="{{ isSignup }}" hint-placeholder-val="{{ false }}">
+      <div key="s-signup" style="animation:pm-screen .3s ease both;min-height:100%;display:flex;flex-direction:column;justify-content:center;padding:30px 26px 40px;">
+        <div style="text-align:center;margin-bottom:26px;">
+          <div style="display:inline-flex;align-items:center;gap:10px;">
+            <svg width="28" height="28" viewBox="0 0 24 24"><rect x="3" y="13" width="5" height="8" rx="1.5" fill="var(--accent)"/><rect x="9.5" y="8" width="5" height="13" rx="1.5" fill="var(--accent)"/><rect x="16" y="3" width="5" height="18" rx="1.5" fill="var(--accent)"/></svg>
+            <span style="font-size:28px;font-weight:900;letter-spacing:-1px;">GRU<span style="color:var(--accent);">bet</span></span>
+          </div>
+          <div style="font-size:14px;color:var(--muted);font-weight:600;margin-top:12px;">שוק הניבויים של החבר׳ה שלך</div>
+        </div>
+        <div style="font-size:21px;font-weight:800;margin-bottom:16px;">יצירת חשבון</div>
+        <label style="font-size:12.5px;font-weight:800;color:var(--muted);display:block;margin-bottom:7px;">שם תצוגה</label>
+        <div data-field style="display:flex;align-items:center;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:13px 15px;margin-bottom:14px;">
+          <input value="{{ auName }}" onInput="{{ onAuName }}" dir="auto" placeholder="איך יקראו לך בקבוצות" style="flex:1;border:none;background:none;outline:none;font-family:inherit;font-size:15.5px;font-weight:600;color:var(--ink);width:100%;"/>
+        </div>
+        <label style="font-size:12.5px;font-weight:800;color:var(--muted);display:block;margin-bottom:7px;">שם משתמש</label>
+        <div data-field style="display:flex;align-items:center;background:var(--surface);border:1.5px solid {{ auUserBd }};border-radius:14px;padding:13px 15px;margin-bottom:6px;">
+          <span style="color:var(--faint);font-weight:700;font-size:15px;">@</span>
+          <input value="{{ auUser }}" onInput="{{ onAuUser }}" placeholder="username" style="flex:1;border:none;background:none;outline:none;font-family:inherit;font-size:15.5px;font-weight:600;color:var(--ink);width:100%;padding-inline-start:4px;direction:ltr;text-align:start;"/>
+        </div>
+        <sc-if value="{{ auHasErrUser }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:var(--no);font-weight:700;margin-bottom:8px;">{{ auErrUser }}</div></sc-if>
+        <div style="font-size:11.5px;color:var(--faint);font-weight:600;margin:2px 0 14px;">3–20 תווים · אותיות קטנות, מספרים, נקודה וקו תחתון</div>
+        <label style="font-size:12.5px;font-weight:800;color:var(--muted);display:block;margin-bottom:7px;">סיסמה</label>
+        <div data-field style="display:flex;align-items:center;background:var(--surface);border:1.5px solid {{ auPassBd }};border-radius:14px;padding:5px 15px;margin-bottom:6px;">
+          <input type="{{ auType }}" value="{{ auPass }}" onInput="{{ onAuPass }}" placeholder="לפחות 4 תווים" style="flex:1;border:none;background:none;outline:none;font-family:inherit;font-size:15.5px;font-weight:600;color:var(--ink);width:100%;padding:9px 0;"/>
+          <button onClick="{{ onAuEye }}" style="border:none;background:none;cursor:pointer;color:var(--faint);display:flex;padding:6px;font-family:inherit;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <sc-if value="{{ auHasErrPass }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:var(--no);font-weight:700;margin-bottom:8px;">{{ auErrPass }}</div></sc-if>
+        <button onClick="{{ onSignup }}" style="width:100%;border:none;background:var(--accent);color:#fff;padding:16px;border-radius:15px;font-size:16.5px;font-weight:800;font-family:inherit;cursor:pointer;box-shadow:0 12px 24px -12px var(--accent);margin-top:14px;display:flex;align-items:center;justify-content:center;gap:9px;opacity:{{ auBtnOpacity }};">
+          <sc-if value="{{ auPending }}" hint-placeholder-val="{{ false }}"><span style="width:17px;height:17px;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:pm-spin .7s linear infinite;display:block;"></span></sc-if>
+          {{ auBtnText }}
+        </button>
+        <div style="text-align:center;font-size:14px;color:var(--muted);font-weight:600;margin-top:18px;">כבר יש לי חשבון <button onClick="{{ goLogin }}" style="border:none;background:none;color:var(--accent);font-weight:800;font-family:inherit;font-size:14px;cursor:pointer;padding:0;">← התחבר</button></div>
+      </div>
+      </sc-if>
+
+      <!-- ====== SHELL: GROUPS DASHBOARD ====== -->
+      <sc-if value="{{ isGroups }}" hint-placeholder-val="{{ false }}">
+      <div key="s-groups" style="animation:pm-screen .3s ease both;padding:6px 0 30px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 18px 2px;">
+          <div style="display:inline-flex;align-items:center;gap:8px;">
+            <svg width="24" height="24" viewBox="0 0 24 24"><rect x="3" y="13" width="5" height="8" rx="1.5" fill="var(--accent)"/><rect x="9.5" y="8" width="5" height="13" rx="1.5" fill="var(--accent)"/><rect x="16" y="3" width="5" height="18" rx="1.5" fill="var(--accent)"/></svg>
+            <span style="font-size:22px;font-weight:900;letter-spacing:-.5px;">GRU<span style="color:var(--accent);">bet</span></span>
+          </div>
+          <button onClick="{{ onAccount }}" style="width:40px;height:40px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:16px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;">{{ meInitial }}</button>
+        </div>
+        <div style="padding:8px 18px 18px;">
+          <div style="font-size:25px;font-weight:800;letter-spacing:-.5px;">היי, {{ meName }} 👋</div>
+          <div style="font-size:14px;color:var(--muted);font-weight:600;margin-top:3px;">לאן ניכנס היום?</div>
+        </div>
+        <div style="display:flex;gap:11px;padding:0 18px 22px;">
+          <button onClick="{{ onNewGroup }}" style="flex:1;border:none;cursor:pointer;font-family:inherit;text-align:start;border-radius:18px;padding:16px;background:linear-gradient(135deg,#1f2a4d,#0f1320);color:#fff;display:flex;flex-direction:column;gap:11px;box-shadow:0 12px 26px -14px rgba(15,19,32,.6);" style-active="transform:scale(.97);">
+            <span style="width:38px;height:38px;border-radius:11px;background:rgba(43,110,242,.3);display:flex;align-items:center;justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9cc0ff" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+            <span style="font-size:15px;font-weight:800;">קבוצה חדשה</span>
+            <span style="font-size:11.5px;color:#aeb7c9;font-weight:600;line-height:1.35;">צרו קהילה משלכם</span>
+          </button>
+          <button onClick="{{ onJoinGroup }}" style="flex:1;border:1px solid var(--border);cursor:pointer;font-family:inherit;text-align:start;border-radius:18px;padding:16px;background:var(--surface);display:flex;flex-direction:column;gap:11px;box-shadow:0 1px 2px rgba(15,19,32,.03);" style-active="transform:scale(.97);">
+            <span style="width:38px;height:38px;border-radius:11px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.7 12.3 8.3-8.3M16 6l3 3M19 3l2 2"/></svg></span>
+            <span style="font-size:15px;font-weight:800;">הצטרפות לקבוצה</span>
+            <span style="font-size:11.5px;color:var(--muted);font-weight:600;line-height:1.35;">יש לכם קוד? הזינו אותו</span>
+          </button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0 18px 11px;">
+          <span style="font-size:16px;font-weight:800;">הקבוצות שלי</span>
+          <span style="font-size:13px;font-weight:700;color:var(--muted);">{{ groupCount }}</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:11px;padding:0 18px;">
+          <sc-for list="{{ groupCards }}" as="g" hint-placeholder-count="4">
+            <button onClick="{{ g.onOpen }}" style="border:1px solid var(--border);background:var(--surface);border-radius:18px;padding:14px;cursor:pointer;font-family:inherit;text-align:start;box-shadow:0 1px 2px rgba(15,19,32,.03);display:flex;align-items:center;gap:12px;" style-active="transform:scale(.985);" style-hover="border-color:#d7dbe6;box-shadow:0 6px 18px -10px rgba(15,19,32,.18);">
+              <div style="position:relative;flex:0 0 auto;width:48px;height:48px;border-radius:14px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:25px;">{{ g.emoji }}
+                <sc-if value="{{ g.unread }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-3px;inset-inline-start:-3px;width:13px;height:13px;border-radius:50%;background:var(--no);border:2.5px solid var(--surface);"></span></sc-if>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;gap:7px;">
+                  <span dir="auto" style="font-size:15.5px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ g.name }}</span>
+                  <sc-if value="{{ g.hasRole }}" hint-placeholder-val="{{ false }}"><span style="flex:0 0 auto;font-size:9.5px;font-weight:800;color:var(--accent);background:var(--accent-soft);padding:2px 7px;border-radius:999px;">{{ g.roleTag }}</span></sc-if>
+                </div>
+                <div style="font-size:12px;color:var(--faint);font-weight:600;margin-top:3px;">{{ g.members }} · {{ g.cat }}</div>
+                <div style="font-size:12.5px;color:var(--muted);font-weight:700;margin-top:5px;">{{ g.open }}</div>
+              </div>
+              <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+                <sc-if value="{{ g.hasNet }}" hint-placeholder-val="{{ true }}"><span style="font-size:14px;font-weight:800;color:{{ g.netColor }};">{{ g.net }}</span></sc-if>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--faint)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1);"><path d="m9 18 6-6-6-6"/></svg>
+              </div>
+            </button>
+          </sc-for>
+        </div>
+        <sc-if value="{{ hasPending }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:16px;font-weight:800;padding:24px 18px 11px;">בקשות בהמתנה</div>
+          <div style="display:flex;flex-direction:column;gap:10px;padding:0 18px;">
+            <sc-for list="{{ pending }}" as="p" hint-placeholder-count="1">
+              <div style="border:1px solid var(--border);background:var(--surf2);border-radius:16px;padding:13px 14px;display:flex;align-items:center;gap:12px;">
+                <div style="flex:0 0 auto;width:44px;height:44px;border-radius:13px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:22px;">{{ p.emoji }}</div>
+                <div style="flex:1;min-width:0;"><div dir="auto" style="font-size:14.5px;font-weight:800;">{{ p.name }}</div><div style="font-size:12px;color:var(--faint);font-weight:600;margin-top:2px;">{{ p.cat }}</div></div>
+                <span style="font-size:11px;font-weight:800;color:var(--muted);background:var(--surface);border:1px solid var(--border);padding:6px 11px;border-radius:999px;">ממתין לאישור</span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+      </sc-if>
+
+      <!-- ====== SHELL: CREATE GROUP ====== -->
+      <sc-if value="{{ isNewGroup }}" hint-placeholder-val="{{ false }}">
+      <div key="s-newgroup" style="animation:pm-screen .3s ease both;padding:6px 18px 30px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+          <button onClick="{{ onAccountBackToGroups }}" style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1);"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <span style="font-size:15px;font-weight:800;color:var(--muted);">קבוצה חדשה</span>
+        </div>
+
+        <sc-if value="{{ ngForm }}" hint-placeholder-val="{{ true }}">
+        <div>
+          <div style="font-size:24px;font-weight:800;margin-bottom:4px;">בואו נקים קהילה</div>
+          <div style="font-size:13.5px;color:var(--muted);font-weight:600;margin-bottom:20px;">תנו לה שם ובחרו איך מצטרפים.</div>
+
+          <label style="font-size:12.5px;font-weight:800;color:var(--muted);display:block;margin-bottom:9px;">סמל הקבוצה</label>
+          <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:18px;">
+            <sc-for list="{{ ngEmojiOpts }}" as="e" hint-placeholder-count="6">
+              <button onClick="{{ e.onPick }}" style="flex:0 0 auto;width:46px;height:46px;border-radius:13px;border:1.5px solid {{ e.bd }};background:{{ e.bg }};font-size:23px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;">{{ e.e }}</button>
+            </sc-for>
+          </div>
+
+          <label style="font-size:12.5px;font-weight:800;color:var(--muted);display:block;margin-bottom:7px;">שם הקבוצה</label>
+          <div data-field style="display:flex;align-items:center;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:13px 15px;margin-bottom:14px;">
+            <input value="{{ ngName }}" onInput="{{ onNgName }}" dir="auto" placeholder="לדוגמה: ערב פוקר רביעי" style="flex:1;border:none;background:none;outline:none;font-family:inherit;font-size:15.5px;font-weight:700;color:var(--ink);width:100%;"/>
+          </div>
+
+          <label style="font-size:12.5px;font-weight:800;color:var(--muted);display:block;margin-bottom:7px;">תיאור <span style="color:var(--faint);font-weight:600;">(לא חובה)</span></label>
+          <div data-field style="display:flex;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:12px 15px;margin-bottom:20px;">
+            <textarea value="{{ ngDesc }}" onInput="{{ onNgDesc }}" dir="auto" placeholder="על מה הקהילה הזאת?" rows="2" style="flex:1;border:none;background:none;outline:none;font-family:inherit;font-size:14.5px;font-weight:600;color:var(--ink);width:100%;resize:none;"></textarea>
+          </div>
+
+          <label style="font-size:12.5px;font-weight:800;color:var(--muted);display:block;margin-bottom:9px;">איך מצטרפים?</label>
+          <div style="display:flex;gap:6px;background:var(--surf2);padding:5px;border-radius:14px;margin-bottom:16px;">
+            <button onClick="{{ onNgModeCode }}" style="flex:1;border:none;padding:12px;border-radius:10px;font-size:13.5px;font-weight:800;font-family:inherit;cursor:pointer;background:{{ ngBinBg }};color:{{ ngBinFg }};box-shadow:{{ ngBinSh }};">קוד פתוח</button>
+            <button onClick="{{ onNgModeApproval }}" style="flex:1;border:none;padding:12px;border-radius:10px;font-size:13.5px;font-weight:800;font-family:inherit;cursor:pointer;background:{{ ngMulBg }};color:{{ ngMulFg }};box-shadow:{{ ngMulSh }};">באישור בעלים</button>
+          </div>
+
+          <sc-if value="{{ ngModeCode }}" hint-placeholder-val="{{ true }}">
+            <div style="background:var(--accent-soft);border-radius:14px;padding:13px 15px;margin-bottom:14px;display:flex;align-items:flex-start;gap:9px;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;margin-top:1px;"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg>
+              <span style="font-size:12.5px;color:#2257c4;font-weight:600;line-height:1.5;">כל מי שיש לו את הקוד נכנס מיד. אפשר להוסיף סיסמה לשכבת הגנה נוספת.</span>
+            </div>
+            <label style="font-size:12.5px;font-weight:800;color:var(--muted);display:block;margin-bottom:7px;">סיסמת קבוצה <span style="color:var(--faint);font-weight:600;">(לא חובה)</span></label>
+            <div data-field style="display:flex;align-items:center;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:13px 15px;margin-bottom:6px;">
+              <input value="{{ ngPass }}" onInput="{{ onNgPass }}" dir="auto" placeholder="ללא סיסמה" style="flex:1;border:none;background:none;outline:none;font-family:inherit;font-size:15px;font-weight:600;color:var(--ink);width:100%;"/>
+            </div>
+          </sc-if>
+          <sc-if value="{{ ngModeApproval }}" hint-placeholder-val="{{ false }}">
+            <div style="background:var(--surf2);border-radius:14px;padding:13px 15px;margin-bottom:6px;display:flex;align-items:flex-start;gap:9px;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;margin-top:1px;"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg>
+              <span style="font-size:12.5px;color:var(--muted);font-weight:600;line-height:1.5;">מצטרפים שולחים בקשה ואתם מאשרים אותה במסך הניהול.</span>
+            </div>
+          </sc-if>
+
+          <button onClick="{{ onCreateGroup }}" style="width:100%;border:none;background:var(--accent);color:#fff;padding:16px;border-radius:15px;font-size:16.5px;font-weight:800;font-family:inherit;cursor:pointer;box-shadow:0 12px 24px -12px var(--accent);margin-top:18px;opacity:{{ ngCanCreateOpacity }};">צור קבוצה</button>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ ngCreated }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align:center;padding:18px 0;">
+          <div style="width:80px;height:80px;border-radius:50%;background:var(--yes-b);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;animation:pm-pop .5s cubic-bezier(.2,.9,.25,1) both;">
+            <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="var(--yes)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          </div>
+          <div style="font-size:23px;font-weight:800;margin-bottom:6px;">הקבוצה מוכנה! 🎉</div>
+          <div dir="auto" style="font-size:14px;color:var(--muted);font-weight:600;margin-bottom:22px;">{{ ngEmoji }} {{ ngName }}</div>
+          <div style="background:linear-gradient(135deg,#1f2a4d,#0f1320);border-radius:20px;padding:22px;color:#fff;margin-bottom:16px;">
+            <div style="font-size:12px;color:#aeb7c9;font-weight:700;letter-spacing:.4px;margin-bottom:10px;">שתפו את הקוד</div>
+            <div style="font-size:34px;font-weight:900;letter-spacing:3px;font-family:'SF Mono',ui-monospace,monospace;direction:ltr;">{{ ngCode }}</div>
+          </div>
+          <div style="display:flex;gap:10px;margin-bottom:14px;">
+            <button onClick="{{ onCopy }}" style="flex:1;border:1px solid var(--border);background:var(--surface);color:var(--ink);padding:14px;border-radius:14px;font-size:14.5px;font-weight:800;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg>{{ copyLabel }}</button>
+            <button onClick="{{ onCopy }}" style="flex:1;border:1px solid var(--border);background:var(--surface);color:var(--ink);padding:14px;border-radius:14px;font-size:14.5px;font-weight:800;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>שתף</button>
+          </div>
+          <button onClick="{{ onEnterNewGroup }}" style="width:100%;border:none;background:var(--accent);color:#fff;padding:16px;border-radius:15px;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;">כניסה לקבוצה ←</button>
+        </div>
+        </sc-if>
+      </div>
+      </sc-if>
+
+      <!-- ====== SHELL: JOIN GROUP ====== -->
+      <sc-if value="{{ isJoin }}" hint-placeholder-val="{{ false }}">
+      <div key="s-join" style="animation:pm-screen .3s ease both;padding:6px 18px 30px;min-height:100%;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+          <button onClick="{{ onAccountBackToGroups }}" style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1);"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <span style="font-size:15px;font-weight:800;color:var(--muted);">הצטרפות לקבוצה</span>
+        </div>
+
+        <sc-if value="{{ jgForm }}" hint-placeholder-val="{{ true }}">
+        <div>
+          <div style="width:62px;height:62px;border-radius:18px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.7 12.3 8.3-8.3M16 6l3 3M19 3l2 2"/></svg>
+          </div>
+          <div style="font-size:24px;font-weight:800;margin-bottom:4px;">הזינו קוד הצטרפות</div>
+          <div style="font-size:13.5px;color:var(--muted);font-weight:600;margin-bottom:22px;">קיבלתם קוד מחבר? הדביקו אותו כאן.</div>
+
+          <div data-field style="display:flex;align-items:center;justify-content:center;background:var(--surface);border:1.5px solid {{ jgCodeBd }};border-radius:16px;padding:16px;margin-bottom:8px;">
+            <input value="{{ jgCode }}" onInput="{{ onJgCode }}" placeholder="ABC123" maxlength="8" style="border:none;background:none;outline:none;font-family:'SF Mono',ui-monospace,monospace;font-size:30px;font-weight:800;letter-spacing:8px;color:var(--ink);text-align:center;width:100%;direction:ltr;text-transform:uppercase;"/>
+          </div>
+          <sc-if value="{{ jgHasErr }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:7px;color:var(--no);font-size:13px;font-weight:700;margin-bottom:8px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>{{ jgErr }}
+            </div>
+          </sc-if>
+          <div style="font-size:11.5px;color:var(--faint);font-weight:600;margin:6px 2px 18px;">לדמו: APEX24 / POKER1 נכנסים מיד · DORM44 דורש אישור</div>
+
+          <label style="font-size:12.5px;font-weight:800;color:var(--muted);display:block;margin-bottom:7px;">סיסמת קבוצה <span style="color:var(--faint);font-weight:600;">(אם נדרשת)</span></label>
+          <div data-field style="display:flex;align-items:center;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:13px 15px;margin-bottom:22px;">
+            <input value="{{ jgPass }}" onInput="{{ onJgPass }}" dir="auto" placeholder="השאירו ריק אם אין" style="flex:1;border:none;background:none;outline:none;font-family:inherit;font-size:15px;font-weight:600;color:var(--ink);width:100%;"/>
+          </div>
+          <button onClick="{{ onJoin }}" style="width:100%;border:none;background:var(--accent);color:#fff;padding:16px;border-radius:15px;font-size:16.5px;font-weight:800;font-family:inherit;cursor:pointer;box-shadow:0 12px 24px -12px var(--accent);">הצטרף</button>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ jgJoined }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align:center;padding:30px 0;">
+          <div style="width:84px;height:84px;border-radius:50%;background:var(--yes-b);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;animation:pm-pop .5s cubic-bezier(.2,.9,.25,1) both;">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--yes)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          </div>
+          <div style="font-size:24px;font-weight:800;margin-bottom:8px;">נכנסת! 🎉</div>
+          <div style="font-size:14.5px;color:var(--muted);font-weight:600;margin-bottom:28px;line-height:1.5;">אתם עכשיו חברים בקבוצה.<br>צאו להמר!</div>
+          <button onClick="{{ onJgEnter }}" style="width:100%;border:none;background:var(--accent);color:#fff;padding:16px;border-radius:15px;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;">כניסה לקבוצה ←</button>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ jgPendingState }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align:center;padding:30px 0;">
+          <div style="width:84px;height:84px;border-radius:50%;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;animation:pm-pop .5s cubic-bezier(.2,.9,.25,1) both;">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          </div>
+          <div style="font-size:23px;font-weight:800;margin-bottom:8px;">הבקשה נשלחה</div>
+          <div style="font-size:14.5px;color:var(--muted);font-weight:600;margin-bottom:28px;line-height:1.55;">ממתינים לאישור הבעלים. תקבלו התראה<br>ברגע שתאושרו.</div>
+          <button onClick="{{ onAccountBackToGroups }}" style="width:100%;border:1px solid var(--border);background:var(--surface);color:var(--ink);padding:15px;border-radius:15px;font-size:15.5px;font-weight:800;font-family:inherit;cursor:pointer;">חזרה לקבוצות</button>
+        </div>
+        </sc-if>
+      </div>
+      </sc-if>
+
+      <!-- ====== SHELL: ACCOUNT ====== -->
+      <sc-if value="{{ isAccount }}" hint-placeholder-val="{{ false }}">
+      <div key="s-account" style="animation:pm-screen .3s ease both;padding:6px 18px 30px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+          <button onClick="{{ onAccountBackToGroups }}" style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1);"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <span style="font-size:15px;font-weight:800;color:var(--muted);">החשבון שלי</span>
+        </div>
+
+        <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:24px;">
+          <div style="position:relative;width:86px;height:86px;margin-bottom:13px;">
+            <div style="width:86px;height:86px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:34px;">{{ meInitial }}</div>
+            <div style="position:absolute;bottom:0;inset-inline-start:0;width:30px;height:30px;border-radius:50%;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(15,19,32,.12);">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            </div>
+          </div>
+          <div dir="auto" style="font-size:19px;font-weight:800;">{{ meName }}</div>
+          <div style="font-size:13px;color:var(--faint);font-weight:600;direction:ltr;">@ido</div>
+        </div>
+
+        <label style="font-size:12.5px;font-weight:800;color:var(--muted);display:block;margin-bottom:7px;">שם תצוגה</label>
+        <div data-field style="display:flex;align-items:center;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:13px 15px;margin-bottom:14px;">
+          <input value="{{ meName }}" dir="auto" style="flex:1;border:none;background:none;outline:none;font-family:inherit;font-size:15.5px;font-weight:700;color:var(--ink);width:100%;"/>
+        </div>
+        <label style="font-size:12.5px;font-weight:800;color:var(--muted);display:block;margin-bottom:7px;">שם משתמש</label>
+        <div style="display:flex;align-items:center;background:var(--surf2);border:1.5px solid var(--border);border-radius:14px;padding:13px 15px;margin-bottom:22px;">
+          <input value="ido" disabled style="flex:1;border:none;background:none;outline:none;font-family:inherit;font-size:15.5px;font-weight:600;color:var(--faint);width:100%;direction:ltr;text-align:start;"/>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--faint)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+
+        <div style="font-size:13px;font-weight:800;color:var(--muted);margin-bottom:10px;">שינוי סיסמה</div>
+        <div data-field style="display:flex;align-items:center;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:13px 15px;margin-bottom:10px;">
+          <input type="password" placeholder="סיסמה נוכחית" style="flex:1;border:none;background:none;outline:none;font-family:inherit;font-size:15px;font-weight:600;color:var(--ink);width:100%;"/>
+        </div>
+        <div data-field style="display:flex;align-items:center;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:13px 15px;margin-bottom:24px;">
+          <input type="password" placeholder="סיסמה חדשה" style="flex:1;border:none;background:none;outline:none;font-family:inherit;font-size:15px;font-weight:600;color:var(--ink);width:100%;"/>
+        </div>
+
+        <sc-if value="{{ hasOwnerGroups }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:13px;font-weight:800;color:var(--muted);margin-bottom:10px;">קבוצות שאני מנהל</div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:24px;">
+            <sc-for list="{{ ownerGroups }}" as="o" hint-placeholder-count="2">
+              <div style="display:flex;align-items:center;gap:11px;padding:13px 15px;border-bottom:1px solid var(--border);">
+                <div style="flex:0 0 auto;width:38px;height:38px;border-radius:11px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:19px;">{{ o.emoji }}</div>
+                <span dir="auto" style="flex:1;font-size:14.5px;font-weight:700;">{{ o.name }}</span>
+                <span style="font-size:11px;font-weight:800;color:var(--accent);background:var(--accent-soft);padding:4px 10px;border-radius:999px;">{{ o.role }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <button onClick="{{ onLogout }}" style="width:100%;border:1px solid var(--no-b);background:var(--no-b);color:var(--no);padding:15px;border-radius:14px;font-size:15.5px;font-weight:800;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg>
+          התנתקות
+        </button>
+      </div>
+      </sc-if>
+
+      <!-- ====== MARKETS (HOME) ====== -->
+      <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+      <div key="{{ screen }}" style="animation:pm-screen .28s ease both;padding-bottom:30px;">
+        <!-- group header -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 16px 12px;">
+          <button onClick="{{ onOpenSwitcher }}" style="display:flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--border);padding:6px 13px 6px 9px;border-radius:999px;cursor:pointer;font-family:inherit;box-shadow:0 1px 2px rgba(15,19,32,.03);" style-active="transform:scale(.97);">
+            <span style="flex:0 0 auto;width:32px;height:32px;border-radius:10px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:18px;">{{ agEmoji }}</span>
+            <span style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.12;">
+              <span dir="auto" style="font-size:14.5px;font-weight:800;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ agName }}</span>
+              <span style="font-size:10.5px;color:var(--faint);font-weight:600;">{{ agMembersText }}</span>
+            </span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--faint)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button onClick="{{ onNotif }}" style="position:relative;width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+              <sc-if value="{{ notifUnread }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;top:6px;inset-inline-start:7px;width:8px;height:8px;border-radius:50%;background:var(--no);border:1.5px solid var(--surface);"></span></sc-if>
+            </button>
+            <button onClick="{{ onAccount }}" style="width:38px;height:38px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;border:none;cursor:pointer;">{{ meInitial }}</button>
+          </div>
+        </div>
+
+        <!-- live ticker -->
+        <div style="margin:0 0 14px;height:34px;background:var(--ink);overflow:hidden;display:flex;align-items:center;position:relative;">
+          <span style="position:absolute;right:0;z-index:2;height:100%;display:flex;align-items:center;gap:6px;background:var(--ink);color:#fff;font-size:11px;font-weight:800;padding:0 12px;letter-spacing:.4px;">
+            <span style="width:7px;height:7px;border-radius:50%;background:var(--no);animation:pm-fade 1s ease-in-out infinite alternate;"></span>חי
+          </span>
+          <div style="display:flex;width:max-content;animation:pm-marq 26s linear infinite;white-space:nowrap;">
+            <div style="display:flex;">
+              <sc-for list="{{ ticker }}" as="t" hint-placeholder-count="5">
+                <span style="display:inline-flex;align-items:center;gap:7px;color:#cdd4e0;font-size:12.5px;font-weight:500;padding:0 16px;">
+                  <span style="font-weight:700;color:#fff;">{{ t.user }}</span>{{ t.verb }}
+                  <span style="font-weight:700;color:{{ t.color }};">{{ t.side }}</span>· <span style="color:#8b94a6;">{{ t.market }}</span>
+                </span>
+              </sc-for>
+            </div>
+            <div style="display:flex;" aria-hidden="true">
+              <sc-for list="{{ ticker }}" as="t" hint-placeholder-count="5">
+                <span style="display:inline-flex;align-items:center;gap:7px;color:#cdd4e0;font-size:12.5px;font-weight:500;padding:0 16px;">
+                  <span style="font-weight:700;color:#fff;">{{ t.user }}</span>{{ t.verb }}
+                  <span style="font-weight:700;color:{{ t.color }};">{{ t.side }}</span>· <span style="color:#8b94a6;">{{ t.market }}</span>
+                </span>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <!-- search -->
+        <div style="padding:0 18px;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:11px 14px;color:var(--faint);">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
+            <span style="font-size:14.5px;font-weight:500;">חיפוש הימור…</span>
+          </div>
+        </div>
+
+        <!-- filter chips -->
+        <div style="display:flex;gap:8px;padding:0 18px 14px;overflow-x:auto;">
+          <sc-for list="{{ filters }}" as="f" hint-placeholder-count="4">
+            <button onClick="{{ f.onClick }}" style="flex:0 0 auto;border:1px solid {{ f.bd }};background:{{ f.bg }};color:{{ f.fg }};padding:8px 15px;border-radius:999px;font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s;">{{ f.label }}</button>
+          </sc-for>
+        </div>
+
+        <!-- featured -->
+        <div style="padding:0 18px;margin-bottom:18px;">
+          <div onClick="{{ featured.onOpen }}" style="cursor:pointer;border-radius:22px;padding:18px;background:linear-gradient(135deg,#1f2a4d,#0f1320);color:#fff;position:relative;overflow:hidden;box-shadow:0 14px 30px -14px rgba(15,19,32,.6);transition:transform .18s cubic-bezier(.2,.8,.2,1);" style-active="transform:scale(.985);">
+            <div style="position:absolute;top:-40px;left:-30px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(43,110,242,.5),transparent 70%);"></div>
+            <div style="position:relative;">
+              <div style="display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:.5px;color:#aeb7c9;margin-bottom:12px;"><span style="background:rgba(43,110,242,.25);color:#9cc0ff;padding:3px 9px;border-radius:999px;">מומלץ</span><span style="color:#aeb7c9;">{{ featured.timeText }}</span></div>
+              <div style="display:flex;align-items:flex-start;gap:13px;">
+                <div style="flex:0 0 auto;width:50px;height:50px;border-radius:14px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:26px;">{{ featured.emoji }}</div>
+                <div style="flex:1;min-width:0;">
+                  <div dir="auto" style="font-size:18px;font-weight:800;line-height:1.25;">{{ featured.title }}</div>
+                </div>
+                <div style="text-align:center;">
+                  <div style="font-size:30px;font-weight:900;line-height:1;color:var(--yes);">{{ featured.topPct }}<span style="font-size:16px;">¢</span></div>
+                  <div style="font-size:11px;color:#aeb7c9;font-weight:600;margin-top:2px;">{{ featured.topLabel }}</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:10px;margin-top:16px;">
+                <button onClick="{{ featured.onYes }}" style="flex:1;border:none;background:var(--yes);color:#04130c;padding:13px;border-radius:13px;font-weight:800;font-size:15px;font-family:inherit;cursor:pointer;">קנה Yes · {{ featured.topPct }}¢</button>
+                <button onClick="{{ featured.onNo }}" style="flex:1;border:none;background:var(--no);color:#1a0509;padding:13px;border-radius:13px;font-weight:800;font-size:15px;font-family:inherit;cursor:pointer;">קנה No · {{ featured.botPct }}¢</button>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:13px;font-size:12px;color:#aeb7c9;font-weight:600;">
+                <span>קופה {{ featured.potText }}</span><span>{{ featured.betCount }} הימורים</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- leaderboard hub card -->
+        <div onClick="{{ onBoard }}" style="margin:0 18px 18px;cursor:pointer;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:14px 15px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 2px rgba(15,19,32,.03);transition:transform .16s cubic-bezier(.2,.8,.2,1),box-shadow .15s;" style-active="transform:scale(.985);" style-hover="box-shadow:0 6px 18px -10px rgba(15,19,32,.18);">
+          <div style="flex:0 0 auto;width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#ffd24a,#f0a93a);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px -6px #f0a93a;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7a4d00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:15px;font-weight:800;">טבלת המובילים</div>
+            <div style="font-size:12.5px;color:var(--muted);font-weight:600;margin-top:2px;">{{ boardLeader }} מוביל · ראה דירוג מלא</div>
+          </div>
+          <div style="display:flex;flex-direction:row-reverse;align-items:center;padding-left:6px;">
+            <sc-for list="{{ boardTop3 }}" as="b" hint-placeholder-count="3">
+              <div style="width:30px;height:30px;border-radius:50%;background:{{ b.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;border:2px solid var(--surface);margin-right:-9px;">{{ b.initial }}</div>
+            </sc-for>
+          </div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--faint)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1);flex:0 0 auto;"><path d="m9 18 6-6-6-6"/></svg>
+        </div>
+
+        <!-- section label -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0 18px 10px;">
+          <span style="font-size:16px;font-weight:800;">{{ listTitle }}</span>
+          <span style="font-size:13px;font-weight:700;color:var(--muted);">{{ marketCount }}</span>
+        </div>
+
+        <!-- market list -->
+        <div style="display:flex;flex-direction:column;gap:11px;padding:0 18px;">
+          <sc-for list="{{ markets }}" as="m" hint-placeholder-count="4">
+            <div onClick="{{ m.onOpen }}" style="cursor:pointer;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:15px;box-shadow:0 1px 2px rgba(15,19,32,.03);transition:transform .16s cubic-bezier(.2,.8,.2,1),border-color .15s,box-shadow .15s;" style-active="transform:scale(.985);" style-hover="border-color:#d7dbe6;box-shadow:0 6px 18px -10px rgba(15,19,32,.18);">
+              <div style="display:flex;align-items:flex-start;gap:12px;">
+                <div style="flex:0 0 auto;width:44px;height:44px;border-radius:12px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:23px;">{{ m.emoji }}</div>
+                <div style="flex:1;min-width:0;">
+                  <div dir="auto" style="font-size:15px;font-weight:700;line-height:1.3;">{{ m.title }}</div>
+                  <div style="font-size:12px;color:var(--faint);margin-top:3px;font-weight:600;">מאת {{ m.creator }}</div>
+                </div>
+                <span style="flex:0 0 auto;font-size:10.5px;font-weight:800;padding:4px 9px;border-radius:999px;background:{{ m.stBg }};color:{{ m.stFg }};">{{ m.stLabel }}</span>
+              </div>
+
+              <!-- binary buttons -->
+              <sc-if value="{{ m.isBinary }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;gap:9px;margin-top:13px;">
+                  <button onClick="{{ m.onYes }}" style="flex:1;border:1px solid var(--yes-b);background:var(--yes-b);color:var(--yes);padding:11px;border-radius:12px;font-weight:800;font-size:14px;font-family:inherit;cursor:pointer;display:flex;justify-content:center;gap:6px;">Yes <span style="opacity:.65;">{{ m.yesPct }}¢</span></button>
+                  <button onClick="{{ m.onNo }}" style="flex:1;border:1px solid var(--no-b);background:var(--no-b);color:var(--no);padding:11px;border-radius:12px;font-weight:800;font-size:14px;font-family:inherit;cursor:pointer;display:flex;justify-content:center;gap:6px;">No <span style="opacity:.65;">{{ m.noPct }}¢</span></button>
+                </div>
+              </sc-if>
+
+              <!-- multi bars -->
+              <sc-if value="{{ m.isMulti }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;flex-direction:column;gap:7px;margin-top:13px;">
+                  <sc-for list="{{ m.options }}" as="o" hint-placeholder-count="3">
+                    <div style="position:relative;height:30px;border-radius:9px;background:var(--surf2);overflow:hidden;">
+                      <div style="position:absolute;inset:0 auto 0 0;width:{{ o.pct }}%;background:{{ o.fill }};transition:width .5s cubic-bezier(.2,.8,.2,1);"></div>
+                      <div style="position:relative;height:100%;display:flex;align-items:center;justify-content:space-between;padding:0 11px;font-size:13px;font-weight:700;">
+                        <span>{{ o.label }}{{ o.check }}</span><span style="color:var(--muted);">{{ o.pct }}%</span>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <div style="display:flex;justify-content:space-between;margin-top:12px;font-size:12px;color:var(--muted);font-weight:600;">
+                <span>קופה {{ m.potText }}</span><span>{{ m.timeText }}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ====== MARKET DETAIL ====== -->
+      <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ true }}">
+      <div key="d{{ detailId }}" style="animation:pm-screen .28s ease both;padding-bottom:30px;">
+        <div style="display:flex;align-items:center;gap:12px;padding:6px 18px 14px;">
+          <button onClick="{{ onBack }}" style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1);"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <span style="font-size:15px;font-weight:800;color:var(--muted);">פרטי הימור</span>
+        </div>
+
+        <div style="padding:0 18px;">
+          <div style="display:flex;align-items:flex-start;gap:13px;margin-bottom:18px;">
+            <div style="flex:0 0 auto;width:54px;height:54px;border-radius:15px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:28px;">{{ detail.emoji }}</div>
+            <div style="flex:1;min-width:0;">
+              <div dir="auto" style="font-size:20px;font-weight:800;line-height:1.25;">{{ detail.title }}</div>
+              <div style="font-size:12.5px;color:var(--faint);margin-top:4px;font-weight:600;">מאת {{ detail.creator }} · קופה {{ detail.potText }}</div>
+            </div>
+          </div>
+
+          <!-- big price -->
+          <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:4px;">
+            <span style="font-size:44px;font-weight:900;line-height:1;color:{{ detail.topColor }};">{{ detail.topPct }}<span style="font-size:22px;">%</span></span>
+            <span style="font-size:15px;font-weight:700;color:var(--faint);">{{ detail.topLabel }}</span>
+            <span style="margin-right:auto;font-size:14px;font-weight:800;color:{{ detail.changeColor }};">{{ detail.changeText }}</span>
+          </div>
+          <div style="font-size:13px;color:var(--muted);font-weight:600;margin-bottom:12px;">סיכוי משתמע מתוך הקופה</div>
+
+          <!-- chart -->
+          <div style="position:relative;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:12px 14px 10px;margin-bottom:10px;box-shadow:0 1px 2px rgba(15,19,32,.03);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+              <span style="font-size:11.5px;font-weight:800;color:var(--muted);">מגמת הסיכוי · {{ detail.topLabel }}</span>
+              <span style="font-size:13px;font-weight:800;color:{{ detail.topColor }};">{{ detail.topPct }}%</span>
+            </div>
+            <svg viewBox="0 0 330 150" width="100%" height="150" preserveAspectRatio="none" style="overflow:visible;display:block;">
+              <defs>
+                <linearGradient id="pm-grad-d" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="{{ detail.topHex }}" stop-opacity="0.28"/>
+                  <stop offset="0.75" stop-color="{{ detail.topHex }}" stop-opacity="0.03"/>
+                  <stop offset="1" stop-color="{{ detail.topHex }}" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <line x1="8" y1="44" x2="322" y2="44" stroke="#eef0f5" stroke-width="1"/>
+              <line x1="8" y1="104" x2="322" y2="104" stroke="#eef0f5" stroke-width="1"/>
+              <line x1="8" y1="74" x2="322" y2="74" stroke="#cdd3df" stroke-width="1"/>
+              <path d="{{ detail.area }}" fill="url(#pm-grad-d)"/>
+              <path d="{{ detail.line }}" fill="none" stroke="{{ detail.topHex }}" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" pathLength="100" style="stroke-dasharray:100;animation:pm-draw2 1.2s ease forwards;"/>
+              <circle cx="{{ detail.dotX }}" cy="{{ detail.dotY }}" r="8" fill="{{ detail.topHex }}" opacity="0.16"/>
+              <circle cx="{{ detail.dotX }}" cy="{{ detail.dotY }}" r="4.2" fill="{{ detail.topHex }}" stroke="var(--surface)" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
+            </svg>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 2px 0;font-size:11px;color:var(--faint);font-weight:600;">
+              <span>{{ detail.xStart }}</span>
+              <span style="display:flex;align-items:center;gap:4px;"><span style="width:5px;height:5px;border-radius:50%;background:{{ detail.topColor }};"></span>עכשיו</span>
+            </div>
+          </div>
+
+          <!-- timeframe -->
+          <div style="display:flex;gap:7px;margin-bottom:20px;justify-content:center;">
+            <sc-for list="{{ timeframes }}" as="t" hint-placeholder-count="4">
+              <button onClick="{{ t.onClick }}" style="border:none;background:{{ t.bg }};color:{{ t.fg }};padding:6px 16px;border-radius:9px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;">{{ t.label }}</button>
+            </sc-for>
+          </div>
+
+          <!-- options to buy -->
+          <div style="font-size:15px;font-weight:800;margin-bottom:11px;">{{ detail.buyTitle }}</div>
+          <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:22px;">
+            <sc-for list="{{ detail.options }}" as="o" hint-placeholder-count="2">
+              <button onClick="{{ o.onBuy }}" style="position:relative;overflow:hidden;border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:0;cursor:pointer;font-family:inherit;text-align:right;">
+                <div style="position:absolute;inset:0 auto 0 0;width:{{ o.pct }}%;background:{{ o.fillSoft }};"></div>
+                <div style="position:relative;display:flex;align-items:center;justify-content:space-between;padding:14px 15px;">
+                  <span style="font-size:15px;font-weight:700;">{{ o.label }}{{ o.check }}</span>
+                  <span style="display:flex;align-items:center;gap:12px;">
+                    <span style="font-size:16px;font-weight:800;color:{{ o.priceColor }};">{{ o.pct }}¢</span>
+                    <span style="font-size:12px;font-weight:800;color:#fff;background:{{ o.btn }};padding:7px 14px;border-radius:9px;">קנה</span>
+                  </span>
+                </div>
+              </button>
+            </sc-for>
+          </div>
+
+          <!-- criteria -->
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:15px;margin-bottom:22px;">
+            <div style="font-size:13px;font-weight:800;color:var(--muted);margin-bottom:6px;">איך זה נסגר</div>
+            <div dir="auto" style="font-size:14px;line-height:1.5;color:var(--ink);">{{ detail.criteria }}</div>
+          </div>
+
+          <sc-if value="{{ detail.canResolve }}" hint-placeholder-val="{{ false }}">
+            <div style="background:linear-gradient(135deg,#1f2a4d,#0f1320);border-radius:16px;padding:16px;margin-bottom:22px;color:#fff;position:relative;overflow:hidden;">
+              <div style="position:absolute;top:-30px;inset-inline-start:-20px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(43,110,242,.4),transparent 70%);"></div>
+              <div style="position:relative;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#9cc0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14 13-7.5 7.5a2.12 2.12 0 0 1-3-3L11 10"/><path d="m16 16 6-6"/><path d="m8 8 6-6"/><path d="m9 7 8 8"/><path d="m21 11-8-8"/></svg><span style="font-size:13.5px;font-weight:800;">{{ detail.resolveLabel }}</span></div>
+                <div style="font-size:12.5px;color:#aeb7c9;font-weight:600;line-height:1.45;margin-bottom:14px;">רק היוצר והמנהלים יכולים להכריע את ההימור הזה.</div>
+                <div style="display:flex;gap:9px;">
+                  <button style="flex:1;border:none;background:var(--accent);color:#fff;padding:12px;border-radius:12px;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;">הכרע עכשיו</button>
+                  <button style="flex:1;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#fff;padding:12px;border-radius:12px;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;">תזמן לסגירה</button>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- activity -->
+          <div style="font-size:15px;font-weight:800;margin-bottom:11px;">פעילות אחרונה</div>
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            <sc-for list="{{ detail.activity }}" as="a" hint-placeholder-count="4">
+              <div style="display:flex;align-items:center;gap:11px;padding:10px 2px;">
+                <div style="flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:{{ a.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;">{{ a.initial }}</div>
+                <div style="flex:1;min-width:0;font-size:13.5px;font-weight:600;line-height:1.3;">
+                  <span style="font-weight:800;">{{ a.user }}</span> קנה <span style="font-weight:800;color:{{ a.sideColor }};">{{ a.side }}</span>
+                  <div style="font-size:12px;color:var(--faint);font-weight:600;">{{ a.timeText }}</div>
+                </div>
+                <span style="font-size:14px;font-weight:800;">{{ a.amount }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ====== LEADERBOARD ====== -->
+      <sc-if value="{{ isBoard }}" hint-placeholder-val="{{ true }}">
+      <div key="{{ screen }}" style="animation:pm-screen .28s ease both;padding:6px 18px 30px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <button onClick="{{ onBack }}" style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1);"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <span style="font-size:15px;font-weight:800;color:var(--muted);">חזרה לבית</span>
+        </div>
+        <div style="font-size:24px;font-weight:800;margin-bottom:4px;">טבלת המובילים</div>
+        <div style="font-size:13.5px;color:var(--muted);font-weight:600;margin-bottom:18px;">רווח והפסד נטו מכל ההימורים שהוכרעו</div>
+
+        <!-- podium -->
+        <div style="display:flex;align-items:flex-end;gap:9px;margin-bottom:22px;">
+          <sc-for list="{{ podium }}" as="p" hint-placeholder-count="3">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;">
+              <div style="position:relative;width:{{ p.size }}px;height:{{ p.size }}px;border-radius:50%;background:{{ p.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:{{ p.font }}px;box-shadow:0 8px 18px -8px {{ p.color }};">{{ p.initial }}
+                <span style="position:absolute;-bottom:6px;bottom:-6px;width:22px;height:22px;border-radius:50%;background:{{ p.medal }};color:#3a2c00;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;border:2px solid var(--bg);">{{ p.rank }}</span>
+              </div>
+              <div style="font-size:13px;font-weight:800;margin-top:5px;">{{ p.name }}</div>
+              <div style="font-size:13px;font-weight:800;color:{{ p.netColor }};background:{{ p.netBg }};padding:3px 10px;border-radius:999px;">{{ p.netText }}</div>
+              <div style="width:100%;height:{{ p.bar }}px;background:linear-gradient(180deg,{{ p.color }},{{ p.color }}00);border-radius:10px 10px 0 0;opacity:.18;animation:pm-grow .6s ease both;transform-origin:bottom;"></div>
+            </div>
+          </sc-for>
+        </div>
+
+        <!-- full list -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;">
+          <sc-for list="{{ board }}" as="b" hint-placeholder-count="5">
+            <button onClick="{{ b.onOpen }}" style="width:100%;text-align:start;font-family:inherit;display:flex;align-items:center;gap:12px;padding:14px 15px;border:none;border-bottom:1px solid var(--border);background:{{ b.rowBg }};cursor:pointer;" style-active="transform:scale(.99);">
+              <span style="flex:0 0 auto;width:20px;font-size:14px;font-weight:800;color:var(--faint);text-align:center;">{{ b.rank }}</span>
+              <div style="flex:0 0 auto;width:38px;height:38px;border-radius:50%;background:{{ b.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;">{{ b.initial }}</div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:14.5px;font-weight:800;">{{ b.name }}{{ b.youTag }}</div>
+                <div style="font-size:12px;color:var(--faint);font-weight:600;">{{ b.wins }} ניצחונות · {{ b.bets }} הימורים</div>
+              </div>
+              <span style="font-size:15px;font-weight:800;color:{{ b.netColor }};">{{ b.netText }}</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--faint)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1);flex:0 0 auto;"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ====== NEWS ====== -->
+      <sc-if value="{{ isNews }}" hint-placeholder-val="{{ true }}">
+      <div key="{{ screen }}" style="animation:pm-screen .28s ease both;padding:6px 18px 30px;">
+        <div style="font-size:24px;font-weight:800;margin-bottom:4px;">מה חדש</div>
+        <div style="font-size:13.5px;color:var(--muted);font-weight:600;margin-bottom:18px;">כל מה שקרה בחבר׳ה — מי פתח, מי הימר ומה הוכרע.</div>
+
+        <sc-for list="{{ newsGroups }}" as="g" hint-placeholder-count="2">
+          <div style="font-size:12px;font-weight:800;color:var(--faint);letter-spacing:.5px;margin:6px 2px 11px;">{{ g.label }}</div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
+            <sc-for list="{{ g.items }}" as="e" hint-placeholder-count="4">
+              <div onClick="{{ e.onOpen }}" style="cursor:pointer;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:13px;display:flex;align-items:flex-start;gap:12px;box-shadow:0 1px 2px rgba(15,19,32,.03);transition:transform .16s cubic-bezier(.2,.8,.2,1),box-shadow .15s;" style-active="transform:scale(.985);" style-hover="box-shadow:0 6px 18px -10px rgba(15,19,32,.18);">
+                <sc-if value="{{ e.isTrophy }}" hint-placeholder-val="{{ false }}">
+                  <div style="flex:0 0 auto;width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#ffd24a,#f0a93a);display:flex;align-items:center;justify-content:center;font-size:20px;">🏆</div>
+                </sc-if>
+                <sc-if value="{{ e.notTrophy }}" hint-placeholder-val="{{ true }}">
+                  <div style="flex:0 0 auto;width:40px;height:40px;border-radius:50%;background:{{ e.avColor }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;">{{ e.initial }}</div>
+                </sc-if>
+
+                <div style="flex:1;min-width:0;">
+                  <div style="font-size:14px;font-weight:600;line-height:1.35;">
+                    <span style="font-weight:800;">{{ e.user }}</span> {{ e.action }}
+                    <sc-if value="{{ e.hasSide }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-weight:800;color:{{ e.sideColor }};background:{{ e.sideBg }};padding:1px 8px;border-radius:6px;margin:0 2px;">{{ e.sideLabel }}</span>
+                    </sc-if>
+                    <sc-if value="{{ e.hasAmount }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-weight:800;">· {{ e.amountText }}</span>
+                    </sc-if>
+                  </div>
+                  <div dir="auto" style="display:flex;align-items:center;gap:6px;margin-top:5px;">
+                    <span style="font-size:14px;flex:0 0 auto;">{{ e.emoji }}</span>
+                    <span style="font-size:12.5px;color:var(--muted);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ e.marketTitle }}</span>
+                  </div>
+                </div>
+
+                <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+                  <sc-if value="{{ e.isNew }}" hint-placeholder-val="{{ false }}">
+                    <span style="font-size:9px;font-weight:900;letter-spacing:.5px;color:#fff;background:var(--accent);padding:2px 7px;border-radius:999px;">חדש</span>
+                  </sc-if>
+                  <span style="font-size:11px;color:var(--faint);font-weight:600;white-space:nowrap;">{{ e.timeText }}</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-for>
+      </div>
+      </sc-if>
+
+      <!-- ====== PORTFOLIO ====== -->
+      <sc-if value="{{ isPortfolio }}" hint-placeholder-val="{{ true }}">
+      <div key="{{ screen }}" style="animation:pm-screen .28s ease both;padding:6px 18px 30px;">
+        <div style="font-size:24px;font-weight:800;margin-bottom:16px;">התיק שלי</div>
+
+        <div style="background:linear-gradient(135deg,#1f2a4d,#0f1320);border-radius:22px;padding:20px;color:#fff;margin-bottom:16px;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:-50px;left:-20px;width:170px;height:170px;border-radius:50%;background:radial-gradient(circle,rgba(43,110,242,.45),transparent 70%);"></div>
+          <div style="position:relative;">
+            <div style="font-size:12.5px;color:#aeb7c9;font-weight:700;letter-spacing:.3px;">יתרה זמינה</div>
+            <div style="font-size:38px;font-weight:900;letter-spacing:-1px;margin:4px 0 12px;">{{ port.balance }}</div>
+            <div style="display:flex;gap:22px;">
+              <div><div style="font-size:11px;color:#aeb7c9;font-weight:700;">רווח כולל</div><div style="font-size:17px;font-weight:800;color:{{ port.pnlColor }};margin-top:2px;">{{ port.pnl }}</div></div>
+              <div><div style="font-size:11px;color:#aeb7c9;font-weight:700;">פוזיציות פתוחות</div><div style="font-size:17px;font-weight:800;margin-top:2px;">{{ port.openCount }}</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- portfolio chart -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:12px 14px 10px;margin-bottom:20px;box-shadow:0 1px 2px rgba(15,19,32,.03);">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:13px;font-weight:800;color:var(--muted);">שווי לאורך זמן</span>
+            <span style="font-size:12.5px;font-weight:800;color:var(--yes);">{{ port.pnl }}</span>
+          </div>
+          <svg viewBox="0 0 330 130" width="100%" height="130" preserveAspectRatio="none" style="overflow:visible;display:block;">
+            <defs>
+              <linearGradient id="pm-grad-p" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#2b6ef2" stop-opacity="0.26"/>
+                <stop offset="0.8" stop-color="#2b6ef2" stop-opacity="0.03"/>
+                <stop offset="1" stop-color="#2b6ef2" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <line x1="8" y1="38" x2="322" y2="38" stroke="#eef0f5" stroke-width="1"/>
+            <line x1="8" y1="66" x2="322" y2="66" stroke="#eef0f5" stroke-width="1"/>
+            <line x1="8" y1="94" x2="322" y2="94" stroke="#eef0f5" stroke-width="1"/>
+            <path d="{{ port.area }}" fill="url(#pm-grad-p)"/>
+            <path d="{{ port.line }}" fill="none" stroke="#2b6ef2" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" pathLength="100" style="stroke-dasharray:100;animation:pm-draw2 1.2s ease forwards;"/>
+            <circle cx="{{ port.dotX }}" cy="{{ port.dotY }}" r="8" fill="#2b6ef2" opacity="0.16"/>
+            <circle cx="{{ port.dotX }}" cy="{{ port.dotY }}" r="4.2" fill="#2b6ef2" stroke="var(--surface)" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
+          </svg>
+        </div>
+
+        <div style="font-size:16px;font-weight:800;margin-bottom:11px;">פוזיציות פתוחות</div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:22px;">
+          <sc-for list="{{ port.positions }}" as="p" hint-placeholder-count="2">
+            <div onClick="{{ p.onOpen }}" style="cursor:pointer;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px;">
+              <div style="display:flex;align-items:flex-start;gap:11px;">
+                <div style="flex:0 0 auto;width:38px;height:38px;border-radius:11px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:20px;">{{ p.emoji }}</div>
+                <div style="flex:1;min-width:0;">
+                  <div dir="auto" style="font-size:14px;font-weight:700;line-height:1.3;">{{ p.title }}</div>
+                  <div style="margin-top:5px;font-size:12px;font-weight:700;"><span style="color:{{ p.sideColor }};background:{{ p.sideBg }};padding:2px 8px;border-radius:6px;">{{ p.side }}</span></div>
+                </div>
+                <div style="text-align:left;">
+                  <div style="font-size:11px;color:var(--faint);font-weight:700;">הימרת</div>
+                  <div style="font-size:15px;font-weight:800;">{{ p.stake }}</div>
+                  <div style="font-size:11px;color:var(--yes);font-weight:700;margin-top:2px;">זכייה {{ p.toWin }}</div>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="font-size:16px;font-weight:800;margin-bottom:11px;">היסטוריה</div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <sc-for list="{{ port.history }}" as="h" hint-placeholder-count="2">
+            <div style="display:flex;align-items:center;gap:11px;padding:11px 2px;border-bottom:1px solid var(--border);">
+              <div style="flex:0 0 auto;width:34px;height:34px;border-radius:10px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:17px;">{{ h.emoji }}</div>
+              <div style="flex:1;min-width:0;"><div dir="auto" style="font-size:13.5px;font-weight:700;line-height:1.3;">{{ h.title }}</div><div style="font-size:12px;color:var(--faint);font-weight:600;">{{ h.outcome }}</div></div>
+              <span style="font-size:15px;font-weight:800;color:{{ h.color }};">{{ h.amount }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ====== SETTLEMENT ====== -->
+      <sc-if value="{{ isSettle }}" hint-placeholder-val="{{ true }}">
+      <div key="{{ screen }}" style="animation:pm-screen .28s ease both;padding:6px 18px 30px;">
+        <div style="font-size:24px;font-weight:800;margin-bottom:4px;">התחשבנות</div>
+        <div style="font-size:13.5px;color:var(--muted);font-weight:600;margin-bottom:18px;line-height:1.5;">מאזן כולל מכל ההימורים שהוכרעו. הכסף לא עובר באפליקציה — שלמו אחד לשני ישירות.</div>
+
+        <div style="background:var(--surface);border:1.5px solid var(--accent-soft);border-radius:18px;padding:16px;margin-bottom:20px;box-shadow:0 8px 22px -16px var(--accent);">
+          <div style="font-size:14px;font-weight:800;margin-bottom:12px;">ההתחשבנות שלך</div>
+          <div style="display:flex;flex-direction:column;gap:9px;">
+            <sc-for list="{{ settle.mine }}" as="t" hint-placeholder-count="2">
+              <div style="display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:12px;background:{{ t.bg }};">
+                <div style="flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:{{ t.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;">{{ t.initial }}</div>
+                <span style="flex:1;font-size:14px;font-weight:700;">{{ t.verb }} <strong>{{ t.who }}</strong></span>
+                <span style="font-size:16px;font-weight:800;color:{{ t.amtColor }};">{{ t.amount }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="font-size:16px;font-weight:800;margin-bottom:11px;">מי משלם למי</div>
+        <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:22px;">
+          <sc-for list="{{ settle.transfers }}" as="t" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:13px 14px;font-size:13.5px;font-weight:700;">
+              <span>{{ t.from }}</span>
+              <svg width="20" height="14" viewBox="0 0 24 14" fill="none" stroke="var(--faint)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1);"><path d="M2 7h18m0 0-6-5m6 5-6 5"/></svg>
+              <span>{{ t.to }}</span>
+              <span style="margin-right:auto;font-size:15px;font-weight:800;">{{ t.amount }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="font-size:16px;font-weight:800;margin-bottom:11px;">מאזן כולל</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <sc-for list="{{ board }}" as="b" hint-placeholder-count="5">
+            <div style="display:flex;align-items:center;gap:11px;background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:11px 14px;">
+              <div style="flex:0 0 auto;width:30px;height:30px;border-radius:50%;background:{{ b.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;">{{ b.initial }}</div>
+              <span style="flex:1;font-size:14px;font-weight:700;">{{ b.name }}{{ b.youTag }}</span>
+              <span style="font-size:14.5px;font-weight:800;color:{{ b.netColor }};">{{ b.netText }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ====== NOTIFICATIONS ====== -->
+      <sc-if value="{{ isNotif }}" hint-placeholder-val="{{ false }}">
+      <div key="s-notif" style="animation:pm-screen .28s ease both;padding:6px 18px 30px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <button onClick="{{ onNotifBack }}" style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1);"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <span style="font-size:15px;font-weight:800;color:var(--muted);">חזרה</span>
+        </div>
+        <div style="font-size:24px;font-weight:800;margin-bottom:4px;">התראות</div>
+        <div style="font-size:13.5px;color:var(--muted);font-weight:600;margin-bottom:18px;">כל העדכונים שלך בקבוצה הזו.</div>
+        <div style="display:flex;flex-direction:column;gap:9px;">
+          <sc-for list="{{ notif }}" as="n" hint-placeholder-count="5">
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:13px;display:flex;align-items:flex-start;gap:12px;box-shadow:0 1px 2px rgba(15,19,32,.03);">
+              <div style="flex:0 0 auto;width:42px;height:42px;border-radius:13px;background:{{ n.bg }};display:flex;align-items:center;justify-content:center;font-size:21px;">{{ n.icon }}</div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:14.5px;font-weight:800;line-height:1.3;">{{ n.title }}</div>
+                <div dir="auto" style="font-size:13px;color:var(--muted);font-weight:600;margin-top:3px;line-height:1.4;">{{ n.body }}</div>
+              </div>
+              <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:7px;">
+                <sc-if value="{{ n.unread }}" hint-placeholder-val="{{ false }}"><span style="width:9px;height:9px;border-radius:50%;background:var(--accent);"></span></sc-if>
+                <span style="font-size:11px;color:var(--faint);font-weight:600;white-space:nowrap;">{{ n.time }}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ====== MEMBER PROFILE ====== -->
+      <sc-if value="{{ isProfile }}" hint-placeholder-val="{{ false }}">
+      <div key="s-profile" style="animation:pm-screen .28s ease both;padding:6px 18px 30px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+          <button onClick="{{ onBack }}" style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1);"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <span style="font-size:15px;font-weight:800;color:var(--muted);">פרופיל חבר</span>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;">
+          <div style="flex:0 0 auto;width:64px;height:64px;border-radius:50%;background:{{ profile.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:27px;">{{ profile.initial }}</div>
+          <div style="flex:1;min-width:0;">
+            <div dir="auto" style="font-size:21px;font-weight:800;">{{ profile.name }}{{ profile.youTag }}</div>
+            <div style="font-size:12.5px;color:var(--faint);font-weight:700;margin-top:3px;">דירוג {{ profile.rank }} בקבוצה</div>
+          </div>
+        </div>
+
+        <div style="background:linear-gradient(135deg,#1f2a4d,#0f1320);border-radius:22px;padding:20px;color:#fff;margin-bottom:16px;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:-50px;inset-inline-start:-20px;width:170px;height:170px;border-radius:50%;background:radial-gradient(circle,rgba(43,110,242,.45),transparent 70%);"></div>
+          <div style="position:relative;">
+            <div style="font-size:12.5px;color:#aeb7c9;font-weight:700;">רווח/הפסד נטו</div>
+            <div style="font-size:34px;font-weight:900;letter-spacing:-.5px;margin:4px 0 14px;color:{{ profile.netColor }};">{{ profile.net }}</div>
+            <div style="display:flex;gap:22px;">
+              <div><div style="font-size:11px;color:#aeb7c9;font-weight:700;">אחוז זכייה</div><div style="font-size:17px;font-weight:800;margin-top:2px;">{{ profile.winRate }}</div></div>
+              <div><div style="font-size:11px;color:#aeb7c9;font-weight:700;">ניצחונות</div><div style="font-size:17px;font-weight:800;margin-top:2px;">{{ profile.wins }}</div></div>
+              <div><div style="font-size:11px;color:#aeb7c9;font-weight:700;">הימורים</div><div style="font-size:17px;font-weight:800;margin-top:2px;">{{ profile.bets }}</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:12px 14px 10px;margin-bottom:20px;box-shadow:0 1px 2px rgba(15,19,32,.03);">
+          <div style="font-size:13px;font-weight:800;color:var(--muted);margin-bottom:6px;">שווי לאורך זמן</div>
+          <svg viewBox="0 0 330 130" width="100%" height="130" preserveAspectRatio="none" style="overflow:visible;display:block;">
+            <defs><linearGradient id="pm-grad-mp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b6ef2" stop-opacity="0.24"/><stop offset="0.8" stop-color="#2b6ef2" stop-opacity="0.03"/><stop offset="1" stop-color="#2b6ef2" stop-opacity="0"/></linearGradient></defs>
+            <line x1="8" y1="38" x2="322" y2="38" stroke="#eef0f5" stroke-width="1"/>
+            <line x1="8" y1="66" x2="322" y2="66" stroke="#eef0f5" stroke-width="1"/>
+            <line x1="8" y1="94" x2="322" y2="94" stroke="#eef0f5" stroke-width="1"/>
+            <path d="{{ profile.area }}" fill="url(#pm-grad-mp)"/>
+            <path d="{{ profile.line }}" fill="none" stroke="#2b6ef2" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" pathLength="100" style="stroke-dasharray:100;animation:pm-draw2 1.2s ease forwards;"/>
+            <circle cx="{{ profile.dotX }}" cy="{{ profile.dotY }}" r="4.2" fill="#2b6ef2" stroke="var(--surface)" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
+          </svg>
+        </div>
+
+        <sc-if value="{{ profile.hasPositions }}" hint-placeholder-val="{{ true }}">
+          <div style="font-size:16px;font-weight:800;margin-bottom:11px;">פוזיציות פתוחות</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <sc-for list="{{ profile.positions }}" as="p" hint-placeholder-count="2">
+              <div onClick="{{ p.onOpen }}" style="cursor:pointer;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px;display:flex;align-items:center;gap:11px;" style-active="transform:scale(.99);">
+                <div style="flex:0 0 auto;width:38px;height:38px;border-radius:11px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:20px;">{{ p.emoji }}</div>
+                <div style="flex:1;min-width:0;"><div dir="auto" style="font-size:14px;font-weight:700;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ p.title }}</div><div style="margin-top:5px;"><span style="font-size:12px;font-weight:700;color:{{ p.sideColor }};background:{{ p.sideBg }};padding:2px 8px;border-radius:6px;">{{ p.side }}</span></div></div>
+                <span style="font-size:15px;font-weight:800;">{{ p.stake }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+      </sc-if>
+
+      <!-- ====== MANAGE GROUP ====== -->
+      <sc-if value="{{ isManage }}" hint-placeholder-val="{{ false }}">
+      <div key="s-manage" style="animation:pm-screen .28s ease both;padding:6px 18px 30px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+          <button onClick="{{ onManageBack }}" style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1);"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <span style="font-size:15px;font-weight:800;color:var(--muted);">ניהול הקבוצה</span>
+        </div>
+
+        <div style="font-size:13px;font-weight:800;color:var(--muted);margin-bottom:10px;">הגדרות</div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:15px;margin-bottom:22px;">
+          <label style="font-size:12px;font-weight:800;color:var(--muted);display:block;margin-bottom:7px;">שם הקבוצה</label>
+          <div data-field style="display:flex;align-items:center;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:11px 13px;margin-bottom:13px;">
+            <input value="{{ agName }}" dir="auto" style="flex:1;border:none;background:none;outline:none;font-family:inherit;font-size:14.5px;font-weight:700;color:var(--ink);width:100%;"/>
+          </div>
+          <label style="font-size:12px;font-weight:800;color:var(--muted);display:block;margin-bottom:9px;">אופן הצטרפות</label>
+          <div style="display:flex;gap:6px;background:var(--surf2);padding:5px;border-radius:12px;margin-bottom:13px;">
+            <button onClick="{{ onMgModeCode }}" style="flex:1;border:none;padding:10px;border-radius:9px;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer;background:{{ mgBinBg }};color:{{ mgBinFg }};box-shadow:{{ mgBinSh }};">קוד פתוח</button>
+            <button onClick="{{ onMgModeApproval }}" style="flex:1;border:none;padding:10px;border-radius:9px;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer;background:{{ mgMulBg }};color:{{ mgMulFg }};box-shadow:{{ mgMulSh }};">באישור בעלים</button>
+          </div>
+          <label style="font-size:12px;font-weight:800;color:var(--muted);display:block;margin-bottom:7px;">סיסמת קבוצה</label>
+          <div data-field style="display:flex;align-items:center;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:11px 13px;margin-bottom:13px;">
+            <input placeholder="מוגדרת — הקלד כדי לשנות" style="flex:1;border:none;background:none;outline:none;font-family:inherit;font-size:14px;font-weight:600;color:var(--ink);width:100%;"/>
+          </div>
+          <label style="font-size:12px;font-weight:800;color:var(--muted);display:block;margin-bottom:7px;">קוד הצטרפות</label>
+          <div style="display:flex;align-items:center;gap:9px;background:var(--surf2);border-radius:12px;padding:11px 13px;">
+            <span style="flex:1;font-size:18px;font-weight:800;letter-spacing:2px;font-family:'SF Mono',ui-monospace,monospace;direction:ltr;">{{ mgCode }}</span>
+            <button onClick="{{ onCopy }}" style="border:none;background:var(--surface);color:var(--ink);padding:8px 13px;border-radius:9px;font-size:12.5px;font-weight:800;font-family:inherit;cursor:pointer;border:1px solid var(--border);">{{ copyLabel }}</button>
+            <button onClick="{{ onRotate }}" style="border:1px solid var(--border);background:var(--surface);color:var(--muted);width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:inherit;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <sc-if value="{{ mgHasRequests }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <span style="font-size:13px;font-weight:800;color:var(--muted);">בקשות הצטרפות</span>
+            <span style="font-size:11px;font-weight:900;color:#fff;background:var(--no);padding:2px 8px;border-radius:999px;">{{ mgReqCount }}</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:22px;">
+            <sc-for list="{{ mgRequests }}" as="r" hint-placeholder-count="2">
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:11px 13px;display:flex;align-items:center;gap:11px;">
+                <div style="flex:0 0 auto;width:38px;height:38px;border-radius:50%;background:{{ r.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;">{{ r.initial }}</div>
+                <span dir="auto" style="flex:1;font-size:14.5px;font-weight:700;">{{ r.name }}</span>
+                <button style="border:none;background:var(--yes-b);color:var(--yes);padding:8px 14px;border-radius:10px;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer;">אשר</button>
+                <button style="border:1px solid var(--border);background:var(--surface);color:var(--muted);padding:8px 14px;border-radius:10px;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer;">דחה</button>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <div style="font-size:13px;font-weight:800;color:var(--muted);margin-bottom:10px;">חברים</div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:22px;">
+          <sc-for list="{{ mgMembers }}" as="m" hint-placeholder-count="5">
+            <div style="display:flex;align-items:center;gap:11px;padding:12px 14px;border-bottom:1px solid var(--border);">
+              <div style="flex:0 0 auto;width:38px;height:38px;border-radius:50%;background:{{ m.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;">{{ m.initial }}</div>
+              <div style="flex:1;min-width:0;">
+                <div dir="auto" style="font-size:14.5px;font-weight:800;">{{ m.name }}</div>
+                <div style="font-size:11.5px;color:var(--faint);font-weight:700;margin-top:1px;">{{ m.role }}</div>
+              </div>
+              <sc-if value="{{ m.isOwner }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:11px;font-weight:800;color:var(--accent);background:var(--accent-soft);padding:5px 11px;border-radius:999px;">בעלים</span>
+              </sc-if>
+              <sc-if value="{{ m.canPromote }}" hint-placeholder-val="{{ false }}">
+                <button style="border:1px solid var(--border);background:var(--surface);color:var(--accent);padding:7px 12px;border-radius:9px;font-size:12px;font-weight:800;font-family:inherit;cursor:pointer;">קדם</button>
+              </sc-if>
+              <sc-if value="{{ m.canDemote }}" hint-placeholder-val="{{ false }}">
+                <button style="border:1px solid var(--border);background:var(--surface);color:var(--muted);padding:7px 12px;border-radius:9px;font-size:12px;font-weight:800;font-family:inherit;cursor:pointer;">הורד</button>
+              </sc-if>
+              <sc-if value="{{ m.canPromote }}" hint-placeholder-val="{{ false }}">
+                <button style="flex:0 0 auto;width:32px;height:32px;border-radius:9px;border:1px solid var(--no-b);background:var(--no-b);color:var(--no);display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:inherit;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+                </button>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="font-size:13px;font-weight:800;color:var(--no);margin-bottom:10px;">אזור מסוכן</div>
+        <sc-if value="{{ mgConfirmDelete }}" hint-placeholder-val="{{ false }}">
+          <div style="background:var(--no-b);border:1px solid #f8c9d2;border-radius:16px;padding:16px;">
+            <div style="font-size:14px;font-weight:800;color:var(--no);margin-bottom:4px;">למחוק את הקבוצה לצמיתות?</div>
+            <div style="font-size:12.5px;color:#b03048;font-weight:600;margin-bottom:14px;line-height:1.45;">כל ההימורים, הסטטיסטיקות וההתחשבנויות יימחקו. אי אפשר לבטל.</div>
+            <div style="display:flex;gap:9px;">
+              <button onClick="{{ onMgConfirmDelete }}" style="flex:1;border:none;background:var(--no);color:#fff;padding:13px;border-radius:12px;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;">כן, מחק</button>
+              <button onClick="{{ onMgCancelDelete }}" style="flex:1;border:1px solid var(--border);background:var(--surface);color:var(--ink);padding:13px;border-radius:12px;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;">ביטול</button>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ mgNotConfirm }}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{ onMgDelete }}" style="width:100%;border:1px solid var(--no-b);background:var(--surface);color:var(--no);padding:14px;border-radius:14px;font-size:14.5px;font-weight:800;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+            מחק קבוצה
+          </button>
+        </sc-if>
+      </div>
+      </sc-if>
+
+    </div>
+
+    <sc-if value="{{ inGroup }}" hint-placeholder-val="{{ true }}">
+    <!-- ============ BOTTOM NAV ============ -->
+    <div style="flex:0 0 auto;position:relative;height:78px;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-around;padding:9px 8px 0;">
+      <sc-for list="{{ nav }}" as="n" hint-placeholder-count="5">
+        <button onClick="{{ n.onClick }}" style="flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;font-family:inherit;padding:0;color:{{ n.color }};">
+          <span style="display:flex;" innerHTML="{{ n.icon }}"></span>
+          <span style="font-size:10.5px;font-weight:700;">{{ n.label }}</span>
+        </button>
+      </sc-for>
+      <button onClick="{{ onNewBet }}" style="position:absolute;top:-20px;left:50%;transform:translateX(-50%);width:56px;height:56px;border-radius:18px;border:4px solid var(--surface);background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 10px 22px -8px var(--accent);">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+    </div>
+    </sc-if>
+
+    <!-- ============ BET SHEET ============ -->
+    <sc-if value="{{ sheetOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;z-index:40;">
+        <div onClick="{{ onCloseSheet }}" style="position:absolute;inset:0;background:rgba(15,19,32,.5);animation:pm-fade .25s ease both;"></div>
+        <div style="position:absolute;left:0;right:0;bottom:0;background:var(--surface);border-radius:26px 26px 0 0;padding:8px 20px 26px;animation:pm-rise .34s cubic-bezier(.2,.9,.25,1) both;box-shadow:0 -14px 40px -10px rgba(15,19,32,.3);">
+          <div style="width:40px;height:5px;border-radius:99px;background:#d7dbe4;margin:6px auto 16px;"></div>
+
+          <!-- success -->
+          <sc-if value="{{ placed }}" hint-placeholder-val="{{ false }}">
+            <div style="text-align:center;padding:14px 0 8px;">
+              <div style="width:78px;height:78px;border-radius:50%;background:var(--yes-b);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;animation:pm-pop .45s cubic-bezier(.2,.9,.25,1) both;">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--yes)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              </div>
+              <div style="font-size:21px;font-weight:800;margin-bottom:6px;">ההימור נקלט! 🎉</div>
+              <div style="font-size:14px;color:var(--muted);font-weight:600;margin-bottom:6px;">הימרת {{ sheet.amountText }} על <span style="font-weight:800;color:{{ sheet.optColor }};">{{ sheet.optLabel }}</span></div>
+              <div dir="auto" style="font-size:13px;color:var(--faint);font-weight:600;margin-bottom:22px;">{{ sheet.title }}</div>
+              <div style="display:flex;justify-content:space-around;background:var(--surf2);border-radius:14px;padding:14px;margin-bottom:20px;">
+                <div><div style="font-size:11px;color:var(--muted);font-weight:700;">זכייה אפשרית</div><div style="font-size:18px;font-weight:800;color:var(--yes);margin-top:2px;">{{ sheet.payoutText }}</div></div>
+                <div><div style="font-size:11px;color:var(--muted);font-weight:700;">רווח</div><div style="font-size:18px;font-weight:800;color:var(--yes);margin-top:2px;">{{ sheet.profitText }}</div></div>
+              </div>
+              <button onClick="{{ onCloseSheet }}" style="width:100%;border:none;background:var(--ink);color:#fff;padding:15px;border-radius:14px;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;">סיום</button>
+            </div>
+          </sc-if>
+
+          <!-- form -->
+          <sc-if value="{{ sheetForm }}" hint-placeholder-val="{{ true }}">
+            <div>
+              <div style="display:flex;align-items:center;gap:11px;margin-bottom:18px;">
+                <div style="flex:0 0 auto;width:42px;height:42px;border-radius:12px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:22px;">{{ sheet.emoji }}</div>
+                <div dir="auto" style="flex:1;font-size:15px;font-weight:800;line-height:1.25;">{{ sheet.title }}</div>
+              </div>
+
+              <div style="font-size:13px;font-weight:800;color:var(--muted);margin-bottom:9px;">בחר אפשרות</div>
+              <div style="display:flex;gap:9px;margin-bottom:18px;flex-wrap:wrap;">
+                <sc-for list="{{ sheet.options }}" as="o" hint-placeholder-count="2">
+                  <button onClick="{{ o.onPick }}" style="flex:1;min-width:calc(50% - 5px);border:1.5px solid {{ o.bd }};background:{{ o.bg }};color:{{ o.fg }};padding:13px;border-radius:13px;font-size:15px;font-weight:800;font-family:inherit;cursor:pointer;transition:all .15s;">{{ o.label }} · {{ o.pct }}¢</button>
+                </sc-for>
+              </div>
+
+              <div style="font-size:13px;font-weight:800;color:var(--muted);margin-bottom:9px;">סכום</div>
+              <div data-field style="display:flex;align-items:center;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:4px 16px;margin-bottom:11px;">
+                <span style="font-size:24px;font-weight:800;color:var(--faint);">₪</span>
+                <input type="number" value="{{ amount }}" onInput="{{ onAmount }}" placeholder="0" style="flex:1;border:none;background:none;outline:none;font-family:inherit;font-size:30px;font-weight:800;color:var(--ink);padding:10px;width:100%;text-align:right;"/>
+              </div>
+              <div style="display:flex;gap:8px;margin-bottom:18px;">
+                <sc-for list="{{ chips }}" as="c" hint-placeholder-count="4">
+                  <button onClick="{{ c.onClick }}" style="flex:1;border:1px solid var(--border);background:var(--surface);color:var(--ink);padding:10px;border-radius:11px;font-size:13.5px;font-weight:800;font-family:inherit;cursor:pointer;">{{ c.label }}</button>
+                </sc-for>
+              </div>
+
+              <div style="display:flex;justify-content:space-between;background:var(--surf2);border-radius:14px;padding:14px 16px;margin-bottom:16px;">
+                <div><div style="font-size:11.5px;color:var(--muted);font-weight:700;">זכייה אפשרית</div><div style="font-size:19px;font-weight:800;color:var(--yes);margin-top:3px;">{{ sheet.payoutText }}</div></div>
+                <div style="text-align:left;"><div style="font-size:11.5px;color:var(--muted);font-weight:700;">רווח פוטנציאלי</div><div style="font-size:19px;font-weight:800;color:var(--yes);margin-top:3px;">{{ sheet.profitText }}</div></div>
+              </div>
+
+              <button onClick="{{ onPlace }}" style="width:100%;border:none;background:{{ sheet.ctaBg }};color:#fff;padding:16px;border-radius:15px;font-size:17px;font-weight:800;font-family:inherit;cursor:{{ sheet.ctaCursor }};opacity:{{ sheet.ctaOpacity }};transition:all .2s;">{{ sheet.ctaText }}</button>
+              <div style="text-align:center;font-size:11.5px;color:var(--faint);font-weight:600;margin-top:10px;">פארימוצ׳ואל · כל ההימורים נכנסים לקופה אחת והזוכים מתחלקים בה</div>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ============ CREATE BET FLOW ============ -->
+    <sc-if value="{{ createOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;z-index:50;">
+        <div onClick="{{ onCloseCreate }}" style="position:absolute;inset:0;background:rgba(15,19,32,.55);animation:pm-fade .25s ease both;"></div>
+        <div style="position:absolute;left:0;right:0;bottom:0;top:30px;background:var(--bg);border-radius:28px 28px 0 0;display:flex;flex-direction:column;overflow:hidden;animation:pm-rise .38s cubic-bezier(.2,.9,.25,1) both;box-shadow:0 -14px 40px -10px rgba(15,19,32,.35);">
+
+          <!-- SUCCESS -->
+          <sc-if value="{{ create.created }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;position:relative;overflow:hidden;">
+              <div style="position:absolute;top:16%;left:0;right:0;display:flex;justify-content:space-around;pointer-events:none;">
+                <span style="font-size:18px;animation:pm-confetti 1.1s ease-out .05s both;">🎉</span>
+                <span style="font-size:14px;animation:pm-confetti 1.3s ease-out .15s both;">🎲</span>
+                <span style="font-size:16px;animation:pm-confetti 1s ease-out .1s both;">✨</span>
+                <span style="font-size:14px;animation:pm-confetti 1.25s ease-out .2s both;">🎉</span>
+                <span style="font-size:16px;animation:pm-confetti 1.15s ease-out 0s both;">💸</span>
+              </div>
+              <div style="width:84px;height:84px;border-radius:50%;background:var(--yes-b);display:flex;align-items:center;justify-content:center;margin-bottom:20px;animation:pm-pop .5s cubic-bezier(.2,.9,.25,1) both;">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--yes)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              </div>
+              <div style="font-size:23px;font-weight:800;margin-bottom:8px;">ההימור עלה לאוויר!</div>
+              <div dir="auto" style="font-size:14.5px;color:var(--muted);font-weight:600;line-height:1.5;max-width:280px;margin-bottom:26px;">{{ create.previewTitle }} — החבר׳ה כבר יכולים להמר.</div>
+              <button onClick="{{ onCloseCreate }}" style="width:100%;max-width:300px;border:none;background:var(--ink);color:#fff;padding:16px;border-radius:15px;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;">סיום</button>
+            </div>
+          </sc-if>
+
+          <!-- FORM -->
+          <sc-if value="{{ createForm }}" hint-placeholder-val="{{ true }}">
+            <!-- header -->
+            <div style="flex:0 0 auto;padding:16px 18px 12px;">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+                <button onClick="{{ create.onHeaderBack }}" style="width:36px;height:36px;border-radius:11px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1);"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+                <div style="flex:1;font-size:16px;font-weight:800;text-align:center;">הימור חדש</div>
+                <button onClick="{{ onCloseCreate }}" style="width:36px;height:36px;border-radius:11px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
+              </div>
+              <div style="display:flex;gap:6px;">
+                <sc-for list="{{ create.segs }}" as="s" hint-placeholder-count="3">
+                  <div style="flex:1;height:5px;border-radius:99px;background:{{ s.bg }};transition:background-color .3s;"></div>
+                </sc-for>
+              </div>
+            </div>
+
+            <!-- scroll body -->
+            <div style="flex:1 1 auto;overflow-y:auto;">
+
+              <!-- STEP 0 -->
+              <sc-if value="{{ create.isStep0 }}" hint-placeholder-val="{{ true }}">
+              <div key="cs0" style="animation:pm-step .3s ease both;padding:10px 20px 24px;">
+                <div style="font-size:13px;font-weight:800;color:var(--accent);letter-spacing:.3px;margin-bottom:6px;">שלב 1 · הרעיון</div>
+                <div style="font-size:23px;font-weight:800;margin-bottom:6px;">על מה ההימור?</div>
+                <div style="font-size:14px;color:var(--muted);font-weight:600;margin-bottom:18px;line-height:1.45;">נסחו שאלה ברורה שאפשר להכריע עליה.</div>
+                <input value="{{ create.title }}" onInput="{{ onCTitle }}" dir="auto" placeholder="{{ create.suggestion }}" style="width:100%;border:1.5px solid var(--border);background:var(--surface);border-radius:14px;padding:15px 16px;font-family:inherit;font-size:16px;font-weight:700;color:var(--ink);outline:none;box-shadow:0 1px 2px rgba(15,19,32,.03);" style-focus="border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft);"/>
+                <div style="display:flex;gap:8px;margin-top:12px;">
+                  <button onClick="{{ create.useSuggestion }}" key="{{ create.cIdx }}" style="flex:1;min-width:0;display:flex;align-items:center;gap:8px;text-align:right;border:1px solid var(--accent-soft);background:var(--accent-soft);color:var(--accent);padding:11px 13px;border-radius:12px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;animation:pm-fade .45s ease both;">
+                    <span style="font-size:15px;flex:0 0 auto;">💡</span>
+                    <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ create.suggestion }}</span>
+                    <span style="font-size:11px;color:var(--faint);font-weight:800;flex:0 0 auto;">השתמש</span>
+                  </button>
+                  <button onClick="{{ create.shuffle }}" style="flex:0 0 auto;width:44px;border:1px solid var(--border);background:var(--surface);color:var(--muted);border-radius:12px;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="m15 15 6 6"/><path d="M4 4l5 5"/></svg>
+                  </button>
+                </div>
+                <div style="margin-top:24px;font-size:13px;font-weight:800;color:var(--muted);margin-bottom:9px;">תמונה <span style="color:var(--faint);font-weight:600;">(לא חובה)</span></div>
+                <button onClick="{{ onToggleImg }}" style="width:100%;border:none;background:none;padding:0;cursor:pointer;font-family:inherit;">
+                  <sc-if value="{{ create.img }}" hint-placeholder-val="{{ false }}">
+                    <div style="height:118px;border-radius:16px;background:linear-gradient(135deg,#e9f0fe,#dbe6fb);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border:1.5px solid var(--accent-soft);">
+                      <div style="font-size:30px;">🖼️</div>
+                      <div style="font-size:12.5px;font-weight:700;color:var(--accent);">תמונה נבחרה · הקש להסרה</div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ create.imgEmpty }}" hint-placeholder-val="{{ true }}">
+                    <div style="height:96px;border-radius:16px;background:var(--surf2);border:1.5px dashed #c7cdda;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--faint);">
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                      <div style="font-size:12.5px;font-weight:700;">הוסף תמונה</div>
+                    </div>
+                  </sc-if>
+                </button>
+              </div>
+              </sc-if>
+
+              <!-- STEP 1 -->
+              <sc-if value="{{ create.isStep1 }}" hint-placeholder-val="{{ false }}">
+              <div key="cs1" style="animation:pm-step .3s ease both;padding:10px 20px 24px;">
+                <div style="font-size:13px;font-weight:800;color:var(--accent);letter-spacing:.3px;margin-bottom:6px;">שלב 2 · האפשרויות</div>
+                <div style="font-size:23px;font-weight:800;margin-bottom:6px;">איך מכריעים?</div>
+                <div style="font-size:14px;color:var(--muted);font-weight:600;margin-bottom:18px;line-height:1.45;">כן/לא לשאלה פשוטה, או כמה אפשרויות לבחירה.</div>
+                <div style="display:flex;gap:6px;background:var(--surf2);padding:5px;border-radius:14px;margin-bottom:20px;">
+                  <button onClick="{{ create.onTypeBinary }}" style="flex:1;border:none;padding:11px;border-radius:10px;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;background:{{ create.binBg }};color:{{ create.binFg }};box-shadow:{{ create.binSh }};">כן / לא</button>
+                  <button onClick="{{ create.onTypeMulti }}" style="flex:1;border:none;padding:11px;border-radius:10px;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;background:{{ create.mulBg }};color:{{ create.mulFg }};box-shadow:{{ create.mulSh }};">בחירה מרובה</button>
+                </div>
+                <sc-if value="{{ create.isBinary }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:flex;gap:10px;">
+                    <div style="flex:1;text-align:center;padding:20px;border-radius:14px;background:var(--yes-b);color:var(--yes);font-size:18px;font-weight:800;">כן</div>
+                    <div style="flex:1;text-align:center;padding:20px;border-radius:14px;background:var(--no-b);color:var(--no);font-size:18px;font-weight:800;">לא</div>
+                  </div>
+                  <div style="text-align:center;font-size:12.5px;color:var(--faint);font-weight:600;margin-top:12px;">המשתתפים יקנו צד אחד מהשניים.</div>
+                </sc-if>
+                <sc-if value="{{ create.isMulti }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;flex-direction:column;gap:10px;">
+                    <sc-for list="{{ create.opts }}" as="o" hint-placeholder-count="2">
+                      <div style="display:flex;align-items:center;gap:9px;">
+                        <div style="flex:0 0 auto;width:26px;height:26px;border-radius:8px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;">{{ o.num }}</div>
+                        <input value="{{ o.value }}" onInput="{{ o.onInput }}" dir="auto" placeholder="שם האפשרות" style="flex:1;border:1.5px solid var(--border);background:var(--surface);border-radius:12px;padding:12px 14px;font-family:inherit;font-size:15px;font-weight:700;color:var(--ink);outline:none;" style-focus="border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft);"/>
+                        <sc-if value="{{ o.canRemove }}" hint-placeholder-val="{{ true }}">
+                          <button onClick="{{ o.onRemove }}" style="flex:0 0 auto;width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--faint);display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:inherit;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                          </button>
+                        </sc-if>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <sc-if value="{{ create.canAddOpt }}" hint-placeholder-val="{{ true }}">
+                    <button onClick="{{ onAddOpt }}" style="margin-top:12px;width:100%;border:1.5px dashed #c7cdda;background:none;color:var(--accent);padding:12px;border-radius:12px;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;">+ הוסף אפשרות</button>
+                  </sc-if>
+                </sc-if>
+              </div>
+              </sc-if>
+
+              <!-- STEP 2 -->
+              <sc-if value="{{ create.isStep2 }}" hint-placeholder-val="{{ false }}">
+              <div key="cs2" style="animation:pm-step .3s ease both;padding:10px 20px 24px;">
+                <div style="font-size:13px;font-weight:800;color:var(--accent);letter-spacing:.3px;margin-bottom:6px;">שלב 3 · פרטים אחרונים</div>
+                <div style="font-size:23px;font-weight:800;margin-bottom:18px;">כמעט שם!</div>
+
+                <div style="border-radius:18px;padding:16px;background:linear-gradient(135deg,#1f2a4d,#0f1320);color:#fff;margin-bottom:22px;position:relative;overflow:hidden;">
+                  <div style="position:absolute;top:-30px;left:-20px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(43,110,242,.45),transparent 70%);"></div>
+                  <div style="position:relative;">
+                    <div style="display:flex;align-items:center;gap:11px;margin-bottom:14px;">
+                      <div style="flex:0 0 auto;width:44px;height:44px;border-radius:13px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:24px;">{{ create.previewEmoji }}</div>
+                      <div dir="auto" style="flex:1;font-size:15px;font-weight:800;line-height:1.3;">{{ create.previewTitle }}</div>
+                    </div>
+                    <div style="display:flex;flex-wrap:wrap;gap:7px;">
+                      <sc-for list="{{ create.previewOpts }}" as="o" hint-placeholder-count="2">
+                        <span style="font-size:13px;font-weight:800;padding:7px 14px;border-radius:10px;background:{{ o.bg }};color:{{ o.color }};">{{ o.label }}</span>
+                      </sc-for>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="font-size:13px;font-weight:800;color:var(--muted);margin-bottom:9px;">סכום מינימלי להשתתפות</div>
+                <div data-field style="display:flex;align-items:center;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:2px 16px;margin-bottom:22px;box-shadow:0 1px 2px rgba(15,19,32,.03);">
+                  <span style="font-size:22px;font-weight:800;color:var(--faint);">₪</span>
+                  <input type="number" value="{{ create.stake }}" onInput="{{ onCStake }}" placeholder="5" style="flex:1;border:none;background:none;outline:none;font-family:inherit;font-size:22px;font-weight:800;color:var(--ink);padding:13px 10px;width:100%;text-align:right;"/>
+                </div>
+
+                <div style="font-size:13px;font-weight:800;color:var(--muted);margin-bottom:9px;">מתי ההימור נסגר?</div>
+                <div style="display:flex;gap:8px;">
+                  <sc-for list="{{ create.closeChips }}" as="c" hint-placeholder-count="4">
+                    <button onClick="{{ c.onClick }}" style="flex:1;border:1px solid {{ c.bd }};background:{{ c.bg }};color:{{ c.fg }};padding:12px 6px;border-radius:12px;font-size:13.5px;font-weight:800;font-family:inherit;cursor:pointer;">{{ c.label }}</button>
+                  </sc-for>
+                </div>
+              </div>
+              </sc-if>
+            </div>
+
+            <!-- footer -->
+            <div style="flex:0 0 auto;padding:13px 18px 20px;border-top:1px solid var(--border);background:var(--surface);">
+              <sc-if value="{{ create.notLast }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ onCNext }}" style="width:100%;border:none;background:var(--ink);color:#fff;padding:16px;border-radius:15px;font-size:16px;font-weight:800;font-family:inherit;cursor:{{ create.nextCursor }};opacity:{{ create.nextOpacity }};">המשך</button>
+              </sc-if>
+              <sc-if value="{{ create.isLast }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ onCreateBet }}" style="width:100%;border:none;background:var(--accent);color:#fff;padding:16px;border-radius:15px;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;box-shadow:0 10px 22px -10px var(--accent);">🎲 צור הימור</button>
+              </sc-if>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ============ GROUP SWITCHER ============ -->
+    <sc-if value="{{ switcherOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;z-index:45;">
+        <div onClick="{{ onCloseSwitcher }}" style="position:absolute;inset:0;background:rgba(15,19,32,.5);animation:pm-fade .25s ease both;"></div>
+        <div style="position:absolute;left:0;right:0;bottom:0;background:var(--surface);border-radius:26px 26px 0 0;padding:8px 18px 24px;animation:pm-rise .34s cubic-bezier(.2,.9,.25,1) both;box-shadow:0 -14px 40px -10px rgba(15,19,32,.3);">
+          <div style="width:40px;height:5px;border-radius:99px;background:#d7dbe4;margin:6px auto 16px;"></div>
+          <div style="font-size:17px;font-weight:800;margin-bottom:14px;">החלפת קבוצה</div>
+          <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:12px;">
+            <sc-for list="{{ switcherGroups }}" as="g" hint-placeholder-count="4">
+              <button onClick="{{ g.onPick }}" style="border:1.5px solid {{ g.bd }};background:{{ g.bg }};border-radius:14px;padding:11px;cursor:pointer;font-family:inherit;text-align:start;display:flex;align-items:center;gap:11px;" style-active="transform:scale(.985);">
+                <div style="position:relative;flex:0 0 auto;width:42px;height:42px;border-radius:12px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:22px;">{{ g.emoji }}
+                  <sc-if value="{{ g.unread }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-3px;inset-inline-start:-3px;width:12px;height:12px;border-radius:50%;background:var(--no);border:2.5px solid var(--surface);"></span></sc-if>
+                </div>
+                <div style="flex:1;min-width:0;"><div dir="auto" style="font-size:15px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ g.name }}</div><div style="font-size:12px;color:var(--faint);font-weight:600;margin-top:2px;">{{ g.members }}</div></div>
+                <sc-if value="{{ g.active }}" hint-placeholder-val="{{ false }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></sc-if>
+              </button>
+            </sc-for>
+          </div>
+          <sc-if value="{{ agIsAdmin }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ onManage }}" style="width:100%;border:1px solid var(--border);background:var(--surface);color:var(--ink);padding:13px;border-radius:14px;font-size:14.5px;font-weight:800;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:9px;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+              ניהול הקבוצה
+            </button>
+          </sc-if>
+          <button onClick="{{ onAllGroups }}" style="width:100%;border:1px solid var(--border);background:var(--surface);color:var(--accent);padding:14px;border-radius:14px;font-size:15px;font-weight:800;font-family:inherit;cursor:pointer;">כל הקבוצות</button>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ============ COPIED TOAST ============ -->
+    <sc-if value="{{ copied }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;bottom:96px;left:50%;transform:translateX(-50%);z-index:60;background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:13.5px;font-weight:800;animation:pm-fade .2s ease both;box-shadow:0 10px 24px -8px rgba(15,19,32,.5);white-space:nowrap;">הקוד הועתק ✓</div>
+    </sc-if>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844}}">
+class Component extends DCLogic {
+  state = {
+    zone:'shell', shellScreen:'login', activeGroup:'clan', switcherOpen:false, copied:false,
+    auName:'', auUser:'', auPass:'', auShowPass:false, auPending:false, auErr:'',
+    liUser:'', liPass:'', liShowPass:false, liErr:'',
+    ngName:'', ngDesc:'', ngEmoji:'🎯', ngMode:'code', ngPass:'', ngCreated:false, ngCode:'GRU-7K2C',
+    jgCode:'', jgPass:'', jgState:'form', jgErr:'',
+    mgConfirmDelete:false, mgMode:'code', profileUser:null,
+    screen: 'markets', detailId: null, filter: 'all', tf: 'all',
+    sheetOpen: false, sheetMarketId: null, sheetOption: null, amount: '', placed: false,
+    createOpen: false, cStep: 0, cTitle: '', cType: 'binary', cOpts: ['', ''],
+    cStake: '5', cClose: '2d', cImg: false, cCreated: false, cIdx: 0,
+  };
+
+  // ---------- static world ----------
+  DAY = 86400000;
+  _now = Date.now();
+  me = 'Ido';
+  meName = 'אידו';
+  heNames = { Ido:'אידו', Omri:'עמרי', Elad:'אלעד', Yanai:'ינאי', Ofek:'אופק' };
+  disp(name){ return this.heNames[name] || name; }
+
+  groups = [
+    { id:'clan', emoji:'🎯', name:'Apex Predators', cat:'קלאן', members:5, open:3, net:4600, unread:true, mode:'code', code:'APEX24', role:'owner', pending:2 },
+    { id:'poker', emoji:'🃏', name:'ערב פוקר', cat:'פוקר', members:8, open:2, net:-1200, unread:false, mode:'approval', code:'POKER1', role:'admin', pending:0 },
+    { id:'office', emoji:'💼', name:'משרד · קומה 3', cat:'עבודה', members:14, open:5, net:800, unread:true, mode:'code', code:'OFC3F', role:'member', pending:0 },
+    { id:'dorm', emoji:'🏠', name:'מעונות בניין ד׳', cat:'דורם', members:11, open:1, net:0, unread:false, mode:'approval', code:'DORM44', role:'member', pending:0 },
+  ];
+  pendingReqs = [ { emoji:'🎮', name:'Valorant IL', cat:'גיימינג' } ];
+  joinRequests = [
+    { name:'Tom', he:'תום', color:'#0ea5e9' },
+    { name:'Noa', he:'נועה', color:'#f59e0b' },
+  ];
+  members = [
+    { name:'Ido', role:'owner' }, { name:'Omri', role:'admin' },
+    { name:'Elad', role:'member' }, { name:'Yanai', role:'member' }, { name:'Ofek', role:'member' },
+  ];
+
+  suggestions = [
+    'מי ישלם על הפיצה במפגש הבא?',
+    'ננצח את המשחק הקרוב?',
+    'ירד גשם בסופ״ש?',
+    'נעלה שלב בטורניר הערב?',
+    'מישהו יאחר ביותר מ-15 דקות?',
+    'נסיים את הפרויקט עד סוף החודש?',
+    'הקבוצה תגיע ליעד החודשי?',
+    'מי ינצח בערב המשחקים?',
+    'נצליח לארגן מפגש עד סוף השבוע?',
+    'הסרט החדש יקבל מעל 80% בביקורות?',
+    'מי יסיים ראשון את האתגר?',
+    'נשבור את השיא הקבוצתי השבוע?',
+    'מישהו ישכח להביא את הציוד?',
+    'נזמין אוכל בחוץ או נבשל הפעם?',
+    'הקבוצה היריבה תבטל ברגע האחרון?',
+    'נצליח להגיע כולם בזמן?',
+    'מי יביא הכי הרבה אנשים למפגש?',
+    'נעבור את השלב הקשה מהניסיון הראשון?',
+    'הטמפרטורה תעלה מעל 30 מעלות מחר?',
+    'מי ינחש נכון את התוצאה הסופית?',
+    'נסיים את העונה במקום הראשון?',
+    'מישהו יישאר ער עד סוף המפגש?',
+    'הקבוצה תגדל ב-5 חברים החודש?',
+    'נצליח לעמוד ביעד שבועי שלם?',
+  ];
+
+  friends = {
+    Ido:   { color: '#2b6ef2' },
+    Omri:  { color: '#ef7d3a' },
+    Elad:  { color: '#15b87a' },
+    Yanai: { color: '#a855f7' },
+    Ofek:  { color: '#ec4899' },
+  };
+
+  initial(name){ return this.disp(name)[0]; }
+  color(name){ return (this.friends[name] || {}).color || '#737b8c'; }
+
+  // ---------- shell nav ----------
+  enterGroup(id){ this.setState({ zone:'group', activeGroup:id, screen:'markets', detailId:null, switcherOpen:false }); this.scrollTop(); }
+  goShell(s){ this.setState({ zone:'shell', shellScreen:s, switcherOpen:false }); this.scrollTop(); }
+  toGroups(){ this.goShell('groups'); }
+  openProfile(name){ this.setState({ screen:'profile', profileUser:name }); this.scrollTop(); }
+  copy(){ this.setState({ copied:true }); clearTimeout(this._cpT); this._cpT=setTimeout(()=>{ try{ this.setState({ copied:false }); }catch(e){} },1500); }
+  signup(){ const s=this.state; let err=''; if(s.auUser.trim()==='taken') err='user'; else if((s.auPass||'').length<4) err='pass'; if(err){ this.setState({ auErr:err }); return; } this.setState({ auPending:true, auErr:'' }); setTimeout(()=>{ try{ this.setState({ auPending:false, zone:'shell', shellScreen:'groups', meName:(s.auName.trim()||'אידו') }); }catch(e){} },950); }
+  login(){ const s=this.state; if(s.liPass==='wrong'){ this.setState({ liErr:'1' }); return; } this.setState({ zone:'shell', shellScreen:'groups', liErr:'' }); }
+  genCode(){ const a='ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let c=''; for(let i=0;i<5;i++) c+=a[Math.floor(Math.random()*a.length)]; return 'GRU-'+c; }
+  createGroup(){ this.setState({ ngCreated:true, ngCode:this.genCode() }); }
+  joinGroup(){ const code=(this.state.jgCode||'').toUpperCase().replace(/[^A-Z0-9]/g,''); if(code.length<4){ this.setState({ jgErr:'קוד לא תקין' }); return; } if(code==='APEX24'||code==='POKER1'||code==='OFC3F'){ this.setState({ jgState:'joined', jgErr:'' }); return; } if(code==='DORM44'){ this.setState({ jgState:'pending', jgErr:'' }); return; } this.setState({ jgErr:'קוד לא תקין' }); }
+
+  // net standings (agorot) computed from resolved bets — see seed/payout engine
+  nets = { Ido: 4600, Omri: 400, Ofek: 0, Elad: -2000, Yanai: -3000 };
+  winsBy = { Ido: 1, Omri: 1, Elad: 0, Yanai: 0, Ofek: 0 };
+  betsBy = { Ido: 7, Omri: 6, Elad: 6, Yanai: 4, Ofek: 3 };
+
+  markets = (() => {
+    const S = n => n * 100;
+    const ago = d => this._now - d * this.DAY;
+    const fut = d => this._now + d * this.DAY;
+    return [
+      {
+        id: 'rain', emoji: '🌧️', title: 'ירד גשם בתל אביב בסופ״ש?',
+        creator: 'Ido', status: 'OPEN', featured: true, createdAt: ago(3), closesAt: fut(2), minStake: S(5),
+        criteria: 'YES אם תרד כמות גשם מדידה כלשהי בתל אביב בין שבת לראשון.',
+        options: [
+          { id: 'y', label: 'Yes' }, { id: 'n', label: 'No' },
+        ],
+        positions: [
+          { user: 'Omri', opt: 'n', amount: S(20), t: ago(2.8) },
+          { user: 'Ido',  opt: 'y', amount: S(30), t: ago(2.2) },
+          { user: 'Elad', opt: 'n', amount: S(25), t: ago(1.5) },
+          { user: 'Yanai',opt: 'y', amount: S(40), t: ago(0.8) },
+          { user: 'Ofek', opt: 'n', amount: S(15), t: ago(0.2) },
+        ],
+      },
+      {
+        id: 'marathon', emoji: '🏃', title: 'מישהו יסיים את המרתון מתחת ל-4 שעות?',
+        creator: 'Yanai', status: 'OPEN', createdAt: ago(4), closesAt: fut(5), minStake: S(10),
+        criteria: 'YES אם הזמן הרשמי של אלעד מתחת ל־4:00:00.',
+        options: [{ id: 'y', label: 'Yes' }, { id: 'n', label: 'No' }],
+        positions: [
+          { user: 'Ido',  opt: 'y', amount: S(20), t: ago(3.4) },
+          { user: 'Elad', opt: 'n', amount: S(40), t: ago(2.6) },
+          { user: 'Omri', opt: 'n', amount: S(15), t: ago(1.1) },
+          { user: 'Yanai',opt: 'y', amount: S(30), t: ago(0.5) },
+        ],
+      },
+      {
+        id: 'ex', emoji: '🏕️', title: 'נצא לטיול קבוצתי לפני יולי?',
+        creator: 'Omri', status: 'OPEN', createdAt: ago(5), closesAt: fut(12), minStake: S(5),
+        criteria: 'YES אם יוצא טיול קבוצתי עם לפחות 4 משתתפים לפני 1 ביולי.',
+        options: [{ id: 'y', label: 'Yes' }, { id: 'n', label: 'No' }],
+        positions: [
+          { user: 'Ido',  opt: 'n', amount: S(25), t: ago(4.5) },
+          { user: 'Omri', opt: 'y', amount: S(10), t: ago(3.8) },
+          { user: 'Yanai',opt: 'n', amount: S(20), t: ago(2.3) },
+          { user: 'Elad', opt: 'y', amount: S(15), t: ago(1.2) },
+          { user: 'Ofek', opt: 'n', amount: S(30), t: ago(0.4) },
+        ],
+      },
+      {
+        id: 'dinner', emoji: '🍕', title: 'מי משלם על הפיצה במוצ״ש?',
+        creator: 'Elad', status: 'OPEN', createdAt: ago(2), closesAt: fut(3), minStake: S(10),
+        criteria: 'מי שמפסיד בהצבעה הקבוצתית במוצ״ש משלם על כולם.',
+        options: [{ id: 'i', label: 'אידו' }, { id: 'o', label: 'עמרי' }, { id: 'e', label: 'אלעד' }],
+        positions: [
+          { user: 'Omri', opt: 'i', amount: S(20), t: ago(1.7) },
+          { user: 'Ido',  opt: 'o', amount: S(15), t: ago(1.3) },
+          { user: 'Yanai',opt: 'e', amount: S(25), t: ago(0.9) },
+          { user: 'Elad', opt: 'o', amount: S(10), t: ago(0.3) },
+        ],
+      },
+      {
+        id: 'election', emoji: '🗳️', title: 'יוכרזו בחירות מוקדמות לפני 2027?',
+        creator: 'Ido', status: 'OPEN', createdAt: ago(6), closesAt: fut(40), minStake: S(5),
+        criteria: 'YES אם מוכרזות בחירות כלליות מוקדמות לפני 1.1.2027.',
+        options: [{ id: 'y', label: 'Yes' }, { id: 'n', label: 'No' }],
+        positions: [
+          { user: 'Ido',  opt: 'n', amount: S(20), t: ago(5.2) },
+          { user: 'Elad', opt: 'y', amount: S(30), t: ago(4.1) },
+          { user: 'Omri', opt: 'y', amount: S(25), t: ago(2.7) },
+          { user: 'Ofek', opt: 'n', amount: S(10), t: ago(1.0) },
+        ],
+      },
+      {
+        id: 'late', emoji: '⏰', title: 'נתחיל את הערב בזמן ביום שישי?',
+        creator: 'Ido', status: 'RESOLVED', winner: 'y', createdAt: ago(6), closesAt: ago(1), resolvedAt: ago(1), minStake: S(5),
+        criteria: 'YES אם התחלנו לפני 20:00. הוכרע: התחלנו ב־19:52.',
+        options: [{ id: 'y', label: 'Yes' }, { id: 'n', label: 'No' }],
+        positions: [
+          { user: 'Ido',  opt: 'y', amount: S(50), t: ago(5.5) },
+          { user: 'Omri', opt: 'n', amount: S(40), t: ago(5.0) },
+          { user: 'Elad', opt: 'y', amount: S(20), t: ago(3.5) },
+          { user: 'Yanai',opt: 'n', amount: S(30), t: ago(2.0) },
+        ],
+      },
+      {
+        id: 'fifa', emoji: '🎮', title: 'מי ינצח בערב הגיימינג?',
+        creator: 'Elad', status: 'RESOLVED', winner: 'o', createdAt: ago(4), closesAt: ago(0.5), resolvedAt: ago(0.5), minStake: S(10),
+        criteria: 'מנצח הטורניר. הוכרע: עמרי.',
+        options: [{ id: 'o', label: 'עמרי' }, { id: 'e', label: 'אלעד' }, { id: 'i', label: 'אידו' }],
+        positions: [
+          { user: 'Omri', opt: 'o', amount: S(30), t: ago(3.5) },
+          { user: 'Elad', opt: 'e', amount: S(40), t: ago(3.0) },
+          { user: 'Ido',  opt: 'i', amount: S(25), t: ago(2.5) },
+          { user: 'Ido',  opt: 'o', amount: S(15), t: ago(1.2) },
+        ],
+      },
+    ];
+  })();
+
+  // ---------- helpers ----------
+  fmt(a){
+    const v = a / 100;
+    const s = Math.abs(v).toLocaleString('en-US', { maximumFractionDigits: Number.isInteger(v) ? 0 : 2 });
+    return '\u2066' + (v < 0 ? '-' : '') + '₪' + s + '\u2069';
+  }
+  fmtSigned(a){ return '\u2066' + (a > 0 ? '+' : a < 0 ? '-' : '') + '₪' + Math.abs(a / 100).toLocaleString('en-US', { maximumFractionDigits: Number.isInteger(a/100)?0:2 }) + '\u2069'; }
+
+  timeUntil(ms){
+    const diff = ms - this._now; const past = diff < 0; const abs = Math.abs(diff);
+    const m = Math.round(abs/60000), h = Math.round(abs/3600000), d = Math.round(abs/86400000);
+    let s; if (m < 60) s = m + ' דק׳'; else if (h < 48) s = h + ' שע׳'; else s = d + ' ימים';
+    return past ? 'לפני ' + s : 'בעוד ' + s;
+  }
+
+  pool(m){
+    const tot = {}; let pot = 0;
+    for (const p of m.positions){ tot[p.opt] = (tot[p.opt]||0) + p.amount; pot += p.amount; }
+    const opts = m.options.map(o => ({
+      id: o.id, label: o.label, total: tot[o.id]||0,
+      pct: pot > 0 ? Math.round((tot[o.id]||0)/pot*100) : 0,
+      isWinner: m.winner === o.id,
+    }));
+    return { opts, pot, totals: tot };
+  }
+
+  // Catmull-Rom -> cubic bezier for a smooth line through points [[x,y],...]
+  smoothPath(pts){
+    if (!pts.length) return '';
+    if (pts.length === 1) return 'M'+pts[0][0]+' '+pts[0][1];
+    if (pts.length === 2) return 'M'+pts[0][0]+' '+pts[0][1]+' L'+pts[1][0]+' '+pts[1][1];
+    let d = 'M'+pts[0][0]+' '+pts[0][1];
+    for (let i = 0; i < pts.length-1; i++){
+      const p0 = pts[i-1]||pts[i], p1 = pts[i], p2 = pts[i+1], p3 = pts[i+2]||p2;
+      const c1x = p1[0]+(p2[0]-p0[0])/6, c1y = p1[1]+(p2[1]-p0[1])/6;
+      const c2x = p2[0]-(p3[0]-p1[0])/6, c2y = p2[1]-(p3[1]-p1[1])/6;
+      d += ' C'+c1x.toFixed(1)+' '+c1y.toFixed(1)+','+c2x.toFixed(1)+' '+c2y.toFixed(1)+','+p2[0]+' '+p2[1];
+    }
+    return d;
+  }
+  // build smoothed chart path for option `optId` (its % of pot over time)
+  chartPaths(m, optId, W, H){
+    const padTop = 14, padBot = 16, padX = 8;
+    const sorted = [...m.positions].sort((a,b)=>a.t-b.t);
+    const tot = {}; let pot = 0;
+    const raw = [{ x: m.createdAt, y: 50 }];
+    for (const p of sorted){
+      tot[p.opt] = (tot[p.opt]||0) + p.amount; pot += p.amount;
+      raw.push({ x: p.t, y: Math.round((tot[optId]||0)/pot*100) });
+    }
+    raw.push({ x: this._now, y: raw[raw.length-1].y });
+    const xs = raw.map(p=>p.x); let xMin = Math.min(...xs), xMax = Math.max(...xs);
+    if (xMin === xMax) xMax = xMin + 1;
+    const plotW = W - padX*2, plotH = H - padTop - padBot;
+    const sx = x => padX + (x-xMin)/(xMax-xMin)*plotW;
+    const sy = y => padTop + (1 - y/100)*plotH;
+    const pts = raw.map(p => [ +sx(p.x).toFixed(1), +sy(p.y).toFixed(1) ]);
+    const line = this.smoothPath(pts);
+    const last = pts[pts.length-1];
+    const area = line + ' L '+last[0]+' '+(H-padBot)+' L '+pts[0][0]+' '+(H-padBot)+' Z';
+    return { line, area, dotX: last[0], dotY: last[1], xStart: this.timeUntil(m.createdAt) };
+  }
+
+  statusInfo(s){
+    if (s === 'OPEN') return { label: 'פתוח', bg: 'var(--yes-b)', fg: 'var(--yes)' };
+    if (s === 'CLOSED') return { label: 'ממתין', bg: 'var(--surf2)', fg: 'var(--muted)' };
+    return { label: 'הוכרע', bg: 'var(--accent-soft)', fg: 'var(--accent)' };
+  }
+
+  // ---------- nav actions ----------
+  go(screen){ this.setState({ screen, detailId: null }); this.scrollTop(); }
+  openDetail(id){ this.setState({ screen: 'detail', detailId: id }); this.scrollTop(); }
+  back(){ this.setState({ screen: 'markets', detailId: null }); }
+  scrollTop(){ try{ const el = this.base && this.base.querySelector('[style*="overflow-y"]'); }catch(e){} }
+
+  openSheet(marketId, optId){ this.setState({ sheetOpen: true, sheetMarketId: marketId, sheetOption: optId, amount: '', placed: false }); }
+  closeSheet(){ this.setState({ sheetOpen: false, placed: false }); }
+  place(){
+    const amt = parseFloat(this.state.amount);
+    if (!this.state.sheetOption || !amt || amt <= 0) return;
+    this.setState({ placed: true });
+  }
+
+  // ---------- create flow ----------
+  openCreate(){ this.setState({ createOpen:true, cStep:0, cTitle:'', cType:'binary', cOpts:['',''], cStake:'5', cClose:'2d', cImg:false, cCreated:false }); }
+  closeCreate(){ this.setState({ createOpen:false }); }
+  canNext(){
+    const s = this.state;
+    if (s.cStep === 0) return s.cTitle.trim().length >= 3;
+    if (s.cStep === 1) return s.cType === 'binary' || s.cOpts.filter(o=>o.trim()).length >= 2;
+    return true;
+  }
+  cNext(){ if (this.canNext()) this.setState(s => ({ cStep: Math.min(2, s.cStep+1) })); }
+  cBack(){ this.setState(s => ({ cStep: Math.max(0, s.cStep-1) })); }
+  setOpt(i,v){ this.setState(s => { const o=[...s.cOpts]; o[i]=v; return { cOpts:o }; }); }
+  addOpt(){ this.setState(s => s.cOpts.length>=5 ? {} : ({ cOpts:[...s.cOpts, ''] })); }
+  removeOpt(i){ this.setState(s => s.cOpts.length<=2 ? {} : ({ cOpts: s.cOpts.filter((_,j)=>j!==i) })); }
+  createBet(){ this.setState({ cCreated:true }); }
+  componentDidMount(){ this._sugTimer = setInterval(() => { if (this.state.createOpen && this.state.cStep === 0) this.setState(s => ({ cIdx: s.cIdx + 1 })); }, 2600); }
+  componentWillUnmount(){ clearInterval(this._sugTimer); }
+
+  // ---------- news feed ----------
+  buildNews(){
+    const ev = [];
+    for (const m of this.markets){
+      ev.push({ kind:'open', user:m.creator, market:m, t:m.createdAt });
+      for (const p of m.positions){
+        const o = m.options.find(x => x.id === p.opt);
+        ev.push({ kind:'buy', user:p.user, side:o.label, amount:p.amount, market:m, t:p.t });
+      }
+      if (m.status === 'RESOLVED'){
+        const o = m.options.find(x => x.id === m.winner);
+        ev.push({ kind:'resolve', market:m, winnerLabel:o?o.label:'', t:m.resolvedAt });
+      }
+    }
+    return ev.sort((a,b) => b.t - a.t);
+  }
+
+  // ---------- shell view-model ----------
+  shellVals(){
+    const st = this.state;
+    const inGroup = st.zone === 'group';
+    const ag = this.groups.find(g => g.id === st.activeGroup) || this.groups[0];
+
+    const groupCards = this.groups.map(g => ({
+      emoji:g.emoji, name:g.name, cat:g.cat, members:g.members+' חברים',
+      open: g.open>0 ? g.open+' הימורים פתוחים' : 'אין הימורים פתוחים',
+      net:this.fmtSigned(g.net), netColor: g.net>0?'var(--yes)':g.net<0?'var(--no)':'var(--muted)', hasNet: g.net!==0,
+      unread:g.unread, roleTag: g.role==='owner'?'בעלים':g.role==='admin'?'מנהל':'', hasRole: g.role!=='member',
+      onOpen: () => this.enterGroup(g.id),
+    }));
+    const pending = this.pendingReqs.map(p => ({ emoji:p.emoji, name:p.name, cat:p.cat }));
+
+    const notif = [
+      { icon:'🏆', title:'זכית בהימור!', body:'נתחיל את הערב בזמן · Yes', time:'לפני שעה', unread:true, bg:'var(--yes-b)' },
+      { icon:'🎯', title:'הימור חדש נפתח', body:'אלעד פתח: מי משלם על הפיצה?', time:'לפני 3 שע׳', unread:true, bg:'var(--accent-soft)' },
+      { icon:'⚖️', title:'הימור הוכרע', body:'מי ינצח בערב הגיימינג? · עמרי ניצח', time:'אתמול', unread:false, bg:'var(--surf2)' },
+      { icon:'👋', title:'בקשת הצטרפות', body:'תום ביקש להצטרף לקבוצה', time:'אתמול', unread:false, bg:'var(--accent-soft)' },
+      { icon:'📉', title:'הפסדת בהימור', body:'מי ינצח בערב הגיימינג? · אידו', time:'לפני יומיים', unread:false, bg:'var(--surf2)' },
+    ];
+
+    const roleLabel = r => r==='owner'?'בעלים':r==='admin'?'מנהל':'חבר';
+    const mgMembers = this.members.map(m => ({
+      name:this.disp(m.name), initial:this.initial(m.name), color:this.color(m.name),
+      role:roleLabel(m.role), isOwner:m.role==='owner',
+      roleBg: m.role==='owner'?'var(--accent-soft)':(m.role==='admin'?'var(--surf2)':'transparent'),
+      roleColor: m.role==='owner'?'var(--accent)':'var(--muted)',
+      canPromote: m.role==='member', canDemote: m.role==='admin',
+    }));
+    const mgRequests = this.joinRequests.map(r => ({ name:r.he, initial:r.he[0], color:r.color }));
+    const mgMode = st.mgMode || 'code';
+
+    return {
+      inShell: !inGroup, inGroup,
+      isLogin: !inGroup && st.shellScreen==='login',
+      isSignup: !inGroup && st.shellScreen==='signup',
+      isGroups: !inGroup && st.shellScreen==='groups',
+      isNewGroup: !inGroup && st.shellScreen==='newGroup',
+      isJoin: !inGroup && st.shellScreen==='joinGroup',
+      isAccount: !inGroup && st.shellScreen==='account',
+      isManage: inGroup && st.screen==='manage',
+      isNotif: inGroup && st.screen==='notifications',
+      meName: st.meName || this.meName, meInitial: (st.meName||this.meName)[0],
+      copied: st.copied, onCopy:()=>this.copy(), copyLabel: st.copied?'הועתק!':'העתק',
+      onAccountBackToGroups:()=>this.goShell('groups'),
+      auUserBd: st.auErr==='user'?'var(--no)':'var(--border)', auPassBd: st.auErr==='pass'?'var(--no)':'var(--border)', auBtnOpacity: st.auPending?'.7':'1',
+      ngCanCreateOpacity: st.ngName.trim().length>=2?'1':'.5',
+      jgCodeBd: st.jgErr?'var(--no)':'var(--border)',
+      hasOwnerGroups: this.groups.some(g=>g.role==='owner'||g.role==='admin'),
+      // login
+      liUser:st.liUser, liPass:st.liPass, liErr:st.liErr, liType: st.liShowPass?'text':'password',
+      onLiUser:(e)=>this.setState({liUser:e.target.value}), onLiPass:(e)=>this.setState({liPass:e.target.value, liErr:''}),
+      onLiEye:()=>this.setState(s=>({liShowPass:!s.liShowPass})), onLogin:()=>this.login(), goSignup:()=>this.goShell('signup'),
+      // signup
+      auName:st.auName, auUser:st.auUser, auPass:st.auPass, auType: st.auShowPass?'text':'password',
+      auErrUser: st.auErr==='user'?'שם המשתמש כבר תפוס':'', auHasErrUser: st.auErr==='user',
+      auErrPass: st.auErr==='pass'?'סיסמה קצרה מדי (לפחות 4 תווים)':'', auHasErrPass: st.auErr==='pass',
+      auPending:st.auPending, auBtnText: st.auPending?'יוצר חשבון…':'צור חשבון',
+      onAuName:(e)=>this.setState({auName:e.target.value}), onAuUser:(e)=>this.setState({auUser:e.target.value, auErr:''}),
+      onAuPass:(e)=>this.setState({auPass:e.target.value, auErr:''}), onAuEye:()=>this.setState(s=>({auShowPass:!s.auShowPass})),
+      onSignup:()=>this.signup(), goLogin:()=>this.goShell('login'),
+      // dashboard
+      groupCards, pending, hasPending: pending.length>0, groupCount: this.groups.length+' קבוצות',
+      onNewGroup:()=>this.goShell('newGroup'), onJoinGroup:()=>this.goShell('joinGroup'), onAccount:()=>this.goShell('account'),
+      // create group
+      ngName:st.ngName, ngDesc:st.ngDesc, ngEmoji:st.ngEmoji, ngPass:st.ngPass,
+      ngCreated:st.ngCreated, ngCode:st.ngCode, ngForm:!st.ngCreated,
+      ngModeCode: st.ngMode==='code', ngModeApproval: st.ngMode==='approval', ngCanCreate: st.ngName.trim().length>=2,
+      ngEmojiOpts: ['🎯','🃏','💼','🏠','🎮','⚽','🍕','🎲','🏆','🔥'].map(e=>({ e, bd:st.ngEmoji===e?'var(--accent)':'var(--border)', bg:st.ngEmoji===e?'var(--accent-soft)':'var(--surface)', onPick:()=>this.setState({ngEmoji:e}) })),
+      onNgName:(e)=>this.setState({ngName:e.target.value}), onNgDesc:(e)=>this.setState({ngDesc:e.target.value}), onNgPass:(e)=>this.setState({ngPass:e.target.value}),
+      onNgModeCode:()=>this.setState({ngMode:'code'}), onNgModeApproval:()=>this.setState({ngMode:'approval'}),
+      ngBinBg: st.ngMode==='code'?'var(--surface)':'transparent', ngBinFg: st.ngMode==='code'?'var(--ink)':'var(--muted)', ngBinSh: st.ngMode==='code'?'0 1px 3px rgba(15,19,32,.12)':'none',
+      ngMulBg: st.ngMode==='approval'?'var(--surface)':'transparent', ngMulFg: st.ngMode==='approval'?'var(--ink)':'var(--muted)', ngMulSh: st.ngMode==='approval'?'0 1px 3px rgba(15,19,32,.12)':'none',
+      onCreateGroup:()=>this.createGroup(), onEnterNewGroup:()=>this.enterGroup('clan'),
+      // join
+      jgCode:st.jgCode, jgPass:st.jgPass, jgErr:st.jgErr, jgHasErr: !!st.jgErr,
+      jgForm: st.jgState==='form', jgJoined: st.jgState==='joined', jgPendingState: st.jgState==='pending',
+      onJgCode:(e)=>this.setState({jgCode:e.target.value.toUpperCase(), jgErr:''}), onJgPass:(e)=>this.setState({jgPass:e.target.value}),
+      onJoin:()=>this.joinGroup(), onJgEnter:()=>this.enterGroup('poker'), jgReset:()=>this.setState({jgState:'form', jgCode:'', jgErr:''}),
+      // account
+      onLogout:()=>this.setState({zone:'shell', shellScreen:'login', liUser:'', liPass:''}),
+      ownerGroups: this.groups.filter(g=>g.role==='owner'||g.role==='admin').map(g=>({ emoji:g.emoji, name:g.name, role:g.role==='owner'?'בעלים':'מנהל' })),
+      // group header / switcher
+      agName:ag.name, agEmoji:ag.emoji, agMembersText:ag.members+' חברים', agIsAdmin: ag.role==='owner'||ag.role==='admin',
+      switcherOpen:st.switcherOpen, onOpenSwitcher:()=>this.setState({switcherOpen:true}), onCloseSwitcher:()=>this.setState({switcherOpen:false}),
+      switcherGroups: this.groups.map(g=>({ emoji:g.emoji, name:g.name, members:g.members+' חברים', active:g.id===ag.id, bg:g.id===ag.id?'var(--accent-soft)':'var(--surface)', bd:g.id===ag.id?'var(--accent)':'var(--border)', unread:g.unread, onPick:()=>this.enterGroup(g.id) })),
+      onAllGroups:()=>this.toGroups(),
+      // manage
+      onManage:()=>this.setState({screen:'manage', switcherOpen:false}), mgMembers, mgRequests, mgHasRequests: mgRequests.length>0, mgReqCount: mgRequests.length,
+      mgModeCode: mgMode==='code',
+      mgBinBg: mgMode==='code'?'var(--surface)':'transparent', mgBinFg: mgMode==='code'?'var(--ink)':'var(--muted)', mgBinSh: mgMode==='code'?'0 1px 3px rgba(15,19,32,.12)':'none',
+      mgMulBg: mgMode==='approval'?'var(--surface)':'transparent', mgMulFg: mgMode==='approval'?'var(--ink)':'var(--muted)', mgMulSh: mgMode==='approval'?'0 1px 3px rgba(15,19,32,.12)':'none',
+      onMgModeCode:()=>this.setState({mgMode:'code'}), onMgModeApproval:()=>this.setState({mgMode:'approval'}),
+      mgCode: ag.code, mgConfirmDelete: st.mgConfirmDelete, mgNotConfirm: !st.mgConfirmDelete, onMgDelete:()=>this.setState({mgConfirmDelete:true}), onMgCancelDelete:()=>this.setState({mgConfirmDelete:false}), onMgConfirmDelete:()=>this.toGroups(),
+      onRotate:()=>this.copy(), onManageBack:()=>this.setState({screen:'markets'}),
+      // notifications
+      onNotif:()=>this.setState({screen:'notifications'}), notif, notifUnread: notif.filter(n=>n.unread).length,
+      onNotifBack:()=>this.setState({screen:'markets'}),
+    };
+  }
+
+  // ---------- render ----------
+  renderVals(){
+    const st = this.state;
+    const inGroup = st.zone === 'group';
+    const agRole = (this.groups.find(g => g.id === st.activeGroup) || {}).role || 'member';
+    const filtMap = { all: null, open: 'OPEN', closed: 'CLOSED', resolved: 'RESOLVED' };
+    const wantStatus = filtMap[st.filter];
+    const visible = this.markets.filter(m => !wantStatus || m.status === wantStatus);
+
+    // featured
+    const feat = this.markets.find(m => m.featured);
+    const fp = this.pool(feat);
+    const featTop = fp.opts[0], featBot = fp.opts[1];
+    const featured = {
+      emoji: feat.emoji, title: feat.title, timeText: this.timeUntil(feat.closesAt),
+      topPct: featTop.pct, botPct: featBot.pct, topLabel: featTop.label,
+      potText: this.fmt(fp.pot), betCount: feat.positions.length,
+      onOpen: () => this.openDetail(feat.id),
+      onYes: () => this.openSheet(feat.id, featTop.id),
+      onNo:  () => this.openSheet(feat.id, featBot.id),
+    };
+
+    // market cards
+    const markets = visible.map(m => {
+      const pl = this.pool(m);
+      const si = this.statusInfo(m.status);
+      const isBinary = m.options.length === 2 && m.options[0].label === 'Yes';
+      const yes = pl.opts[0], no = pl.opts[1];
+      return {
+        id: m.id, emoji: m.emoji, title: m.title, creator: this.disp(m.creator),
+        stLabel: si.label, stBg: si.bg, stFg: si.fg,
+        potText: this.fmt(pl.pot),
+        timeText: m.status === 'OPEN' ? 'נסגר ' + this.timeUntil(m.closesAt) : (m.status==='RESOLVED' ? 'הוכרע' : 'ממתין לתוצאה'),
+        isBinary, isMulti: !isBinary,
+        yesPct: isBinary ? yes.pct : 0, noPct: isBinary ? no.pct : 0,
+        options: pl.opts.map(o => ({
+          label: o.label, pct: o.pct, check: o.isWinner ? ' ✓' : '',
+          fill: o.isWinner ? 'var(--yes-b)' : 'var(--accent-soft)',
+        })),
+        onOpen: () => this.openDetail(m.id),
+        onYes: () => this.openSheet(m.id, yes.id),
+        onNo:  () => this.openSheet(m.id, no.id),
+      };
+    });
+
+    const filters = [
+      { key: 'all', label: 'הכול' }, { key: 'open', label: 'פתוחים' },
+      { key: 'closed', label: 'ממתינים' }, { key: 'resolved', label: 'הוכרעו' },
+    ].map(f => ({
+      label: f.label,
+      bg: st.filter === f.key ? 'var(--ink)' : 'var(--surface)',
+      fg: st.filter === f.key ? '#fff' : 'var(--muted)',
+      bd: st.filter === f.key ? 'var(--ink)' : 'var(--border)',
+      onClick: () => this.setState({ filter: f.key }),
+    }));
+
+    // ticker
+    const ticker = [
+      { user: 'עמרי', verb: 'קנה', side: 'No', color: '#f0405a', market: 'גשם בת״א' },
+      { user: 'ינאי', verb: 'קנה', side: 'Yes', color: '#15b87a', market: 'גשם בת״א' },
+      { user: 'אלעד', verb: 'הניח על', side: 'Yes', color: '#15b87a', market: 'טיול קבוצתי' },
+      { user: 'אידו', verb: 'קנה', side: 'No', color: '#f0405a', market: 'בחירות מוקדמות' },
+      { user: 'אופק', verb: 'קנה', side: 'No', color: '#f0405a', market: 'גשם בת״א' },
+      { user: 'אלעד', verb: 'פתח הימור', side: 'חדש', color: '#2b6ef2', market: 'פיצה במוצ״ש' },
+    ];
+
+    // ---- detail ----
+    let detail = null;
+    if (st.screen === 'detail' && st.detailId){
+      const m = this.markets.find(x => x.id === st.detailId);
+      const pl = this.pool(m);
+      const top = [...pl.opts].sort((a,b)=>b.pct-a.pct)[0] || pl.opts[0];
+      const topColor = (top.id === pl.opts[0].id && m.options[0].label==='Yes') ? 'var(--yes)' : (top.label==='No' ? 'var(--no)' : 'var(--accent)');
+      const topHex = topColor === 'var(--yes)' ? '#15b87a' : topColor === 'var(--no)' ? '#f0405a' : '#2b6ef2';
+      const paths = this.chartPaths(m, top.id, 330, 150);
+      const isBinary = m.options.length === 2 && m.options[0].label === 'Yes';
+      detail = {
+        emoji: m.emoji, title: m.title, creator: this.disp(m.creator), potText: this.fmt(pl.pot),
+        topPct: top.pct, topLabel: top.label, topColor, topHex,
+        changeText: m.status==='RESOLVED' ? 'הוכרע' : '▲ 6% היום', changeColor: m.status==='RESOLVED' ? 'var(--muted)' : 'var(--yes)',
+        line: paths.line, area: paths.area, dotX: paths.dotX, dotY: paths.dotY, xStart: paths.xStart,
+        buyTitle: m.status === 'OPEN' ? 'קנה אפשרות' : 'תוצאות',
+        options: pl.opts.map(o => {
+          const isNo = o.label === 'No';
+          const c = isNo ? 'var(--no)' : (m.options[0].label==='Yes' ? 'var(--yes)' : 'var(--accent)');
+          return {
+            label: o.label, pct: o.pct, check: o.isWinner ? '  ✓ זוכה' : '',
+            fillSoft: isNo ? 'var(--no-b)' : (m.options[0].label==='Yes' ? 'var(--yes-b)' : 'var(--accent-soft)'),
+            priceColor: c, btn: c,
+            onBuy: () => m.status === 'OPEN' ? this.openSheet(m.id, o.id) : null,
+          };
+        }),
+        criteria: m.criteria,
+        isOpen: m.status === 'OPEN',
+        canResolve: m.status === 'OPEN' && (m.creator === this.me || agRole === 'owner' || agRole === 'admin'),
+        resolveLabel: (m.creator === this.me) ? 'החלטת יוצר' : 'החלטת מנהל',
+        activity: [...m.positions].sort((a,b)=>b.t-a.t).map(p => {
+          const o = m.options.find(x=>x.id===p.opt);
+          const isNo = o.label === 'No';
+          return {
+            user: this.disp(p.user), initial: this.initial(p.user), color: this.color(p.user),
+            side: o.label, sideColor: isNo ? 'var(--no)' : (o.label==='Yes' ? 'var(--yes)' : 'var(--accent)'),
+            amount: this.fmt(p.amount), timeText: this.timeUntil(p.t),
+          };
+        }),
+      };
+    }
+
+    // ---- leaderboard ----
+    const ranked = Object.keys(this.friends).map(name => ({ name, net: this.nets[name] }))
+      .sort((a,b)=>b.net-a.net);
+    const board = ranked.map((r, i) => ({
+      rank: i+1, name: this.disp(r.name), initial: this.initial(r.name), color: this.color(r.name),
+      youTag: r.name === this.me ? '  (אתה)' : '',
+      wins: this.winsBy[r.name] || 0, bets: this.betsBy[r.name] || 0,
+      netText: this.fmtSigned(r.net),
+      netColor: r.net > 0 ? 'var(--yes)' : r.net < 0 ? 'var(--no)' : 'var(--muted)',
+      onOpen: () => this.openProfile(r.name),
+      rowBg: r.name === this.me ? 'var(--accent-soft)' : 'var(--surface)',
+    }));
+    const medals = ['#ffd24a', '#cdd4e0', '#e6a06a'];
+    const podSizes = [70, 60, 52], podFonts = [26, 22, 19], podBars = [60, 44, 32];
+    const podOrder = [ranked[1], ranked[0], ranked[2]]; // 2nd, 1st, 3rd
+    const podium = podOrder.map((r) => {
+      const realRank = ranked.indexOf(r);
+      return {
+        name: this.disp(r.name), initial: this.initial(r.name), color: this.color(r.name),
+        rank: realRank+1, medal: medals[realRank], size: podSizes[realRank], font: podFonts[realRank], bar: podBars[realRank],
+        netText: this.fmtSigned(r.net),
+        netColor: r.net > 0 ? 'var(--yes)' : r.net < 0 ? 'var(--no)' : 'var(--muted)',
+        netBg: r.net > 0 ? 'var(--yes-b)' : r.net < 0 ? 'var(--no-b)' : 'var(--surf2)',
+      };
+    });
+
+    // ---- portfolio (Ido) ----
+    const myStake = {};
+    for (const m of this.markets) for (const p of m.positions) if (p.user === this.me){
+      const o = m.options.find(x=>x.id===p.opt);
+    }
+    const openMine = [];
+    for (const m of this.markets){
+      if (m.status !== 'OPEN') continue;
+      for (const p of m.positions){
+        if (p.user !== this.me) continue;
+        const pl = this.pool(m);
+        const o = pl.opts.find(x=>x.id===p.opt);
+        const toWin = o.total>0 ? Math.round(p.amount/o.total*pl.pot) : p.amount;
+        const isNo = o.label === 'No';
+        openMine.push({
+          id: m.id, emoji: m.emoji, title: m.title, side: o.label,
+          sideColor: isNo ? 'var(--no)' : (o.label==='Yes'?'var(--yes)':'var(--accent)'),
+          sideBg: isNo ? 'var(--no-b)' : (o.label==='Yes'?'var(--yes-b)':'var(--accent-soft)'),
+          stake: this.fmt(p.amount), toWin: this.fmt(toWin),
+          onOpen: () => this.openDetail(m.id),
+        });
+      }
+    }
+    const history = [
+      { emoji: '⏰', title: 'נתחיל את הערב בזמן ביום שישי?', outcome: 'הימרת Yes · זכית', amount: '+₪50', color: 'var(--yes)' },
+      { emoji: '🎮', title: 'מי ינצח בערב הגיימינג?', outcome: 'הימרת עמרי · הפסדת', amount: '-₪4', color: 'var(--no)' },
+    ];
+    // portfolio value series
+    const pv = [820, 870, 910, 1080, 1040, 1190, 1240];
+    const pvW = 330, pvH = 130, pPadX = 8, pPadT = 10, pPadB = 8;
+    const lo = Math.min(...pv) - 60, hi = Math.max(...pv) + 60;
+    const psx = i => pPadX + i/(pv.length-1)*(pvW-pPadX*2);
+    const psy = v => pPadT + (1-(v-lo)/(hi-lo))*(pvH-pPadT-pPadB);
+    const pvPts = pv.map((v,i)=>[ +psx(i).toFixed(1), +psy(v).toFixed(1) ]);
+    const pLine = this.smoothPath(pvPts);
+    const pArea = pLine + ' L '+pvPts[pvPts.length-1][0]+' '+(pvH-pPadB)+' L '+pvPts[0][0]+' '+(pvH-pPadB)+' Z';
+    const port = {
+      balance: this.fmt(124000), pnl: this.fmtSigned(this.nets.Ido), pnlColor: 'var(--yes)',
+      openCount: openMine.length,
+      line: pLine, area: pArea, dotX: psx(pv.length-1).toFixed(1), dotY: psy(pv[pv.length-1]).toFixed(1),
+      positions: openMine, history,
+    };
+
+    // ---- member profile ----
+    let profile = null;
+    if (st.screen === 'profile' && st.profileUser){
+      const nm = st.profileUser;
+      const net = this.nets[nm] || 0;
+      const openPos = [];
+      for (const m of this.markets){
+        if (m.status !== 'OPEN') continue;
+        for (const p of m.positions){
+          if (p.user !== nm) continue;
+          const pl = this.pool(m); const o = pl.opts.find(x => x.id === p.opt); const isNo = o.label === 'No';
+          openPos.push({ emoji:m.emoji, title:m.title, side:o.label,
+            sideColor:isNo?'var(--no)':(o.label==='Yes'?'var(--yes)':'var(--accent)'),
+            sideBg:isNo?'var(--no-b)':(o.label==='Yes'?'var(--yes-b)':'var(--accent-soft)'),
+            stake:this.fmt(p.amount), onOpen:()=>this.openDetail(m.id) });
+        }
+      }
+      const rIdx = ranked.findIndex(r => r.name === nm);
+      const wins = this.winsBy[nm]||0, bets = this.betsBy[nm]||0;
+      profile = {
+        name:this.disp(nm), initial:this.initial(nm), color:this.color(nm), isMe: nm===this.me, youTag: nm===this.me?'  (אתה)':'',
+        net:this.fmtSigned(net), netColor: net>0?'var(--yes)':net<0?'var(--no)':'var(--muted)',
+        rank: rIdx>=0?'#'+(rIdx+1):'—', wins, bets, winRate: bets?Math.round(wins/bets*100)+'%':'0%',
+        line:pLine, area:pArea, dotX:psx(pv.length-1).toFixed(1), dotY:psy(pv[pv.length-1]).toFixed(1),
+        positions:openPos, hasPositions: openPos.length>0,
+      };
+    }
+
+    // ---- settlement ----
+    const transfers = [
+      { from: 'Yanai', to: 'Ido', amount: 3000 },
+      { from: 'Elad', to: 'Ido', amount: 1600 },
+      { from: 'Elad', to: 'Omri', amount: 400 },
+    ].map(t => ({ from: this.disp(t.from), to: this.disp(t.to), amount: this.fmt(t.amount) }));
+    const mine = [
+      { from: 'Yanai', amount: 3000 }, { from: 'Elad', amount: 1600 },
+    ].map(t => ({
+      verb: 'גבה מ־', who: this.disp(t.from), initial: this.initial(t.from), color: this.color(t.from),
+      amount: this.fmt(t.amount), amtColor: 'var(--yes)', bg: 'var(--yes-b)',
+    }));
+    const settle = { transfers, mine };
+
+    // ---- bet sheet ----
+    let sheet = { options: [], title: '', emoji: '', payoutText: '₪0', profitText: '+₪0', ctaText: 'בחר סכום', ctaBg: '#c5cad6', ctaCursor: 'default', ctaOpacity: '1', optLabel: '', optColor: 'var(--ink)', amountText: '', payoutText: '₪0' };
+    if (st.sheetMarketId){
+      const m = this.markets.find(x => x.id === st.sheetMarketId);
+      const pl = this.pool(m);
+      const amtAg = (parseFloat(st.amount) || 0) * 100;
+      const sel = pl.opts.find(o => o.id === st.sheetOption);
+      const newOptPool = (sel ? sel.total : 0) + amtAg;
+      const newPot = pl.pot + amtAg;
+      const payout = (amtAg > 0 && newOptPool > 0) ? amtAg / newOptPool * newPot : 0;
+      const profit = payout - amtAg;
+      const valid = sel && amtAg > 0;
+      sheet = {
+        emoji: m.emoji, title: m.title,
+        options: pl.opts.map(o => {
+          const on = st.sheetOption === o.id;
+          const isNo = o.label === 'No';
+          const c = isNo ? 'var(--no)' : (m.options[0].label==='Yes'?'var(--yes)':'var(--accent)');
+          return {
+            label: o.label, pct: o.pct,
+            bg: on ? (isNo?'var(--no-b)':(m.options[0].label==='Yes'?'var(--yes-b)':'var(--accent-soft)')) : 'var(--surface)',
+            fg: on ? c : 'var(--muted)', bd: on ? c : 'var(--border)',
+            onPick: () => this.setState({ sheetOption: o.id }),
+          };
+        }),
+        payoutText: this.fmt(Math.round(payout)),
+        profitText: this.fmtSigned(Math.round(profit)),
+        ctaText: !sel ? 'בחר אפשרות' : (!amtAg ? 'הזן סכום' : 'קנה ' + sel.label + ' · ' + this.fmt(amtAg)),
+        ctaBg: valid ? 'var(--ink)' : '#c5cad6',
+        ctaCursor: valid ? 'pointer' : 'default',
+        ctaOpacity: valid ? '1' : '1',
+        optLabel: sel ? sel.label : '', optColor: sel ? (sel.label==='No'?'var(--no)':(sel.label==='Yes'?'var(--yes)':'var(--accent)')) : 'var(--ink)',
+        amountText: this.fmt(amtAg),
+      };
+    }
+    const chips = [10, 25, 50, 100].map(v => ({ label: '₪'+v, onClick: () => this.setState({ amount: String(v) }) }));
+
+    // ---- news feed ----
+    const evs = this.buildNews();
+    const dayKey = ms => { const d = new Date(ms); return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate(); };
+    const todayK = dayKey(this._now), yK = dayKey(this._now - this.DAY);
+    const groupsMap = [];
+    evs.forEach((e, idx) => {
+      const k = dayKey(e.t);
+      const label = k === todayK ? 'היום' : (k === yK ? 'אתמול' : 'מוקדם יותר');
+      let g = groupsMap.find(x => x.label === label);
+      if (!g){ g = { label, items: [] }; groupsMap.push(g); }
+      const m = e.market;
+      const view = { emoji: m.emoji, marketTitle: m.title, timeText: this.timeUntil(e.t), isNew: idx === 0, onOpen: () => this.openDetail(m.id), hasSide: false, hasAmount: false };
+      if (e.kind === 'open'){
+        Object.assign(view, { isTrophy:false, notTrophy:true, initial:this.initial(e.user), avColor:this.color(e.user), user:this.disp(e.user), action:'פתח הימור חדש' });
+      } else if (e.kind === 'buy'){
+        const isNo = e.side === 'No';
+        Object.assign(view, { isTrophy:false, notTrophy:true, initial:this.initial(e.user), avColor:this.color(e.user), user:this.disp(e.user), action:'הימר על', hasSide:true, sideLabel:e.side, sideColor: isNo?'var(--no)':(e.side==='Yes'?'var(--yes)':'var(--accent)'), sideBg: isNo?'var(--no-b)':(e.side==='Yes'?'var(--yes-b)':'var(--accent-soft)'), hasAmount:true, amountText:this.fmt(e.amount) });
+      } else {
+        Object.assign(view, { isTrophy:true, notTrophy:false, initial:'', avColor:'#ffd24a', user:'', action:'הימור הוכרע · '+e.winnerLabel+' ניצח' });
+      }
+      g.items.push(view);
+    });
+    const newsGroups = groupsMap;
+
+    // ---- create flow ----
+    const ct = st.cType;
+    const cValid = st.cOpts.filter(o => o.trim());
+    const sug = this.suggestions[((st.cIdx % this.suggestions.length) + this.suggestions.length) % this.suggestions.length];
+    const create = {
+      created: st.cCreated,
+      title: st.cTitle, img: st.cImg, imgEmpty: !st.cImg, stake: st.cStake,
+      isStep0: st.cStep === 0, isStep1: st.cStep === 1, isStep2: st.cStep === 2,
+      notLast: st.cStep < 2, isLast: st.cStep === 2,
+      isBinary: ct === 'binary', isMulti: ct === 'multi',
+      segs: [0,1,2].map(i => ({ bg: i <= st.cStep ? 'var(--accent)' : 'var(--border)' })),
+      cIdx: st.cIdx, suggestion: sug,
+      useSuggestion: () => this.setState({ cTitle: sug }),
+      shuffle: () => this.setState(s => ({ cIdx: s.cIdx + 1 })),
+      opts: st.cOpts.map((v,i) => ({ value:v, num:i+1, onInput:(e)=>this.setOpt(i, e.target.value), onRemove:()=>this.removeOpt(i), canRemove: st.cOpts.length>2 })),
+      canAddOpt: st.cOpts.length < 5,
+      binBg: ct==='binary'?'var(--surface)':'transparent', binFg: ct==='binary'?'var(--ink)':'var(--muted)', binSh: ct==='binary'?'0 1px 3px rgba(15,19,32,.12)':'none',
+      mulBg: ct==='multi'?'var(--surface)':'transparent', mulFg: ct==='multi'?'var(--ink)':'var(--muted)', mulSh: ct==='multi'?'0 1px 3px rgba(15,19,32,.12)':'none',
+      onTypeBinary: () => this.setState({ cType:'binary' }),
+      onTypeMulti: () => this.setState({ cType:'multi' }),
+      previewTitle: st.cTitle.trim() || 'הכותרת של ההימור',
+      previewEmoji: st.cImg ? '🖼️' : '🎲',
+      previewOpts: ct==='binary'
+        ? [{ label:'כן', color:'var(--yes)', bg:'rgba(21,184,122,.18)' }, { label:'לא', color:'var(--no)', bg:'rgba(240,64,90,.18)' }]
+        : (cValid.length ? cValid : ['אפשרות 1','אפשרות 2']).map(o => ({ label:o, color:'#cdd6ea', bg:'rgba(255,255,255,.1)' })),
+      closeChips: [{k:'1d',l:'יום'},{k:'2d',l:'3 ימים'},{k:'1w',l:'שבוע'},{k:'1m',l:'חודש'}].map(c => ({ label:c.l, bg: st.cClose===c.k?'var(--ink)':'var(--surface)', fg: st.cClose===c.k?'#fff':'var(--muted)', bd: st.cClose===c.k?'var(--ink)':'var(--border)', onClick:()=>this.setState({ cClose:c.k }) })),
+      nextOpacity: this.canNext() ? '1' : '.45',
+      nextCursor: this.canNext() ? 'pointer' : 'not-allowed',
+      onHeaderBack: () => st.cStep > 0 ? this.cBack() : this.closeCreate(),
+    };
+
+    // ---- nav ----
+    const icon = (path) => '<svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+path+'</svg>';
+    const navDefs = [
+      { key: 'markets', label: 'הימורים', path: '<path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>' },
+      { key: 'news', label: 'חדשות', path: '<path d="M5 4h11a1 1 0 0 1 1 1v13a2 2 0 0 0 2 2H6a2 2 0 0 1-2-2V5a1 1 0 0 1 1-1Z"/><path d="M17 7h2a1 1 0 0 1 1 1v10a2 2 0 0 1-2 2"/><path d="M8 8.5h6M8 12h6M8 15.5h3"/>' },
+      { key: 'spacer' },
+      { key: 'portfolio', label: 'התיק', path: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>' },
+      { key: 'settle', label: 'חשבון', path: '<path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>' },
+    ];
+    const activeFor = st.screen === 'detail' ? 'markets' : st.screen;
+    const nav = navDefs.filter(n => n.key !== 'spacer').map(n => ({
+      label: n.label, icon: icon(n.path),
+      color: activeFor === n.key ? 'var(--accent)' : 'var(--faint)',
+      onClick: () => this.go(n.key),
+    }));
+    // insert a spacer placeholder in middle for the FAB
+    nav.splice(2, 0, { label: '', icon: '<span style="width:23px;height:23px;display:block;"></span>', color: 'transparent', onClick: () => {} });
+
+    return {
+      ...this.shellVals(),
+      screen: st.screen,
+      isHome: inGroup && st.screen === 'markets',
+      isDetail: inGroup && st.screen === 'detail',
+      isBoard: inGroup && st.screen === 'leaderboard',
+      isPortfolio: inGroup && st.screen === 'portfolio',
+      isSettle: inGroup && st.screen === 'settle',
+      isNews: inGroup && st.screen === 'news',
+      isProfile: inGroup && st.screen === 'profile',
+      profile,
+      detailId: st.detailId,
+      balanceText: this.fmt(124000),
+      ticker, filters, featured, markets, detail, board, podium, port, settle,
+      listTitle: st.filter === 'all' ? 'כל ההימורים' : (st.filter==='open'?'הימורים פתוחים':st.filter==='closed'?'ממתינים לתוצאה':'הוכרעו'),
+      marketCount: markets.length + ' הימורים',
+      timeframes: [
+        { key: '1h', label: '1ש׳' }, { key: '1d', label: '1י׳' }, { key: '1w', label: 'שבוע' }, { key: 'all', label: 'הכול' },
+      ].map(t => ({
+        label: t.label,
+        bg: st.tf === t.key ? 'var(--ink)' : 'var(--surf2)',
+        fg: st.tf === t.key ? '#fff' : 'var(--muted)',
+        onClick: () => this.setState({ tf: t.key }),
+      })),
+      onBack: () => this.back(),
+      nav, onNewBet: () => this.openCreate(),
+      createOpen: st.createOpen,
+      newsGroups, create, createForm: !st.cCreated,
+      boardLeader: ranked[0] ? this.disp(ranked[0].name) : '',
+      boardTop3: ranked.slice(0,3).map(r => ({ initial:this.initial(r.name), color:this.color(r.name) })),
+      onBoard: () => this.go('leaderboard'),
+      onCloseCreate: () => this.closeCreate(),
+      onCNext: () => this.cNext(),
+      onCTitle: (e) => this.setState({ cTitle: e.target.value }),
+      onCStake: (e) => this.setState({ cStake: e.target.value }),
+      onToggleImg: () => this.setState(s => ({ cImg: !s.cImg })),
+      onAddOpt: () => this.addOpt(),
+      onCreateBet: () => this.createBet(),
+      sheetOpen: st.sheetOpen, placed: st.placed, sheetForm: !st.placed,
+      sheet, chips, amount: st.amount,
+      onAmount: (e) => this.setState({ amount: e.target.value }),
+      onPlace: () => this.place(),
+      onCloseSheet: () => this.closeSheet(),
+    };
+  }
+}
+</script>
+</body>
+</html>

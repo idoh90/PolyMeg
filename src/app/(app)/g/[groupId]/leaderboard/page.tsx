@@ -26,6 +26,14 @@ export default async function LeaderboardPage({
 
   return (
     <div className="px-[18px] pb-8 pt-1.5">
+      <div className="mb-4 flex items-center gap-3">
+        <Link href={base} className="flex h-[38px] w-[38px] items-center justify-center rounded-xl border border-border bg-surface">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "scaleX(-1)" }}>
+            <path d="m15 18-6-6 6-6" />
+          </svg>
+        </Link>
+        <span className="text-[15px] font-extrabold text-muted">חזרה לבית</span>
+      </div>
       <h1 className="text-2xl font-extrabold">טבלת המובילים</h1>
       <p className="mb-[18px] mt-1 text-[13.5px] font-semibold text-muted">
         רווח והפסד נטו מכל ההימורים שהוכרעו

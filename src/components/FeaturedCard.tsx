@@ -7,6 +7,7 @@ export interface FeaturedData {
   groupId: string;
   sheet: SheetMarket;
   emojiImage: string | null;
+  emoji: string | null;
   title: string;
   timeText: string;
   potText: string;
@@ -40,7 +41,7 @@ export default function FeaturedCard({ data }: { data: FeaturedData }) {
               // eslint-disable-next-line @next/next/no-img-element
               <img src={data.emojiImage} alt="" className="h-full w-full object-cover" />
             ) : (
-              "🎲"
+              data.emoji ?? "🎲"
             )}
           </div>
           <div dir="auto" className="min-w-0 flex-1 text-[18px] font-extrabold leading-tight">
@@ -49,7 +50,7 @@ export default function FeaturedCard({ data }: { data: FeaturedData }) {
           <div className="text-center">
             <div className="text-[30px] font-black leading-none text-yes">
               {data.top.pct}
-              <span className="text-base">%</span>
+              <span className="text-base">¢</span>
             </div>
             <div className="mt-0.5 text-[11px] font-semibold text-[#aeb7c9]">{data.top.label}</div>
           </div>
@@ -62,7 +63,7 @@ export default function FeaturedCard({ data }: { data: FeaturedData }) {
             }}
             className="flex-1 rounded-[13px] bg-yes py-[13px] text-[15px] font-extrabold text-[#04130c]"
           >
-            קנה {data.top.label} · {data.top.pct}%
+            קנה {data.top.label} · {data.top.pct}¢
           </button>
           <button
             onClick={(e) => {
@@ -71,7 +72,7 @@ export default function FeaturedCard({ data }: { data: FeaturedData }) {
             }}
             className="flex-1 rounded-[13px] bg-no py-[13px] text-[15px] font-extrabold text-[#1a0509]"
           >
-            קנה {data.bot.label} · {data.bot.pct}%
+            קנה {data.bot.label} · {data.bot.pct}¢
           </button>
         </div>
         <div className="mt-3 flex justify-between text-xs font-semibold text-[#aeb7c9]">

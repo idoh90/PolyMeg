@@ -40,6 +40,8 @@ model Group {
   passwordHash String? // optional password for CODE-mode groups
   description  String?
   imageUrl     String?
+  emoji        String? // group glyph shown on cards/switcher
+  category     String? // e.g. גיימינג, חברים, ספורט — shown under the name
   joinMode     String   @default("CODE") // CODE | APPROVAL
   ownerId      String
   owner        User     @relation("GroupOwner", fields: [ownerId], references: [id])
@@ -73,6 +75,7 @@ model Market {
   title                 String
   criteria              String
   imageUrl              String?
+  emoji                 String? // market glyph shown on cards/detail
   minStake              Int // agorot
   closesAt              DateTime
   status                String    @default("OPEN") // OPEN | CLOSED | RESOLVED

@@ -7,6 +7,16 @@ export const MarketStatus = {
 } as const;
 export type MarketStatus = (typeof MarketStatus)[keyof typeof MarketStatus];
 
+// Emoji + category options for group/market pickers (community-neutral).
+export const EMOJI_OPTIONS = [
+  "🎯", "🎮", "🃏", "⚽", "🏀", "🍕", "🎲", "🔥",
+  "🏆", "💸", "🎬", "🎓", "🏠", "💼", "🚀", "🐉",
+] as const;
+
+export const GROUP_CATEGORIES = [
+  "חברים", "גיימינג", "ספורט", "עבודה", "משפחה", "לימודים", "קהילה",
+] as const;
+
 export const NotificationType = {
   NEW_MARKET: "NEW_MARKET",
   BET_PLACED: "BET_PLACED",

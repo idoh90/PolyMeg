@@ -1,8 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Wordmark from "@/components/Wordmark";
+
+const EyeIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+);
 
 export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const router = useRouter();
@@ -13,6 +20,12 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [show, setShow] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+
+  // light client-side validation (signup) for inline field states
+  const userValid = /^[a-zA-Z0-9_.]{3,20}$/.test(username);
+  const passValid = password.length >= 4;
+  const errUser = isSignup && username.length > 0 && !userValid ? "3–20 תווים: אותיות, מספרים, נקודה וקו תחתון" : "";
+  const errPass = isSignup && password.length > 0 && !passValid ? "סיסמה קצרה מדי (לפחות 4)" : "";
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -34,70 +47,83 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center px-6 py-10">
-      <div className="mb-1 text-center text-[34px] font-black tracking-tight">
-        GRU<span className="text-accent">bet</span>
+    <main className="mx-auto flex min-h-dvh max-w-[440px] flex-col justify-center px-[26px] py-10">
+      <div className="mb-8 text-center">
+        <Wordmark size={isSignup ? 28 : 30} />
+        <div className="mt-3 text-[14.5px] font-semibold text-muted">שוק הניבויים של החבר׳ה שלך</div>
       </div>
-      <p className="mb-8 text-center text-sm font-semibold text-muted">
-        שוק הניבויים של החבר׳ה שלך
-      </p>
 
-      <form onSubmit={submit} className="flex flex-col gap-3">
+      <h1 className="mb-4 text-[21px] font-extrabold">{isSignup ? "יצירת חשבון" : "התחברות"}</h1>
+
+      {!isSignup && error && (
+        <div className="mb-3.5 flex items-center gap-2 rounded-xl bg-no-b px-3.5 py-2.5 text-[13.5px] font-bold text-no">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
+            <circle cx="12" cy="12" r="9" /><path d="M12 8v4M12 16h.01" />
+          </svg>
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={submit} className="flex flex-col">
         {isSignup && (
+          <>
+            <label className="mb-1.5 text-[12.5px] font-extrabold text-muted">שם תצוגה</label>
+            <div data-field className="mb-3.5 rounded-[14px] border-[1.5px] border-border bg-surface px-[15px] py-[13px]">
+              <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} dir="auto" placeholder="איך יקראו לך בקבוצות" className="w-full bg-transparent text-[15.5px] font-semibold outline-none" required />
+            </div>
+          </>
+        )}
+
+        <label className="mb-1.5 text-[12.5px] font-extrabold text-muted">שם משתמש</label>
+        <div data-field className="flex items-center gap-1 rounded-[14px] border-[1.5px] bg-surface px-[15px] py-[13px]" style={{ borderColor: errUser ? "var(--no)" : "var(--border)", marginBottom: isSignup ? 6 : 14 }}>
+          {isSignup && <span className="text-[15px] font-bold text-faint">@</span>}
           <input
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            placeholder="שם תצוגה"
-            className="field"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder={isSignup ? "username" : "שם המשתמש שלך"}
+            autoCapitalize="none"
+            autoComplete="username"
+            className="w-full bg-transparent text-[15.5px] font-semibold outline-none"
+            style={isSignup ? { direction: "ltr", textAlign: "start" } : undefined}
             required
           />
-        )}
-        <input
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="שם משתמש"
-          autoCapitalize="none"
-          autoComplete="username"
-          className="field"
-          required
-        />
-        <div className="field flex items-center gap-2 !py-0">
+        </div>
+        {errUser && <div className="mb-1.5 text-[12px] font-bold text-no">{errUser}</div>}
+        {isSignup && <div className="mb-3.5 mt-0.5 text-[11.5px] font-semibold text-faint">3–20 תווים · אותיות, מספרים, נקודה וקו תחתון</div>}
+
+        <label className="mb-1.5 text-[12.5px] font-extrabold text-muted">סיסמה</label>
+        <div data-field className="flex items-center rounded-[14px] border-[1.5px] bg-surface px-[15px]" style={{ borderColor: errPass ? "var(--no)" : "var(--border)", marginBottom: isSignup ? 6 : 22 }}>
           <input
             type={show ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="סיסמה"
+            placeholder={isSignup ? "לפחות 4 תווים" : "הסיסמה שלך"}
             autoComplete={isSignup ? "new-password" : "current-password"}
-            className="w-full bg-transparent py-3.5 outline-none"
+            className="w-full bg-transparent py-[9px] text-[15.5px] font-semibold outline-none"
             required
           />
-          <button type="button" onClick={() => setShow((s) => !s)} className="text-xs font-bold text-muted">
-            {show ? "הסתר" : "הצג"}
+          <button type="button" onClick={() => setShow((s) => !s)} className="flex p-1.5 text-faint" aria-label={show ? "הסתר סיסמה" : "הצג סיסמה"}>
+            <EyeIcon />
           </button>
         </div>
-
-        {error && <p className="text-sm font-semibold text-no">{error}</p>}
+        {errPass && <div className="mb-1.5 text-[12px] font-bold text-no">{errPass}</div>}
 
         <button
           type="submit"
           disabled={busy}
-          className="mt-1 rounded-[14px] bg-accent py-3.5 text-base font-extrabold text-white disabled:opacity-50"
+          className="mt-3.5 flex items-center justify-center gap-2.5 rounded-[15px] bg-accent py-4 text-[16.5px] font-extrabold text-white shadow-[0_12px_24px_-12px_var(--accent)] disabled:opacity-60"
         >
+          {busy && <span className="block h-[17px] w-[17px] animate-[pm-spin_.7s_linear_infinite] rounded-full border-[2.5px] border-white/40 border-t-white" />}
           {busy ? "רגע…" : isSignup ? "צור חשבון" : "התחבר"}
         </button>
       </form>
 
-      <p className="mt-5 text-center text-sm font-semibold text-muted">
+      <div className="mt-5 text-center text-sm font-semibold text-muted">
         {isSignup ? "כבר יש לי חשבון " : "אין לך חשבון? "}
-        <Link href={isSignup ? "/login" : "/signup"} className="font-extrabold text-accent">
-          {isSignup ? "התחבר" : "הרשמה"}
-        </Link>
-      </p>
-
-      <style>{`
-        .field { width:100%; border-radius:14px; border:1.5px solid var(--border); background:var(--surface); padding:14px 16px; font-weight:700; color:var(--text); outline:none; box-shadow:0 1px 2px rgba(15,19,32,.03); }
-        .field:focus, .field:focus-within { border-color:var(--accent); box-shadow:0 0 0 4px var(--accent-soft); }
-      `}</style>
+        <button onClick={() => router.push(isSignup ? "/login" : "/signup")} className="font-extrabold text-accent">
+          {isSignup ? "← התחבר" : "הרשמה"}
+        </button>
+      </div>
     </main>
   );
 }

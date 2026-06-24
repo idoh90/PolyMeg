@@ -4,11 +4,13 @@ import { getCurrentUserId } from "@/lib/session";
 import { timeUntil } from "@/lib/format";
 import MarkAllRead from "@/components/MarkAllRead";
 
-const NOTIF_ICON: Record<string, string> = {
-  NEW_MARKET: "🆕",
-  BET_PLACED: "💸",
-  MARKET_CLOSED: "🔒",
-  MARKET_RESOLVED: "🏁",
+const NOTIF: Record<string, { icon: string; bg: string }> = {
+  NEW_MARKET: { icon: "🆕", bg: "var(--accent-soft)" },
+  BET_PLACED: { icon: "💸", bg: "var(--yes-b)" },
+  MARKET_CLOSED: { icon: "🔒", bg: "var(--surface-2)" },
+  MARKET_RESOLVED: { icon: "🏁", bg: "var(--no-b)" },
+  JOIN_REQUEST: { icon: "🙋", bg: "var(--accent-soft)" },
+  REQUEST_APPROVED: { icon: "✅", bg: "var(--yes-b)" },
 };
 
 export default async function NotificationsPage({
@@ -27,45 +29,46 @@ export default async function NotificationsPage({
   const hasUnread = notifications.some((n) => !n.read);
 
   return (
-    <div className="px-[18px] pb-8 pt-3">
+    <div className="px-[18px] pb-8 pt-1.5">
       <MarkAllRead hasUnread={hasUnread} />
-      <h1 className="mb-4 text-2xl font-extrabold">התראות</h1>
+      <div className="mb-4 flex items-center gap-3">
+        <Link href={base} className="flex h-[38px] w-[38px] items-center justify-center rounded-xl border border-border bg-surface">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "scaleX(-1)" }}>
+            <path d="m15 18-6-6 6-6" />
+          </svg>
+        </Link>
+        <span className="text-[15px] font-extrabold text-muted">חזרה</span>
+      </div>
+      <h1 className="text-2xl font-extrabold">התראות</h1>
+      <p className="mb-[18px] mt-1 text-[13.5px] font-semibold text-muted">כל העדכונים שלך בקבוצה הזו.</p>
+
       {notifications.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-border p-8 text-center text-muted">
-          אין התראות עדיין.
-        </p>
+        <p className="rounded-2xl border border-dashed border-border p-8 text-center text-muted">אין התראות עדיין.</p>
       ) : (
-        <ul className="flex flex-col gap-2">
+        <div className="flex flex-col gap-[9px]">
           {notifications.map((n) => {
+            const meta = NOTIF[n.type] ?? { icon: "🔔", bg: "var(--surface-2)" };
             const body = (
-              <div
-                className={`flex items-center gap-3 rounded-xl border px-4 py-3 transition active:scale-[0.99] ${
-                  n.read
-                    ? "border-border bg-surface"
-                    : "border-accent/40 bg-surface-2"
-                }`}
-              >
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-2 text-lg">
-                  {NOTIF_ICON[n.type] ?? "🔔"}
+              <div className="flex items-start gap-3 rounded-[16px] border border-border bg-surface p-[13px] shadow-[0_1px_2px_rgba(15,19,32,.03)]">
+                <span className="flex h-[42px] w-[42px] flex-none items-center justify-center rounded-[13px] text-[21px]" style={{ background: meta.bg }}>
+                  {meta.icon}
                 </span>
-                <div className="flex-1">
-                  <p className="text-sm font-medium leading-snug">{n.message}</p>
-                  <p className="mt-0.5 text-xs text-muted">{timeUntil(n.createdAt)}</p>
+                <div className="min-w-0 flex-1">
+                  <div dir="auto" className="text-[14px] font-semibold leading-[1.4] text-text">{n.message}</div>
                 </div>
-                {!n.read && <span className="h-2 w-2 shrink-0 rounded-full bg-accent" />}
+                <div className="flex flex-none flex-col items-end gap-[7px]">
+                  {!n.read && <span className="h-[9px] w-[9px] rounded-full bg-accent" />}
+                  <span className="whitespace-nowrap text-[11px] font-semibold text-faint">{timeUntil(n.createdAt)}</span>
+                </div>
               </div>
             );
-            return (
-              <li key={n.id}>
-                {n.marketId ? (
-                  <Link href={`${base}/bets/${n.marketId}`}>{body}</Link>
-                ) : (
-                  body
-                )}
-              </li>
+            return n.marketId ? (
+              <Link key={n.id} href={`${base}/bets/${n.marketId}`} className="pressable">{body}</Link>
+            ) : (
+              <div key={n.id}>{body}</div>
             );
           })}
-        </ul>
+        </div>
       )}
     </div>
   );

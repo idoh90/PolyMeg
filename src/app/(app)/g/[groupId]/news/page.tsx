@@ -21,6 +21,7 @@ type Ev = {
   marketId: string;
   title: string;
   kind: "open" | "buy" | "resolve";
+  emoji: string | null;
   actor?: Actor;
   action: string;
   sideLabel?: string;
@@ -53,7 +54,7 @@ export default async function NewsPage({
       include: {
         user: { select: { displayName: true, avatarUrl: true } },
         option: { select: { label: true } },
-        market: { select: { id: true, title: true } },
+        market: { select: { id: true, title: true, emoji: true } },
       },
     }),
     prisma.market.findMany({
@@ -73,6 +74,7 @@ export default async function NewsPage({
       ts: p.createdAt.getTime(),
       marketId: p.market.id,
       title: p.market.title,
+      emoji: p.market.emoji,
       kind: "buy",
       actor: { name: p.user.displayName, avatarUrl: p.user.avatarUrl },
       action: "הימר על",
@@ -86,6 +88,7 @@ export default async function NewsPage({
       ts: m.createdAt.getTime(),
       marketId: m.id,
       title: m.title,
+      emoji: m.emoji,
       kind: "open",
       actor: { name: m.creator.displayName, avatarUrl: m.creator.avatarUrl },
       action: "פתח הימור חדש",
@@ -96,6 +99,7 @@ export default async function NewsPage({
         ts: m.resolvedAt.getTime(),
         marketId: m.id,
         title: m.title,
+        emoji: m.emoji,
         kind: "resolve",
         action: `הוכרע · ${w} ניצח`,
       });
@@ -163,7 +167,7 @@ export default async function NewsPage({
                       {e.amount != null && <span className="font-extrabold"> · {formatAgorot(e.amount)}</span>}
                     </div>
                     <div dir="auto" className="mt-1 flex items-center gap-1.5">
-                      <span className="text-sm">🎲</span>
+                      <span className="text-sm">{e.emoji ?? "🎲"}</span>
                       <span className="truncate text-[12.5px] font-semibold text-muted">{e.title}</span>
                     </div>
                   </div>

@@ -3,40 +3,22 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
-function fileToDataUrl(file: File, maxSize = 400): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const img = new window.Image();
-      img.onload = () => {
-        const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
-        const canvas = document.createElement("canvas");
-        canvas.width = Math.round(img.width * scale);
-        canvas.height = Math.round(img.height * scale);
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return reject(new Error("no canvas"));
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL("image/jpeg", 0.8));
-      };
-      img.onerror = reject;
-      img.src = reader.result as string;
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
+import { EMOJI_OPTIONS, GROUP_CATEGORIES } from "@/lib/constants";
 
 export default function NewGroupPage() {
   const router = useRouter();
+  const [emoji, setEmoji] = useState<string>(EMOJI_OPTIONS[0]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [category, setCategory] = useState<string>("");
   const [joinMode, setJoinMode] = useState<"CODE" | "APPROVAL">("CODE");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [created, setCreated] = useState<{ id: string; code: string } | null>(null);
+
+  const canCreate = name.trim().length >= 2 && !busy;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -45,7 +27,7 @@ export default function NewGroupPage() {
     const res = await fetch("/api/groups", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, description, imageUrl, joinMode, password: joinMode === "CODE" ? password : "" }),
+      body: JSON.stringify({ name, description, emoji, category, joinMode, password: joinMode === "CODE" ? password : "" }),
     });
     if (res.ok) setCreated(await res.json());
     else {
@@ -55,112 +37,142 @@ export default function NewGroupPage() {
     setBusy(false);
   }
 
+  function copy() {
+    if (!created) return;
+    navigator.clipboard?.writeText(created.code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1600);
+  }
+
   if (created) {
     return (
-      <div className="flex min-h-[70vh] flex-col items-center justify-center px-7 text-center">
-        <div className="pm-pop mb-5 flex h-[84px] w-[84px] items-center justify-center rounded-full bg-yes-b text-4xl">🎉</div>
-        <div className="mb-2 text-[22px] font-extrabold">הקבוצה נוצרה!</div>
-        <div className="mb-1 text-sm font-semibold text-muted">שתפו את הקוד כדי שיצטרפו:</div>
-        <div className="my-3 rounded-2xl border-[1.5px] border-accent-soft bg-accent-soft px-6 py-3 text-3xl font-black tracking-[0.2em] text-accent">
-          {created.code}
+      <div className="px-[18px] pb-8 pt-1.5">
+        <Header />
+        <div className="py-[18px] text-center">
+          <div className="pm-pop mx-auto mb-[18px] flex h-20 w-20 items-center justify-center rounded-full bg-yes-b">
+            <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="var(--yes)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+          </div>
+          <div className="mb-1.5 text-[23px] font-extrabold">הקבוצה מוכנה! 🎉</div>
+          <div dir="auto" className="mb-[22px] text-sm font-semibold text-muted">{emoji} {name}</div>
+          <div className="mb-4 rounded-[20px] p-[22px] text-white" style={{ background: "linear-gradient(135deg,#1f2a4d,#0f1320)" }}>
+            <div className="mb-2.5 text-xs font-bold tracking-[0.4px] text-[#aeb7c9]">שתפו את הקוד</div>
+            <div className="text-[34px] font-black tracking-[3px]" style={{ direction: "ltr", fontFamily: "'SF Mono',ui-monospace,monospace" }}>{created.code}</div>
+          </div>
+          <button onClick={copy} className="pressable mb-3.5 flex w-full items-center justify-center gap-1.5 rounded-[14px] border border-border bg-surface py-3.5 text-[14.5px] font-extrabold">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="11" height="11" rx="2" /><path d="M5 15V5a2 2 0 0 1 2-2h8" /></svg>
+            {copied ? "הועתק ✓" : "העתק קוד"}
+          </button>
+          <button
+            onClick={() => { router.push(`/g/${created.id}`); router.refresh(); }}
+            className="pressable w-full rounded-[15px] bg-accent py-4 text-base font-extrabold text-white"
+          >
+            כניסה לקבוצה ←
+          </button>
         </div>
-        <button
-          onClick={() => navigator.clipboard?.writeText(created.code)}
-          className="mb-6 text-sm font-bold text-accent"
-        >
-          העתק קוד
-        </button>
-        <button
-          onClick={() => {
-            router.push(`/g/${created.id}`);
-            router.refresh();
-          }}
-          className="w-full max-w-[300px] rounded-[14px] bg-[var(--text)] py-4 text-base font-extrabold text-white"
-        >
-          כניסה לקבוצה
-        </button>
       </div>
     );
   }
 
   return (
-    <div className="px-[18px] pb-10 pt-4">
-      <div className="mb-5 flex items-center gap-3">
-        <Link href="/groups" className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-surface">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "scaleX(-1)" }}>
-            <path d="m15 18-6-6 6-6" />
-          </svg>
-        </Link>
-        <h1 className="text-2xl font-extrabold">קבוצה חדשה</h1>
-      </div>
+    <div className="px-[18px] pb-8 pt-1.5">
+      <Header />
+      <div className="mb-1 text-2xl font-extrabold">בואו נקים קהילה</div>
+      <div className="mb-5 text-[13.5px] font-semibold text-muted">תנו לה שם ובחרו איך מצטרפים.</div>
 
-      <form onSubmit={submit} className="flex flex-col gap-4">
-        <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-bold">שם הקבוצה</span>
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="החבר׳ה / קהילת הגיימינג…" className="gfield" required />
-        </label>
-
-        <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-bold">תיאור <span className="font-normal text-faint">(לא חובה)</span></span>
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} className="gfield resize-none" />
-        </label>
-
-        <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-bold">תמונה <span className="font-normal text-faint">(לא חובה)</span></span>
-          <div className="flex items-center gap-3">
-            {imageUrl && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={imageUrl} alt="" className="h-14 w-14 rounded-xl object-cover" />
-            )}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={async (e) => {
-                const f = e.target.files?.[0];
-                if (f) setImageUrl(await fileToDataUrl(f).catch(() => null));
-              }}
-              className="text-sm text-muted file:mr-3 file:rounded-full file:border-0 file:bg-surface-2 file:px-3 file:py-1.5 file:text-text"
-            />
-          </div>
-        </label>
-
-        <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-bold">איך מצטרפים?</span>
-          <div className="flex gap-1.5 rounded-[14px] bg-surface-2 p-1.5">
-            {(["CODE", "APPROVAL"] as const).map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => setJoinMode(m)}
-                className={`flex-1 rounded-[10px] py-2.5 text-sm font-extrabold transition ${joinMode === m ? "bg-surface text-text shadow-[0_1px_3px_rgba(15,19,32,.1)]" : "text-muted"}`}
-              >
-                {m === "CODE" ? "קוד פתוח" : "באישור בעלים"}
-              </button>
-            ))}
-          </div>
-          <span className="text-xs font-semibold text-faint">
-            {joinMode === "CODE" ? "כל מי שיש לו את הקוד נכנס מיד." : "בקשות הצטרפות יחכו לאישורך."}
-          </span>
+      <form onSubmit={submit}>
+        <label className="mb-[9px] block text-[12.5px] font-extrabold text-muted">סמל הקבוצה</label>
+        <div className="mb-[18px] flex gap-2 overflow-x-auto pb-1">
+          {EMOJI_OPTIONS.map((e) => (
+            <button
+              key={e}
+              type="button"
+              onClick={() => setEmoji(e)}
+              className="flex h-[46px] w-[46px] flex-none items-center justify-center rounded-[13px] border-[1.5px] text-[23px]"
+              style={{ borderColor: emoji === e ? "var(--accent)" : "var(--border)", background: emoji === e ? "var(--accent-soft)" : "var(--surface)" }}
+            >
+              {e}
+            </button>
+          ))}
         </div>
 
-        {joinMode === "CODE" && (
-          <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-bold">סיסמת קבוצה <span className="font-normal text-faint">(לא חובה)</span></span>
-            <input value={password} onChange={(e) => setPassword(e.target.value)} placeholder="ריק = ללא סיסמה" className="gfield" />
-          </label>
+        <label className="mb-1.5 block text-[12.5px] font-extrabold text-muted">שם הקבוצה</label>
+        <div data-field className="mb-3.5 rounded-[14px] border-[1.5px] border-border bg-surface px-[15px] py-[13px]">
+          <input value={name} onChange={(e) => setName(e.target.value)} dir="auto" placeholder="לדוגמה: ערב פוקר רביעי" className="w-full bg-transparent text-[15.5px] font-bold outline-none" required />
+        </div>
+
+        <label className="mb-1.5 block text-[12.5px] font-extrabold text-muted">קטגוריה <span className="font-semibold text-faint">(לא חובה)</span></label>
+        <div className="mb-3.5 flex flex-wrap gap-2">
+          {GROUP_CATEGORIES.map((c) => (
+            <button
+              key={c}
+              type="button"
+              onClick={() => setCategory((cur) => (cur === c ? "" : c))}
+              className="rounded-full border px-[13px] py-2 text-[13px] font-bold"
+              style={{
+                borderColor: category === c ? "var(--accent)" : "var(--border)",
+                background: category === c ? "var(--accent-soft)" : "var(--surface)",
+                color: category === c ? "var(--accent)" : "var(--muted)",
+              }}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+
+        <label className="mb-1.5 block text-[12.5px] font-extrabold text-muted">תיאור <span className="font-semibold text-faint">(לא חובה)</span></label>
+        <div data-field className="mb-5 rounded-[14px] border-[1.5px] border-border bg-surface px-[15px] py-3">
+          <textarea value={description} onChange={(e) => setDescription(e.target.value)} dir="auto" rows={2} placeholder="על מה הקהילה הזאת?" className="w-full resize-none bg-transparent text-[14.5px] font-semibold outline-none" />
+        </div>
+
+        <label className="mb-[9px] block text-[12.5px] font-extrabold text-muted">איך מצטרפים?</label>
+        <div className="mb-4 flex gap-1.5 rounded-[14px] bg-surface-2 p-[5px]">
+          {(["CODE", "APPROVAL"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setJoinMode(m)}
+              className={`flex-1 rounded-[10px] py-3 text-[13.5px] font-extrabold transition ${joinMode === m ? "bg-surface text-text shadow-[0_1px_3px_rgba(15,19,32,.1)]" : "text-muted"}`}
+            >
+              {m === "CODE" ? "קוד פתוח" : "באישור בעלים"}
+            </button>
+          ))}
+        </div>
+
+        {joinMode === "CODE" ? (
+          <>
+            <div className="mb-3.5 flex items-start gap-[9px] rounded-[14px] bg-accent-soft px-[15px] py-[13px]">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-px flex-none"><path d="M12 16v-4M12 8h.01" /><circle cx="12" cy="12" r="9" /></svg>
+              <span className="text-[12.5px] font-semibold leading-[1.5] text-[#2257c4]">כל מי שיש לו את הקוד נכנס מיד. אפשר להוסיף סיסמה לשכבת הגנה נוספת.</span>
+            </div>
+            <label className="mb-1.5 block text-[12.5px] font-extrabold text-muted">סיסמת קבוצה <span className="font-semibold text-faint">(לא חובה)</span></label>
+            <div data-field className="rounded-[14px] border-[1.5px] border-border bg-surface px-[15px] py-[13px]">
+              <input value={password} onChange={(e) => setPassword(e.target.value)} dir="auto" placeholder="ללא סיסמה" className="w-full bg-transparent text-[15px] font-semibold outline-none" />
+            </div>
+          </>
+        ) : (
+          <div className="flex items-start gap-[9px] rounded-[14px] bg-surface-2 px-[15px] py-[13px]">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-px flex-none"><path d="M12 16v-4M12 8h.01" /><circle cx="12" cy="12" r="9" /></svg>
+            <span className="text-[12.5px] font-semibold leading-[1.5] text-muted">מצטרפים שולחים בקשה ואתם מאשרים אותה במסך הניהול.</span>
+          </div>
         )}
 
-        {error && <p className="text-sm font-semibold text-no">{error}</p>}
+        {error && <p className="mt-3 text-sm font-semibold text-no">{error}</p>}
 
-        <button type="submit" disabled={busy} className="mt-1 rounded-[14px] bg-accent py-3.5 text-base font-extrabold text-white disabled:opacity-50">
+        <button type="submit" disabled={!canCreate} className="mt-[18px] w-full rounded-[15px] bg-accent py-4 text-[16.5px] font-extrabold text-white shadow-[0_12px_24px_-12px_var(--accent)] disabled:opacity-50">
           {busy ? "יוצר…" : "צור קבוצה"}
         </button>
       </form>
+    </div>
+  );
+}
 
-      <style>{`
-        .gfield { width:100%; border-radius:14px; border:1.5px solid var(--border); background:var(--surface); padding:13px 15px; font-weight:700; color:var(--text); outline:none; box-shadow:0 1px 2px rgba(15,19,32,.03); }
-        .gfield:focus { border-color:var(--accent); box-shadow:0 0 0 4px var(--accent-soft); }
-      `}</style>
+function Header() {
+  return (
+    <div className="mb-[18px] flex items-center gap-3">
+      <Link href="/groups" className="flex h-[38px] w-[38px] items-center justify-center rounded-xl border border-border bg-surface">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "scaleX(-1)" }}><path d="m15 18-6-6 6-6" /></svg>
+      </Link>
+      <span className="text-[15px] font-extrabold text-muted">קבוצה חדשה</span>
     </div>
   );
 }
