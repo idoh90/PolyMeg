@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/currentUser";
 import { getMyGroups, type MyGroup } from "@/lib/groups";
 import Wordmark from "@/components/Wordmark";
@@ -10,8 +11,9 @@ function netText(net: number) {
 
 export default async function GroupsPage() {
   const user = await getCurrentUser();
-  const { groups, pending } = await getMyGroups(user!.id);
-  const initial = user!.displayName.trim().charAt(0) || "?";
+  if (!user) redirect("/login");
+  const { groups, pending } = await getMyGroups(user.id);
+  const initial = user.displayName.trim().charAt(0) || "?";
 
   return (
     <div className="pb-8 pt-1.5">
@@ -27,7 +29,7 @@ export default async function GroupsPage() {
       </div>
 
       <div className="px-[18px] pb-[18px] pt-2">
-        <div className="text-[25px] font-extrabold tracking-[-0.5px]">היי, {user!.displayName} 👋</div>
+        <div className="text-[25px] font-extrabold tracking-[-0.5px]">היי, {user.displayName} 👋</div>
         <div className="mt-0.5 text-sm font-semibold text-muted">לאן ניכנס היום?</div>
       </div>
 

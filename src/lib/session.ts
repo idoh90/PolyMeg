@@ -33,5 +33,13 @@ export async function getSession() {
 /** Return the logged-in user id or null. */
 export async function getCurrentUserId(): Promise<string | null> {
   const session = await getSession();
-  return session.userId ?? null;
+  if (session.userId) return session.userId;
+  // Fall back to an Auth.js (Google) session if present.
+  try {
+    const { auth } = await import("@/auth");
+    const a = (await auth()) as { uid?: string } | null;
+    return a?.uid ?? null;
+  } catch {
+    return null;
+  }
 }

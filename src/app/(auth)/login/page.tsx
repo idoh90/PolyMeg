@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
-import { getCurrentUserId } from "@/lib/session";
+import { getCurrentUser } from "@/lib/currentUser";
 import AuthForm from "@/components/AuthForm";
 
 export default async function LoginPage() {
-  if (await getCurrentUserId()) redirect("/groups");
+  if (await getCurrentUser()) redirect("/groups");
   return <AuthForm mode="login" />;
 }
