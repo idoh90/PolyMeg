@@ -30,6 +30,8 @@ model User {
   marketsCreated Market[]       @relation("MarketCreator")
   positions      Position[]
   notifications  Notification[]
+  comments       Comment[]
+  reactions      Reaction[]
 }
 
 // ---- A betting group / community ----
@@ -86,6 +88,7 @@ model Market {
 
   options   Option[]
   positions Position[]
+  comments  Comment[]
 
   @@index([groupId])
 }
@@ -110,7 +113,45 @@ model Position {
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   amount    Int // agorot
+  shout     String? // optional trash-talk line attached when placing the bet
   createdAt DateTime @default(now())
+
+  reactions Reaction[]
+}
+
+// ---- Per-market threaded comment (one reply level) ----
+model Comment {
+  id        String    @id @default(cuid())
+  marketId  String
+  market    Market    @relation(fields: [marketId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  parentId  String?
+  parent    Comment?  @relation("CommentThread", fields: [parentId], references: [id], onDelete: Cascade)
+  children  Comment[] @relation("CommentThread")
+  body      String
+  mentions  String[]  @default([]) // mentioned account ids
+  createdAt DateTime  @default(now())
+
+  reactions Reaction[]
+
+  @@index([marketId])
+}
+
+// ---- Emoji reaction on a comment OR a position (exactly one target) ----
+model Reaction {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id])
+  emoji      String
+  commentId  String?
+  comment    Comment?  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  positionId String?
+  position   Position? @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+
+  @@unique([userId, commentId, emoji])
+  @@unique([userId, positionId, emoji])
 }
 
 model Notification {

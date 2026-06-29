@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/currentUser";
 import { getMembership } from "@/lib/membership";
 import { shekelsToAgorot, formatAgorot } from "@/lib/money";
 import { MarketStatus, NotificationType } from "@/lib/constants";
+import { MAX_SHOUT_LEN } from "@/lib/social";
 
 export async function POST(
   req: Request,
@@ -16,6 +17,10 @@ export async function POST(
   const body = await req.json().catch(() => null);
   const optionId = String(body?.optionId ?? "");
   const amountShekels = Number(body?.amount);
+  const shout =
+    typeof body?.shout === "string" && body.shout.trim()
+      ? body.shout.trim().slice(0, MAX_SHOUT_LEN)
+      : null;
 
   const market = await prisma.market.findUnique({
     where: { id },
@@ -59,26 +64,45 @@ export async function POST(
   }
 
   await prisma.position.create({
-    data: { marketId: id, optionId, userId: user.id, amount },
+    data: { marketId: id, optionId, userId: user.id, amount, shout },
   });
 
-  // Notify the rest of the group about the buy.
   const optLabel = market.options.find((o) => o.id === optionId)?.label ?? "";
-  const others = await prisma.membership.findMany({
-    where: { groupId: market.groupId, status: "ACTIVE", userId: { not: user.id } },
-    select: { userId: true },
-  });
-  if (others.length > 0) {
-    await prisma.notification.createMany({
-      data: others.map((m) => ({
-        userId: m.userId,
-        groupId: market.groupId,
-        type: NotificationType.BET_PLACED,
-        marketId: id,
-        message: `${user.displayName} קנה ${optLabel} ב-${formatAgorot(amount)} · ${market.title}`,
-      })),
-    });
-  }
+
+  // Members already holding a *different* option are opponents → they get a
+  // pointed "bet against you" notice; everyone else gets the generic buy notice.
+  const [others, opponents] = await Promise.all([
+    prisma.membership.findMany({
+      where: { groupId: market.groupId, status: "ACTIVE", userId: { not: user.id } },
+      select: { userId: true },
+    }),
+    prisma.position.findMany({
+      where: { marketId: id, optionId: { not: optionId }, userId: { not: user.id } },
+      select: { userId: true },
+      distinct: ["userId"],
+    }),
+  ]);
+  const opponentIds = new Set(opponents.map((o) => o.userId));
+  const shoutSuffix = shout ? ` — ״${shout}״` : "";
+
+  const notifs = others.map((m) =>
+    opponentIds.has(m.userId)
+      ? {
+          userId: m.userId,
+          groupId: market.groupId,
+          type: NotificationType.BET_AGAINST,
+          marketId: id,
+          message: `${user.displayName} הימר נגדך: ${optLabel} ב-${formatAgorot(amount)} · ${market.title}${shoutSuffix}`,
+        }
+      : {
+          userId: m.userId,
+          groupId: market.groupId,
+          type: NotificationType.BET_PLACED,
+          marketId: id,
+          message: `${user.displayName} קנה ${optLabel} ב-${formatAgorot(amount)} · ${market.title}${shoutSuffix}`,
+        },
+  );
+  if (notifs.length > 0) await prisma.notification.createMany({ data: notifs });
 
   return NextResponse.json({ ok: true });
 }

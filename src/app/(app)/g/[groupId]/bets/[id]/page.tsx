@@ -14,6 +14,12 @@ import BuyOptionList from "@/components/BuyOptionList";
 import DecisionBet from "@/components/DecisionBet";
 import AdminBetControls from "@/components/AdminBetControls";
 import PositionDeleteControl from "@/components/PositionDeleteControl";
+import ReactionBar from "@/components/ReactionBar";
+import CommentThread from "@/components/CommentThread";
+import CalledItCard from "@/components/CalledItCard";
+import { getMarketComments } from "@/lib/comments";
+import { getReceipt } from "@/lib/receipts";
+import { groupReactions } from "@/lib/social";
 import type { SheetMarket } from "@/components/BetSheet";
 
 const SIDE_HEX = { yes: "#15b87a", no: "#f0405a", accent: "#2b6ef2" };
@@ -39,23 +45,33 @@ export default async function BetDetailPage({
   const user = await getCurrentUser();
   if (!user) notFound();
 
-  const [market, membership] = await Promise.all([
+  const [market, membership, comments, receipt, memberRows] = await Promise.all([
     prisma.market.findUnique({
       where: { id },
       include: {
         creator: { select: { id: true, displayName: true, avatarUrl: true } },
         options: { orderBy: { sortOrder: "asc" } },
         positions: {
-          include: { user: { select: { id: true, displayName: true, avatarUrl: true } } },
+          include: {
+            user: { select: { id: true, displayName: true, avatarUrl: true } },
+            reactions: { select: { emoji: true, userId: true } },
+          },
           orderBy: { createdAt: "asc" },
         },
       },
     }),
     getMembership(user.id, groupId),
+    getMarketComments(id, user.id),
+    getReceipt(id),
+    prisma.membership.findMany({
+      where: { groupId, status: "ACTIVE" },
+      select: { user: { select: { id: true, username: true, displayName: true } } },
+    }),
   ]);
   if (!market || market.groupId !== groupId) notFound();
 
   const isAdmin = isAdminRole(membership?.role);
+  const members = memberRows.map((m) => m.user);
   const { options, totalPot } = poolFor(market.options, market.positions, market.winningOptionId);
   const isOpen = market.status === MarketStatus.OPEN;
   const isResolved = market.status === MarketStatus.RESOLVED;
@@ -137,6 +153,9 @@ export default async function BetDetailPage({
           </div>
         </div>
 
+        {/* called-it receipts */}
+        {isResolved && receipt && <CalledItCard receipt={receipt} />}
+
         {/* big price */}
         <div className="mb-1 flex items-baseline gap-2.5">
           <span className="text-[44px] font-black leading-none" style={{ color: topColor }}>
@@ -206,37 +225,55 @@ export default async function BetDetailPage({
 
         {/* activity */}
         <div className="mb-2.5 text-[15px] font-extrabold">פעילות אחרונה</div>
-        <div className="flex flex-col">
+        <div className="mb-6 flex flex-col gap-1">
           {activity.map((p) => {
             const opt = market.options.find((o) => o.id === p.optionId);
             const k = sideKind(opt?.label ?? "");
             return (
-              <div key={p.id} className="flex items-center gap-2.5 py-2.5">
-                <Link
-                  href={`${base}/u/${p.userId}`}
-                  className="flex min-w-0 flex-1 items-center gap-2.5"
-                >
-                  <Avatar name={p.user.displayName} src={p.user.avatarUrl} size={34} />
-                  <div className="min-w-0 flex-1 text-[13.5px] font-semibold leading-tight">
-                    <span className="font-extrabold">{p.user.displayName}</span> קנה{" "}
-                    <span className="font-extrabold" style={{ color: SIDE_HEX[k] }}>
-                      {opt?.label}
-                    </span>
-                    <div className="text-xs font-semibold text-faint">{timeUntil(p.createdAt)}</div>
+              <div key={p.id} className="border-b border-border py-2.5 last:border-0">
+                <div className="flex items-center gap-2.5">
+                  <Link
+                    href={`${base}/u/${p.userId}`}
+                    className="flex min-w-0 flex-1 items-center gap-2.5"
+                  >
+                    <Avatar name={p.user.displayName} src={p.user.avatarUrl} size={34} />
+                    <div className="min-w-0 flex-1 text-[13.5px] font-semibold leading-tight">
+                      <span className="font-extrabold">{p.user.displayName}</span> קנה{" "}
+                      <span className="font-extrabold" style={{ color: SIDE_HEX[k] }}>
+                        {opt?.label}
+                      </span>
+                      <div className="text-xs font-semibold text-faint">{timeUntil(p.createdAt)}</div>
+                    </div>
+                  </Link>
+                  <span className="text-sm font-extrabold">{formatAgorot(p.amount)}</span>
+                  <PositionDeleteControl
+                    positionId={p.id}
+                    createdAtMs={p.createdAt.getTime()}
+                    mine={p.userId === user.id}
+                    isAdmin={isAdmin}
+                    marketOpen={isOpen}
+                  />
+                </div>
+                {p.shout && (
+                  <div dir="auto" className="ms-[44px] mt-1.5 inline-block rounded-[10px] bg-surface-2 px-2.5 py-1 text-[12.5px] font-bold text-muted">
+                    ״{p.shout}״
                   </div>
-                </Link>
-                <span className="text-sm font-extrabold">{formatAgorot(p.amount)}</span>
-                <PositionDeleteControl
-                  positionId={p.id}
-                  createdAtMs={p.createdAt.getTime()}
-                  mine={p.userId === user.id}
-                  isAdmin={isAdmin}
-                  marketOpen={isOpen}
-                />
+                )}
+                <div className="ms-[44px] mt-1.5">
+                  <ReactionBar positionId={p.id} initial={groupReactions(p.reactions, user.id)} />
+                </div>
               </div>
             );
           })}
         </div>
+
+        {/* comments */}
+        <CommentThread
+          marketId={market.id}
+          isAdmin={isAdmin}
+          members={members}
+          comments={comments}
+        />
       </div>
     </div>
   );

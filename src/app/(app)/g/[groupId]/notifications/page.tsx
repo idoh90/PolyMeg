@@ -11,6 +11,10 @@ const NOTIF: Record<string, { icon: string; bg: string }> = {
   MARKET_RESOLVED: { icon: "🏁", bg: "var(--no-b)" },
   JOIN_REQUEST: { icon: "🙋", bg: "var(--accent-soft)" },
   REQUEST_APPROVED: { icon: "✅", bg: "var(--yes-b)" },
+  COMMENT: { icon: "💬", bg: "var(--accent-soft)" },
+  MENTION: { icon: "@", bg: "var(--accent-soft)" },
+  POSITION_REACTION: { icon: "🔥", bg: "var(--yes-b)" },
+  BET_AGAINST: { icon: "⚔️", bg: "var(--no-b)" },
 };
 
 export default async function NotificationsPage({

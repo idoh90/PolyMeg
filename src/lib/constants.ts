@@ -22,6 +22,10 @@ export const NotificationType = {
   BET_PLACED: "BET_PLACED",
   MARKET_CLOSED: "MARKET_CLOSED",
   MARKET_RESOLVED: "MARKET_RESOLVED",
+  COMMENT: "COMMENT",
+  MENTION: "MENTION",
+  POSITION_REACTION: "POSITION_REACTION",
+  BET_AGAINST: "BET_AGAINST",
 } as const;
 export type NotificationType =
   (typeof NotificationType)[keyof typeof NotificationType];

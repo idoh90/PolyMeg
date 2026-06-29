@@ -10,6 +10,7 @@ import {
 import { useRouter } from "next/navigation";
 import { formatAgorot, agorotToShekels } from "@/lib/money";
 import { sideKind } from "@/lib/markets";
+import TrashTalkBar from "@/components/TrashTalkBar";
 
 export interface SheetMarket {
   id: string;
@@ -66,6 +67,7 @@ function BetSheet({
   const router = useRouter();
   const [optionId, setOptionId] = useState<string | null>(initialOption);
   const [amount, setAmount] = useState("");
+  const [shout, setShout] = useState<string | null>(null);
   const [placed, setPlaced] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -91,7 +93,7 @@ function BetSheet({
     const res = await fetch(`/api/markets/${market.id}/positions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ optionId: sel.id, amount: Number(amount) }),
+      body: JSON.stringify({ optionId: sel.id, amount: Number(amount), shout }),
     });
     if (res.ok) {
       setPlaced(true);
@@ -202,6 +204,8 @@ function BetSheet({
                 </button>
               ))}
             </div>
+
+            <TrashTalkBar value={shout} onChange={setShout} />
 
             <div className="mb-4 flex justify-between rounded-[14px] bg-surface-2 px-4 py-3.5">
               <Stat label="זכייה אפשרית" value={formatAgorot(payout)} />
