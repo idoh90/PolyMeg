@@ -78,7 +78,19 @@ model Market {
   criteria              String
   imageUrl              String?
   emoji                 String? // market glyph shown on cards/detail
+  kind                  String    @default("BINARY") // BINARY | MULTI | SCALAR
   minStake              Int // agorot
+  maxStake              Int? // per-bet cap (agorot)
+  perUserCap            Int? // total a single user may stake in this market (agorot)
+  cashOutEnabled        Boolean   @default(false) // allow selling before resolution
+  scalarMin             Int? // numeric markets: range start
+  scalarMax             Int? // numeric markets: range end
+  scalarUnit            String? // e.g. "אנשים", "גולים"
+  resolvedValue         Float? // actual numeric outcome (SCALAR)
+  recurring             Boolean   @default(false)
+  recurrenceDays        Int? // cadence in days (e.g. 7 = weekly)
+  seriesId              String? // links recurring instances together
+  seriesIndex           Int? // 1-based position within the series
   closesAt              DateTime
   status                String    @default("OPEN") // OPEN | CLOSED | RESOLVED
   winningOptionId       String?
@@ -91,6 +103,7 @@ model Market {
   comments  Comment[]
 
   @@index([groupId])
+  @@index([seriesId])
 }
 
 model Option {
@@ -114,6 +127,10 @@ model Position {
   user      User     @relation(fields: [userId], references: [id])
   amount    Int // agorot
   shout     String? // optional trash-talk line attached when placing the bet
+  guess     Float? // SCALAR markets: the user's numeric guess
+  entryPct  Float? // option's pool % at purchase time (for cash-out valuation)
+  soldAt    DateTime? // set when the position was cashed out before resolution
+  soldValue Int? // realized agorot value at cash-out
   createdAt DateTime @default(now())
 
   reactions Reaction[]

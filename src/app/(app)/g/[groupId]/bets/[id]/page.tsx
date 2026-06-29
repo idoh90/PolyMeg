@@ -150,6 +150,11 @@ export default async function BetDetailPage({
             >
               מאת {market.creator.displayName} · קופה {formatAgorot(totalPot)}
             </Link>
+            {market.recurring && (
+              <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-accent-soft px-2 py-0.5 text-[10.5px] font-extrabold text-accent">
+                🔁 חוזר · מופע #{market.seriesIndex ?? 1}
+              </span>
+            )}
           </div>
         </div>
 

@@ -62,9 +62,43 @@ export async function POST(
       { status: 400 },
     );
   }
+  if (market.maxStake !== null && amount > market.maxStake) {
+    return NextResponse.json(
+      { error: `המקסימום להימור הוא ${formatAgorot(market.maxStake)}.` },
+      { status: 400 },
+    );
+  }
+
+  // Live (non-cashed-out) pools: drives the per-user cap and the entry price.
+  const agg = await prisma.position.groupBy({
+    by: ["optionId"],
+    where: { marketId: id, soldAt: null },
+    _sum: { amount: true },
+  });
+  let pot = 0;
+  let optTotal = 0;
+  for (const a of agg) {
+    const s = a._sum.amount ?? 0;
+    pot += s;
+    if (a.optionId === optionId) optTotal += s;
+  }
+  if (market.perUserCap !== null) {
+    const mine = await prisma.position.aggregate({
+      where: { marketId: id, userId: user.id, soldAt: null },
+      _sum: { amount: true },
+    });
+    if ((mine._sum.amount ?? 0) + amount > market.perUserCap) {
+      return NextResponse.json(
+        { error: `חרגת מהתקרה למשתתף (${formatAgorot(market.perUserCap)}).` },
+        { status: 400 },
+      );
+    }
+  }
+  // Price you bought at — the option's pool share now (for cash-out valuation).
+  const entryPct = pot > 0 ? (optTotal / pot) * 100 : 100 / market.options.length;
 
   await prisma.position.create({
-    data: { marketId: id, optionId, userId: user.id, amount, shout },
+    data: { marketId: id, optionId, userId: user.id, amount, shout, entryPct },
   });
 
   const optLabel = market.options.find((o) => o.id === optionId)?.label ?? "";

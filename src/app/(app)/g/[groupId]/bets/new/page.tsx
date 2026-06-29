@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { EMOJI_OPTIONS } from "@/lib/constants";
+import { EMOJI_OPTIONS, MARKET_TEMPLATES, type MarketTemplate } from "@/lib/constants";
 
 // Generic prompts so any community can relate (replace friend-specific jokes).
 const SUGGESTIONS = [
@@ -78,6 +78,10 @@ export default function NewBetPage() {
   const [mode, setMode] = useState<"binary" | "multi">("binary");
   const [opts, setOpts] = useState<string[]>(["", ""]);
   const [minStake, setMinStake] = useState("5");
+  const [maxStake, setMaxStake] = useState("");
+  const [perUserCap, setPerUserCap] = useState("");
+  const [recurring, setRecurring] = useState(false);
+  const [recurDays, setRecurDays] = useState(7);
   const [closeKey, setCloseKey] = useState("3");
   const [idx, setIdx] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -94,6 +98,17 @@ export default function NewBetPage() {
   const suggestion = SUGGESTIONS[((idx % SUGGESTIONS.length) + SUGGESTIONS.length) % SUGGESTIONS.length];
   const finalOpts = mode === "binary" ? ["כן", "לא"] : opts.map((o) => o.trim()).filter(Boolean);
   const canNext = step === 0 ? title.trim().length >= 3 : step === 1 ? finalOpts.length >= 2 : true;
+
+  function applyTemplate(t: MarketTemplate) {
+    setTitle(t.title);
+    setEmoji(t.emoji);
+    if (t.kind === "MULTI") {
+      setMode("multi");
+      setOpts(t.options && t.options.length >= 2 ? [...t.options] : ["", "", ""]);
+    } else {
+      setMode("binary");
+    }
+  }
 
   async function onPickImage(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
@@ -118,6 +133,10 @@ export default function NewBetPage() {
         emoji: emoji || null,
         imageUrl,
         minStake: Number(minStake) || 0,
+        maxStake: maxStake ? Number(maxStake) : null,
+        perUserCap: perUserCap ? Number(perUserCap) : null,
+        recurring,
+        recurrenceDays: recurring ? recurDays : null,
         closesAt: closeISO(days),
         options: finalOpts,
       }),
@@ -201,7 +220,22 @@ export default function NewBetPage() {
           <div className="pm-screen pt-2.5">
             <div className="mb-1.5 text-[13px] font-extrabold tracking-wide text-accent">שלב 1 · הרעיון</div>
             <div className="mb-1.5 text-[23px] font-extrabold">על מה ההימור?</div>
-            <div className="mb-[18px] text-sm font-semibold leading-relaxed text-muted">נסחו שאלה ברורה שאפשר להכריע עליה.</div>
+            <div className="mb-3 text-sm font-semibold leading-relaxed text-muted">נסחו שאלה ברורה שאפשר להכריע עליה.</div>
+
+            <div className="mb-1.5 text-[12px] font-extrabold text-faint">⚡ התחל מתבנית</div>
+            <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
+              {MARKET_TEMPLATES.map((t) => (
+                <button
+                  key={t.title}
+                  onClick={() => applyTemplate(t)}
+                  className="pressable flex flex-none items-center gap-2 rounded-full border border-border bg-surface px-3 py-2 text-[12.5px] font-bold"
+                >
+                  <span className="text-[15px]">{t.emoji}</span>
+                  <span className="whitespace-nowrap">{t.title}</span>
+                </button>
+              ))}
+            </div>
+
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -409,6 +443,54 @@ export default function NewBetPage() {
                   </button>
                 );
               })}
+            </div>
+
+            {/* stake caps */}
+            <div className="mt-[22px] grid grid-cols-2 gap-2.5">
+              <div>
+                <div className="mb-2 text-[13px] font-extrabold text-muted">מקס׳ להימור</div>
+                <div className="field flex items-center !py-0">
+                  <span className="text-[18px] font-extrabold text-faint">₪</span>
+                  <input type="number" inputMode="decimal" value={maxStake} onChange={(e) => setMaxStake(e.target.value)} placeholder="ללא" className="w-full bg-transparent px-2 py-3 text-right text-[18px] font-extrabold outline-none" />
+                </div>
+              </div>
+              <div>
+                <div className="mb-2 text-[13px] font-extrabold text-muted">תקרה למשתתף</div>
+                <div className="field flex items-center !py-0">
+                  <span className="text-[18px] font-extrabold text-faint">₪</span>
+                  <input type="number" inputMode="decimal" value={perUserCap} onChange={(e) => setPerUserCap(e.target.value)} placeholder="ללא" className="w-full bg-transparent px-2 py-3 text-right text-[18px] font-extrabold outline-none" />
+                </div>
+              </div>
+            </div>
+            <div className="mt-1.5 text-[11.5px] font-semibold text-faint">תקרה מונעת ממשתתף יחיד לעוות את הקופה.</div>
+
+            {/* recurring */}
+            <div className="mt-[22px] rounded-[14px] border border-border bg-surface p-3.5">
+              <button onClick={() => setRecurring((v) => !v)} className="flex w-full items-center gap-3 text-start">
+                <span className="relative h-[26px] w-[44px] flex-none rounded-full transition-colors" style={{ background: recurring ? "var(--accent)" : "var(--border)" }}>
+                  <span className="absolute top-[3px] h-5 w-5 rounded-full bg-white shadow transition-all" style={{ insetInlineStart: recurring ? 21 : 3 }} />
+                </span>
+                <span className="flex-1">
+                  <span className="block text-[14.5px] font-extrabold">🔁 הימור חוזר</span>
+                  <span className="block text-[11.5px] font-semibold text-faint">נפתח מחדש אוטומטית ובונה רצף</span>
+                </span>
+              </button>
+              {recurring && (
+                <div className="mt-3 flex gap-2">
+                  {[{ d: 1, l: "יומי" }, { d: 7, l: "שבועי" }, { d: 30, l: "חודשי" }].map((o) => {
+                    const on = recurDays === o.d;
+                    return (
+                      <button
+                        key={o.d}
+                        onClick={() => setRecurDays(o.d)}
+                        className={`flex-1 rounded-xl border py-2.5 text-[13px] font-extrabold transition ${on ? "border-accent bg-accent-soft text-accent" : "border-border bg-surface text-muted"}`}
+                      >
+                        {o.l}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
         )}

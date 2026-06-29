@@ -17,6 +17,25 @@ export const GROUP_CATEGORIES = [
   "חברים", "גיימינג", "ספורט", "עבודה", "משפחה", "לימודים", "קהילה",
 ] as const;
 
+// One-tap market templates: prefill the create flow. `kind` drives the type
+// toggle; `options` seeds multi-choice rows (empty strings = blanks to fill).
+export type MarketTemplate = {
+  emoji: string;
+  title: string;
+  kind: "BINARY" | "MULTI" | "SCALAR";
+  options?: string[];
+  scalarUnit?: string;
+};
+
+export const MARKET_TEMPLATES: MarketTemplate[] = [
+  { emoji: "⏰", title: "מישהו יאחר הערב?", kind: "BINARY" },
+  { emoji: "🌧️", title: "ירד גשם בסופ״ש?", kind: "BINARY" },
+  { emoji: "⚽", title: "מי ינצח במשחק?", kind: "MULTI", options: ["קבוצה א׳", "קבוצה ב׳", "תיקו"] },
+  { emoji: "🍕", title: "מי מביא אוכל למפגש?", kind: "MULTI", options: ["", "", ""] },
+  { emoji: "🎯", title: "נשבור שיא השבוע?", kind: "BINARY" },
+  { emoji: "💪", title: "נעמוד ביעד השבוע?", kind: "BINARY" },
+];
+
 export const NotificationType = {
   NEW_MARKET: "NEW_MARKET",
   BET_PLACED: "BET_PLACED",

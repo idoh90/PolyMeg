@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/currentUser";
 import { getMembership } from "@/lib/membership";
+import { isBinaryMarket } from "@/lib/markets";
 import { shekelsToAgorot } from "@/lib/money";
 import { MarketStatus, NotificationType } from "@/lib/constants";
 
@@ -26,6 +27,16 @@ export async function POST(req: Request) {
       : null;
   const emoji = typeof body.emoji === "string" && body.emoji ? body.emoji.slice(0, 8) : null;
   const minStakeShekels = Number(body.minStake);
+  const toAgPositive = (v: unknown) => {
+    const n = Number(v);
+    return Number.isFinite(n) && n > 0 ? shekelsToAgorot(n) : null;
+  };
+  const maxStake = toAgPositive(body.maxStake);
+  const perUserCap = toAgPositive(body.perUserCap);
+  const recurring = body.recurring === true;
+  const recurrenceDays = recurring
+    ? Math.max(1, Math.round(Number(body.recurrenceDays) || 7))
+    : null;
   const closesAt = new Date(body.closesAt);
   const labels: string[] = Array.isArray(body.options)
     ? body.options.map((o: unknown) => String(o).trim()).filter(Boolean)
@@ -45,8 +56,14 @@ export async function POST(req: Request) {
     return bad("האפשרויות חייבות להיות שונות זו מזו.");
   if (!Number.isFinite(minStakeShekels) || minStakeShekels < 0)
     return bad("הסכום המינימלי אינו תקין.");
+  if (maxStake !== null && maxStake < shekelsToAgorot(minStakeShekels))
+    return bad("המקסימום חייב להיות לפחות כמו המינימום.");
+  if (perUserCap !== null && perUserCap < shekelsToAgorot(minStakeShekels))
+    return bad("התקרה למשתתף חייבת להיות לפחות כמו המינימום.");
   if (isNaN(closesAt.getTime()) || closesAt.getTime() <= Date.now())
     return bad("מועד הסגירה חייב להיות בעתיד.");
+
+  const kind = isBinaryMarket(labels.map((l) => ({ label: l }))) ? "BINARY" : "MULTI";
 
   const market = await prisma.market.create({
     data: {
@@ -56,7 +73,12 @@ export async function POST(req: Request) {
       criteria,
       imageUrl,
       emoji,
+      kind,
       minStake: shekelsToAgorot(minStakeShekels),
+      maxStake,
+      perUserCap,
+      recurring,
+      recurrenceDays,
       closesAt,
       status: MarketStatus.OPEN,
       options: {
@@ -68,6 +90,14 @@ export async function POST(req: Request) {
       },
     },
   });
+
+  // A recurring market anchors its own series so future instances link back.
+  if (recurring) {
+    await prisma.market.update({
+      where: { id: market.id },
+      data: { seriesId: market.id, seriesIndex: 1 },
+    });
+  }
 
   // Notify the rest of the group about the new bet.
   const others = await prisma.membership.findMany({

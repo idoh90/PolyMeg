@@ -41,6 +41,63 @@ export async function resolveMarket(marketId: string, winningOptionId: string) {
       })),
     });
   }
+
+  await spawnNextInstance(marketId);
+}
+
+/**
+ * When a recurring market resolves, open the next instance in its series
+ * (same setup, fresh pool, closes one cadence from now). No-op for one-off
+ * markets, and guarded so it never double-spawns.
+ */
+export async function spawnNextInstance(marketId: string) {
+  const m = await prisma.market.findUnique({
+    where: { id: marketId },
+    include: {
+      options: { orderBy: { sortOrder: "asc" }, select: { label: true, sortOrder: true, blockedUserIds: true } },
+    },
+  });
+  if (!m || !m.recurring || !m.recurrenceDays || !m.seriesId) return;
+
+  const newest = await prisma.market.aggregate({
+    where: { seriesId: m.seriesId },
+    _max: { seriesIndex: true },
+  });
+  const latest = newest._max.seriesIndex ?? 1;
+  // Only the current latest instance spawns the next one.
+  if ((m.seriesIndex ?? 1) < latest) return;
+
+  await prisma.market.create({
+    data: {
+      groupId: m.groupId,
+      creatorId: m.creatorId,
+      title: m.title,
+      criteria: m.criteria,
+      imageUrl: m.imageUrl,
+      emoji: m.emoji,
+      kind: m.kind,
+      minStake: m.minStake,
+      maxStake: m.maxStake,
+      perUserCap: m.perUserCap,
+      cashOutEnabled: m.cashOutEnabled,
+      scalarMin: m.scalarMin,
+      scalarMax: m.scalarMax,
+      scalarUnit: m.scalarUnit,
+      recurring: true,
+      recurrenceDays: m.recurrenceDays,
+      seriesId: m.seriesId,
+      seriesIndex: latest + 1,
+      closesAt: new Date(Date.now() + m.recurrenceDays * 86400000),
+      status: MarketStatus.OPEN,
+      options: {
+        create: m.options.map((o) => ({
+          label: o.label,
+          sortOrder: o.sortOrder,
+          blockedUserIds: o.blockedUserIds,
+        })),
+      },
+    },
+  });
 }
 
 /**
