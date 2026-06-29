@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 
 export type ChartPoint = { x: number; y: number };
 export type ChartSeries = { label: string; color: string; points: ChartPoint[] };
@@ -57,6 +57,25 @@ export default function LineChart({
   const [hoverX, setHoverX] = useState<number | null>(null);
   const [tipLeft, setTipLeft] = useState(0);
 
+  // The SVG stretches its 700-wide viewBox to the container width
+  // (preserveAspectRatio:none), so circles render as ellipses. Measure the real
+  // width and counter-scale dot radii on x so they stay round.
+  const hostRef = useRef<HTMLDivElement>(null);
+  const [scaleX, setScaleX] = useState(1);
+  useEffect(() => {
+    const el = hostRef.current;
+    if (!el) return;
+    const update = () => {
+      const w = el.clientWidth;
+      if (w > 0) setScaleX(w / W);
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const rx = (r: number) => (scaleX > 0 ? r / scaleX : r);
+
   const H = height;
   const all = series.flatMap((s) => s.points);
   if (all.length === 0) {
@@ -89,6 +108,11 @@ export default function LineChart({
     lo -= 1;
     hi += 1;
   }
+  // Headroom so values at the domain edges (e.g. a flat 100% / 0% line) never
+  // hug the top/bottom border or clip the end dot.
+  const head = (hi - lo) * 0.08;
+  lo -= head;
+  hi += head;
 
   const plotLeft = PAD_X;
   const plotW = W - PAD_X * 2;
@@ -112,7 +136,7 @@ export default function LineChart({
   const hoverPx = hoverX === null ? null : sx(hoverX);
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full" ref={hostRef}>
       <svg
         viewBox={`0 0 ${W} ${H}`}
         width="100%"
@@ -157,8 +181,8 @@ export default function LineChart({
                 strokeLinecap="round"
                 vectorEffect="non-scaling-stroke"
               />
-              <circle cx={last[0]} cy={last[1]} r={8} fill={s.color} opacity={0.16} />
-              <circle cx={last[0]} cy={last[1]} r={4.2} fill={s.color} stroke="var(--surface)" strokeWidth={2.5} vectorEffect="non-scaling-stroke" />
+              <ellipse cx={last[0]} cy={last[1]} rx={rx(8)} ry={8} fill={s.color} opacity={0.16} />
+              <ellipse cx={last[0]} cy={last[1]} rx={rx(4.2)} ry={4.2} fill={s.color} stroke="var(--surface)" strokeWidth={2.5} vectorEffect="non-scaling-stroke" />
             </g>
           );
         })}
@@ -168,7 +192,7 @@ export default function LineChart({
           <>
             <line x1={hoverPx} x2={hoverPx} y1={plotTop} y2={plotTop + plotH} stroke="var(--muted)" strokeWidth={1} opacity={0.5} />
             {series.map((s) => (
-              <circle key={s.label} cx={hoverPx} cy={sy(valueAt(s.points, hoverX!))} r={3.5} fill={s.color} stroke="var(--surface)" strokeWidth={1.5} vectorEffect="non-scaling-stroke" />
+              <ellipse key={s.label} cx={hoverPx} cy={sy(valueAt(s.points, hoverX!))} rx={rx(3.5)} ry={3.5} fill={s.color} stroke="var(--surface)" strokeWidth={1.5} vectorEffect="non-scaling-stroke" />
             ))}
           </>
         )}

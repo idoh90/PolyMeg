@@ -158,7 +158,7 @@ function SideButton({
       disabled={disabled}
       className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl border px-3 py-[11px] text-sm font-extrabold disabled:opacity-60 ${cls}`}
     >
-      {label} <span className="opacity-65">{pct}¢</span>
+      {label} <span className="opacity-65">{pct}%</span>
     </button>
   );
 }
