@@ -14,10 +14,10 @@ const siteUrl =
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: { default: "GRUbet", template: "%s · GRUbet" },
+  title: { default: "GruBet", template: "%s · GruBet" },
   description: "שוק הניבויים של כל קבוצת חברים — פתחו הימור, הזמינו את החבר׳ה, וראו מי צדק.",
-  applicationName: "GRUbet",
-  openGraph: { title: "GRUbet", description: "שוק הניבויים של כל קבוצת חברים.", type: "website" },
+  applicationName: "GruBet",
+  openGraph: { title: "GruBet", description: "שוק הניבויים של כל קבוצת חברים.", type: "website" },
 };
 
 export default function RootLayout({

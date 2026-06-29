@@ -1,4 +1,4 @@
-// GRUbet wordmark: chart-bars glyph + "GRU" + accent "bet".
+// GruBet wordmark: chart-bars glyph + "Gru" + accent "Bet".
 export default function Wordmark({ size = 22 }: { size?: number }) {
   const g = Math.round(size * 1.1);
   return (
@@ -9,7 +9,7 @@ export default function Wordmark({ size = 22 }: { size?: number }) {
         <rect x="16" y="3" width="5" height="18" rx="1.5" fill="var(--accent)" />
       </svg>
       <span className="font-black tracking-[-0.5px]" style={{ fontSize: size }}>
-        GRU<span className="text-accent">bet</span>
+        Gru<span className="text-accent">Bet</span>
       </span>
     </span>
   );

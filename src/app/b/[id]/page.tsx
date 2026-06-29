@@ -12,7 +12,7 @@ export async function generateMetadata({
   const { id } = await params;
   const bet = await getPublicBet(id);
   const base = getBaseUrl();
-  if (!bet) return { title: "GRUbet" };
+  if (!bet) return { title: "GruBet" };
 
   const desc =
     bet.kind === "SCALAR"
@@ -21,7 +21,7 @@ export async function generateMetadata({
 
   return {
     metadataBase: new URL(base),
-    title: `${bet.title} · GRUbet`,
+    title: `${bet.title} · GruBet`,
     description: desc,
     openGraph: { title: bet.title, description: desc, type: "website", url: `${base}/b/${id}` },
     twitter: { card: "summary_large_image", title: bet.title, description: desc },
@@ -53,7 +53,7 @@ export default async function PublicBetPage({ params }: { params: Promise<{ id: 
         <div className="relative">
           <div className="mb-4 flex items-center justify-between">
             <span className="rounded-full bg-white/10 px-3 py-1 text-[12px] font-extrabold text-[#aeb7c9]">{bet.groupName}</span>
-            <span className="text-[12px] font-extrabold text-[#aeb7c9]">GRUbet</span>
+            <span className="text-[12px] font-extrabold text-[#aeb7c9]">GruBet</span>
           </div>
           <div className="flex items-start gap-3.5">
             <div className="flex h-[60px] w-[60px] flex-none items-center justify-center rounded-[16px] bg-white/10 text-[32px]">{bet.emoji ?? "🎲"}</div>
@@ -76,7 +76,7 @@ export default async function PublicBetPage({ params }: { params: Promise<{ id: 
         href={`/g/${bet.groupId}/bets/${bet.id}`}
         className="pressable mt-6 w-full rounded-[15px] bg-accent py-4 text-center text-[16.5px] font-extrabold text-white shadow-[0_12px_24px_-12px_var(--accent)]"
       >
-        פתח ב-GRUbet ←
+        פתח ב-GruBet ←
       </Link>
       <div className="mt-3 text-center text-[13px] font-semibold text-muted">
         הצטרפו לקבוצה כדי להמר · {bet.betCount} כבר בפנים

@@ -5,13 +5,15 @@ Goal: replace the live **Polymeg** app with **GRUbet**. The code is ready on the
 Do the steps **in order** — set env + DB first, flip the branch last, so prod
 never boots without its config.
 
-## 0. Decisions to confirm first
-- **Name**: code says **GRUbet** everywhere. If it should be "GruMark"/"GruMeg",
-  say so before launch (it's a rename pass, cheap but do it once).
-- **Database**: reuse the existing Supabase project's **`grubet` schema** (already
-  has all tables + the seeded `ido` + friends). Decide whether to wipe the test
-  groups/users first for a clean launch (see step 4).
-- **Domain**: keep the current Polymeg domain (point it at GRUbet) or use a new one.
+## 0. Decisions (locked)
+- **Name**: **GruBet** (done in code).
+- **Database**: reuse the existing Supabase project's **`grubet` schema**. Test
+  data already wiped (groups/markets/bets/comments/notifications gone; the
+  seeded `ido` + friends accounts kept — see step 4).
+- **Cutover**: **flip the Vercel Production Branch to `grubet`** (method A). The
+  old Polymeg stays on `main` + `public` schema and remains reachable (step 5).
+- **Domain**: point the current domain at the GruBet project/branch.
+- **Entry**: `/` redirects to `/login` (no marketing landing for now).
 
 ## 1. Google OAuth (console.cloud.google.com → APIs & Services → Credentials)
 - Open the OAuth client (or create one, Web application).
@@ -35,19 +37,20 @@ Set these for **Production** (and Preview if you want a staging copy):
 - `NEXT_PUBLIC_SITE_URL` = `https://<PROD_DOMAIN>` (needed for share/OG links)
 - **Do NOT set** `ALLOW_DEBUG_LOGIN` (must stay off → 1234/0000 disabled publicly)
 
-## 4. (Optional) Clean the launch data
-The `grubet` schema currently holds debug/test rows. To start fresh, delete test
-groups (cascades markets/positions/comments). Keep or remove the seeded debug
-users (`ido` + friends) as desired. Real users sign up via Google or username.
+## 4. Launch data — already wiped
+Test groups/markets/bets/comments/notifications were deleted from the `grubet`
+schema. The seeded `ido` + friends accounts remain (used by the preview debug
+picker; harmless in prod — they're in no group). Real users sign up via Google or
+username. Nothing to do here unless you also want the seed accounts gone.
 
-## 5. Flip production to GRUbet (the actual switch)
-Pick ONE:
-- **A (recommended, reversible):** Vercel → Settings → Git → **Production Branch**
-  → change `main` → `grubet`. Then redeploy. To roll back, switch it back to `main`.
-- **B:** merge `grubet` → `main` and push (production deploys from `main`).
-
-> Polymeg (old) lives on `main` + the `public` schema and stays intact either way —
-> A just stops serving it; the data is untouched.
+## 5. Flip production to GruBet (the switch — method A)
+- Vercel → Settings → Git → **Production Branch** → change `main` → `grubet`,
+  then redeploy.
+- Roll back anytime by switching it back to `main`.
+- Old Polymeg keeps living on `main` + the `public` schema (data untouched). To
+  keep it reachable, leave `main` deployments on (its branch/preview URL still
+  serves Polymeg); flipping the production branch only changes what the
+  production domain serves.
 
 ## 6. Domain
 If a custom domain points at this project it now serves GRUbet automatically.

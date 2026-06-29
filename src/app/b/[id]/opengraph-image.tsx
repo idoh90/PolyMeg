@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { getPublicBet, toVisualRtl } from "@/lib/share";
 
-export const alt = "GRUbet";
+export const alt = "GruBet";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -37,7 +37,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   const { id } = await params;
   const bet = await getPublicBet(id);
 
-  const rawTitle = bet?.title ?? "GRUbet";
+  const rawTitle = bet?.title ?? "GruBet";
   const emoji = bet?.emoji ?? "🎲";
   const isScalar = bet?.kind === "SCALAR";
   const rawHeadline = isScalar
@@ -56,7 +56,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
 
   // Subset fonts to just the glyphs we draw.
   const glyphs =
-    "GRUbet קופה ניחוש המספר משתתפים " + rawTitle + rawHeadline + rawSub + rawGroup + potText + "0123456789%₪–·";
+    "GruBet קופה ניחוש המספר משתתפים " + rawTitle + rawHeadline + rawSub + rawGroup + potText + "0123456789%₪–·";
   const [reg, bold] = await Promise.all([heebo(glyphs, 700), heebo(glyphs, 800)]);
   const fonts = [
     ...(reg ? [{ name: "Heebo", data: reg, weight: 700 as const, style: "normal" as const }] : []),
@@ -81,8 +81,8 @@ export default async function Image({ params }: { params: Promise<{ id: string }
         {/* brand + group */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", fontSize: 40, fontWeight: 800 }}>
-            <span>GRU</span>
-            <span style={{ color: "#5b93f8" }}>bet</span>
+            <span>Gru</span>
+            <span style={{ color: "#5b93f8" }}>Bet</span>
           </div>
           {groupName ? (
             <div
