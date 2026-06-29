@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style data-omelette-injected>html,body{background:transparent}</style><script data-omelette-injected>(()=>{var j=["https://claude.ai","https://preview.claude.ai","https://1372b47d-95c9-4a8e-879a-657798b8d15a.claudeusercontent.com"];var x=true;var S=30000;var f=3000;document.addEventListener("DOMContentLoaded",()=>{const H=window.Babel;const G="om-src-id";if(H&&H.registerPlugin&&!(H.availablePlugins&&H.availablePlugins[G])){H.registerPlugin(G,({types:Y})=>({visitor:{JSXOpeningElement(U,Q){const J=U.node;if(J.name&&J.name.type==="JSXMemberExpression")return;for(let V=0;V<J.attributes.length;V++){const L=J.attributes[V];if(L.type==="JSXAttribute"&&L.name&&L.name.name==="data-om-id")return}const W=Q.file&&Q.file.opts&&Q.file.opts.filename||"?";const Z=J.loc&&J.loc.start;const z=`jsx:${W}:${J.start??0}:${Z?Z.line:0}:${Z?Z.column+1:0}`;J.attributes.push(Y.jsxAttribute(Y.jsxIdentifier("data-om-id"),Y.stringLiteral(z)))}}}))}const k="om-text-extract";let A=false;if(x&&H&&H.registerPlugin&&!(H.availablePlugins&&H.availablePlugins[k])){const Y=window.React;if(Y&&Y.useSyncExternalStore&&Y.createElement){A=true;const U={};const Q=new Set;let J=0;window.__omTextO=U;window.__omTextSet=(z)=>{for(const V in z){const L=z[V];if(L==null)delete U[V];else U[V]=L}J++;Q.forEach((V)=>V())};const W=(z)=>{Q.add(z);return()=>Q.delete(z)};const Z=()=>J;window.__OmT=function z(V){Y.useSyncExternalStore(W,Z,Z);return Y.createElement("span",{"data-om-text":V.i,className:"__om-t"},V.i in U?U[V.i]:V.children)};H.registerPlugin(k,({types:z})=>{const V={style:1,script:1,noscript:1,textarea:1,title:1,option:1,text:1,tspan:1,textPath:1};const L={placeholder:1,alt:1,title:1,label:1,"aria-label":1,"aria-description":1,"aria-placeholder":1};const _=($,C)=>z.logicalExpression("??",z.memberExpression(z.logicalExpression("||",z.memberExpression(z.identifier("window"),z.identifier("__omTextO")),z.objectExpression([])),z.stringLiteral($),true),C);const E=($)=>$.file&&$.file.opts&&$.file.opts.filename||"?";const B=($)=>$.file&&$.file.code||"";const b=($,C)=>{const X=(F)=>F&&F.start!=null&&F.end!=null&&(F.type==="StringLiteral"||F.type==="TemplateLiteral"&&F.expressions.length===0)?[F.start,F.end]:null;const N=X(C);if(N)return N;if(C&&C.type==="Identifier"){const F=$.scope.getBinding(C.name);if(F&&F.constant&&F.path.node.type==="VariableDeclarator"){return X(F.path.node.init)}}return null};const M=($,C,X)=>{const N=$.node;let F=false;const w=(K,q)=>{F=true;return z.jsxElement(z.jsxOpeningElement(z.jsxIdentifier("__OmT"),[z.jsxAttribute(z.jsxIdentifier("i"),z.stringLiteral(K))],false),z.jsxClosingElement(z.jsxIdentifier("__OmT")),[q],false)};const D=N.children.map((K)=>{if(K.type==="JSXText"){if(K.start==null||K.end==null)return K;const q=X.slice(K.start,K.end);const R=q.length-q.trimStart().length;const m=q.length-q.trimEnd().length;if(R+m>=q.length)return K;return w(`txt:${C}:${K.start+R}:${K.end-m}`,K)}if(K.type==="JSXExpressionContainer"){const q=b($,K.expression);if(q)return w(`str:${C}:${q[0]}:${q[1]}`,K)}return K});if(F)N.children=D};return{visitor:{JSXOpeningElement($,C){const X=$.node;const N=E(C);const F={};for(let w=0;w<X.attributes.length;w++){const D=X.attributes[w];if(D.type!=="JSXAttribute"||!D.name)continue;const K=D.name.name;if(!L[K])continue;if(!D.value||D.value.type!=="StringLiteral")continue;if(D.value.start==null||D.value.end==null)continue;const q=`txt:${N}:${D.value.start}:${D.value.end}`;F[K]=q;D.value=z.jsxExpressionContainer(_(q,z.stringLiteral(D.value.value)))}if(Object.keys(F).length){X.attributes.push(z.jsxAttribute(z.jsxIdentifier("data-om-text-attrs"),z.stringLiteral(JSON.stringify(F))))}},JSXElement($,C){const X=$.node.openingElement;const N=X&&X.name&&X.name.name;if(N==="__OmT")return;if(typeof N==="string"&&V[N])return;M($,E(C),B(C))},JSXFragment($,C){M($,E(C),B(C))}}}})}}const u=A?["transform-react-jsx-source",G,k]:["transform-react-jsx-source",G];document.querySelectorAll('script[type="text/babel"],script[type="text/jsx"]').forEach((Y,U)=>{const Q=Y.getAttribute("data-plugins")||"";const J=u.filter((W)=>Q.indexOf(W)<0);if(J.length){Y.setAttribute("data-plugins",Q?`${Q},${J.join(",")}`:J.join(","))}if(!Y.hasAttribute("data-filename")){Y.setAttribute("data-filename",Y.getAttribute("src")||`inline-${U}`)}})});var y=window.parent;if(y&&y!==window){const H=(Q,J)=>{try{y.postMessage({__omelette_log:true,type:Q,data:J},"*")}catch{}};["log","warn","error"].forEach((Q)=>{const J=console[Q];console[Q]=(...W)=>{const Z=W.map((z)=>{try{return typeof z==="object"?JSON.stringify(z):String(z)}catch{try{return String(z)}catch{return"[unstringifiable]"}}}).join(" ");H(Q,Z);J.apply(console,W)}});window.addEventListener("error",(Q)=>{const J=Q.target;if(J&&J!==window&&J.tagName){const W=J.src||J.href||"";H("resource_error",`${J.tagName} failed to load: ${W}`)}else{H("error",`${Q.message||"Unknown error"} at ${Q.filename||"?"}:${Q.lineno||0}:${Q.colno||0}`)}},true);window.addEventListener("unhandledrejection",(Q)=>{const J=Q.reason;const W=J instanceof Error?`${J.message} ${J.stack}`:String(J);H("error",`Unhandled rejection: ${W}`)});const G=()=>{try{y.postMessage({type:"omelette:height",height:document.documentElement.scrollHeight},"*")}catch{}};if(document.readyState==="complete")G();else window.addEventListener("load",G);if(window.ResizeObserver)new ResizeObserver(G).observe(document.documentElement);const k={};let A=0;window.claude={complete(Q){return new Promise((J,W)=>{if(!j.length){W(new Error("claude.complete: no parent origin"));return}const Z=`c${++A}`;const z=()=>setTimeout(()=>{delete k[Z];W(new Error(`claude.complete: no data for ${S/1000}s`))},S);const V=z();k[Z]={resolve:J,reject:W,text:"",t:V,arm:z};try{for(const L of j){y.postMessage({__om_api:true,id:Z,body:Q},L)}}catch(L){clearTimeout(V);delete k[Z];W(L)}})}};const u={};let Y=0;window.omelette={writeFile:(Q,J)=>new Promise((W,Z)=>{if(!j.length){W();return}const z=`f${++Y}`;const V=setTimeout(()=>{delete u[z];W()},f);u[z]={resolve:W,reject:Z,t:V};try{for(const L of j){y.postMessage({__om_file:true,id:z,op:"write",path:Q,content:J},L)}}catch{clearTimeout(V);delete u[z];W()}})};const U=(Q)=>{try{return JSON.stringify(Q)}catch{return JSON.stringify(String(Q))}};window.addEventListener("message",(Q)=>{if(j.indexOf(Q.origin)<0)return;if(Q.source!==y)return;const J=Q.data;if(!J)return;if(J.type==="omelette-preview-refresh"){if(typeof J.token!=="string"||!/^[0-9a-f.-]+(\.(rc|pr-[0-9]+))?(\.[0-9]+\.[0-9a-f]{16})?$/.test(J.token))return;const z=Math.max(1,Math.floor((J.expiresAt||0)-Date.now()/1000));document.cookie="__Host-omelette-preview="+J.token+"; Path=/; Secure; SameSite=None; Partitioned; Max-Age="+z;return}if(J.__om_file_r){const z=u[J.id];if(!z)return;clearTimeout(z.t);delete u[J.id];if(J.ok)z.resolve();else z.reject(new Error(J.error||"write failed"));return}if(J.__om_api_r){const z=k[J.id];if(!z)return;if(J.error!=null){clearTimeout(z.t);delete k[J.id];z.reject(new Error(J.error));return}if(J.chunk!=null){clearTimeout(z.t);z.t=z.arm();z.text+=J.chunk;return}if(J.done){clearTimeout(z.t);delete k[J.id];z.resolve(J.text!=null?J.text:z.text);return}return}if(!J.__om_eval)return;const W=J;const Z=(z)=>{Q.source.postMessage({...z,__om_eval_r:1,id:W.id},Q.origin)};try{const z=(0,eval)(W.code);if(z&&typeof z.then==="function"){z.then((V)=>Z({ok:1,v:U(V)}),(V)=>Z({ok:0,e:String(V)}))}else{Z({ok:1,v:U(z)})}}catch(z){Z({ok:0,e:String(z)})}})}})();
+</script>
+
+<style data-omelette-print-defaults>
+@media print {
+  @page { margin: 0.5in; }
+  h1, h2, h3, h4, h5, h6 { break-after: avoid; }
+  figure, table, pre, blockquote, img, svg, tr, [class~="card" i] { break-inside: avoid; }
+  img, svg { max-width: 100%; }
+  p { orphans: 3; widows: 3; }
+}
+</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f4f5f8; --surface:#ffffff; --surf2:#f1f3f7; --border:#e9ebf1;
+    --ink:#0f1320; --muted:#737b8c; --faint:#9aa1b1;
+    --accent:#2b6ef2; --accent-soft:#e9f0fe;
+    --yes:#15b87a; --yes-b:#e6f6ef; --no:#f0405a; --no-b:#fdebee;
+    --grab:#d7dbe4; --line:#eef0f5;
+  }
+  .gb-dark{
+    --bg:#0c0f17; --surface:#151a26; --surf2:#1e2431; --border:#2a3142;
+    --ink:#eef1f7; --muted:#9aa6b6; --faint:#6b7589;
+    --accent:#5b93f8; --accent-soft:#1b2840;
+    --yes:#23ca8e; --yes-b:#0f2a20; --no:#fb5d72; --no-b:#2c1620;
+    --grab:#333b4d; --line:#222a39;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;background:#e3e5ea;}
+  ::-webkit-scrollbar{width:0;height:0;}
+  *{scrollbar-width:none;}
+  @keyframes gb-pulse{from{opacity:.35}to{opacity:1}}
+  @keyframes gb-plus{0%{opacity:0;transform:translateY(6px) scale(.6)}40%{opacity:1;transform:translateY(-10px) scale(1.1)}100%{opacity:0;transform:translateY(-26px) scale(1)}}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:#e3e5ea;font-family:Heebo,system-ui,sans-serif;padding:38px 26px 90px;">
+
+  <!-- ============ BOARD HEADER ============ -->
+  <div style="max-width:1234px;margin:0 auto;">
+    <div style="display:flex;align-items:center;gap:11px;">
+      <svg width="28" height="28" viewBox="0 0 24 24"><rect x="3" y="13" width="5" height="8" rx="1.5" fill="#2b6ef2"/><rect x="9.5" y="8" width="5" height="13" rx="1.5" fill="#2b6ef2"/><rect x="16" y="3" width="5" height="18" rx="1.5" fill="#2b6ef2"/></svg>
+      <span style="font-size:27px;font-weight:900;letter-spacing:-.5px;color:#0f1320;">GRU<span style="color:#2b6ef2;">bet</span></span>
+      <span style="font-size:14px;font-weight:800;color:#5d6678;background:#fff;border:1px solid #d8dbe3;border-radius:999px;padding:5px 13px;">שכבת Social &amp; Banter</span>
+    </div>
+    <div style="font-size:13.5px;font-weight:600;color:#5d6678;margin-top:9px;max-width:720px;line-height:1.5;">גלריית מסכים בנייד · עברית RTL · ממשק תואם למערכת העיצוב הקיימת. כל מסך נקרא על שם הקומפוננטה האמיתית שנבנית כעת בקוד.</div>
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin-top:15px;">
+      <div style="display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;color:#3a4a66;">
+        <span style="font-weight:800;color:#5d6678;">סט ריאקשנים:</span>
+        <span style="font-size:15px;letter-spacing:3px;">🔥😂💀🤡</span>
+      </div>
+      <div style="width:1px;height:16px;background:#cdd1da;"></div>
+      <div style="display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:700;color:#3a4a66;">
+        <span style="font-weight:800;color:#5d6678;">גיימרים ערב:</span>
+        <div style="display:flex;">
+          <span style="width:24px;height:24px;border-radius:50%;background:#2b6ef2;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;border:2px solid #e3e5ea;margin-inline-start:-7px;">ע</span>
+          <span style="width:24px;height:24px;border-radius:50%;background:#f0405a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;border:2px solid #e3e5ea;margin-inline-start:-7px;">י</span>
+          <span style="width:24px;height:24px;border-radius:50%;background:#15b87a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;border:2px solid #e3e5ea;margin-inline-start:-7px;">ע</span>
+          <span style="width:24px;height:24px;border-radius:50%;background:#f0a93a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;border:2px solid #e3e5ea;margin-inline-start:-7px;">א</span>
+          <span style="width:24px;height:24px;border-radius:50%;background:#7c5cff;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;border:2px solid #e3e5ea;margin-inline-start:-7px;">א</span>
+          <span style="width:24px;height:24px;border-radius:50%;background:#00b3c4;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;border:2px solid #e3e5ea;margin-inline-start:-7px;">ל</span>
+        </div>
+        <span style="font-weight:600;color:#7a8294;">עידו · ינאי · עומרי · אופק · אייל · ליעד</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ THEME SECTIONS ============ -->
+  <sc-for list="{{ themes }}" as="th" hint-placeholder-count="2">
+  <div style="margin-top:40px;">
+    <div style="max-width:1234px;margin:0 auto 20px;display:flex;align-items:center;gap:12px;">
+      <span style="font-size:13px;font-weight:800;color:#0f1320;background:#fff;border:1px solid #d4d8e0;border-radius:999px;padding:6px 15px;">{{ th.label }}</span>
+      <div style="flex:1;height:1px;background:#d2d6de;"></div>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:38px 30px;max-width:1234px;margin:0 auto;justify-content:center;">
+
+      <!-- ========================================================= -->
+      <!-- FRAME 1 — bets/[id] detail · CommentThread (lively)       -->
+      <!-- ========================================================= -->
+      <div style="width:390px;flex:0 0 auto;display:flex;flex-direction:column;gap:14px;">
+        <sc-if value="{{ showCaptions }}" hint-placeholder-val="{{ true }}">
+        <div style="padding:0 4px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span style="font-size:11px;font-weight:700;color:#fff;background:#2b6ef2;border-radius:6px;padding:2px 8px;font-family:'JetBrains Mono',monospace;">01</span>
+            <span style="font-size:12px;font-weight:700;color:#41506b;font-family:'JetBrains Mono',monospace;">CommentThread.tsx</span>
+          </div>
+          <div style="font-size:15.5px;font-weight:800;color:#11141c;">תגובות על ההימור · מצב חי</div>
+          <div style="font-size:12.5px;font-weight:600;color:#5d6678;line-height:1.45;margin-top:3px;">תגי פוזיציה לצד כל שם, ריאקשנים 🔥😂💀🤡, ותגובה ברמה אחת. מחזיק ״כן״ ומחזיק ״לא״ מתכתשים.</div>
+        </div>
+        </sc-if>
+
+        <div class="{{ th.cls }}" style="position:relative;width:390px;height:844px;background:var(--bg);border-radius:46px;box-shadow:0 2px 6px rgba(15,19,32,.05),0 30px 70px -22px rgba(15,19,32,.4);overflow:hidden;border:1px solid var(--border);color:var(--ink);display:flex;flex-direction:column;">
+          <div style="flex:0 0 auto;height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 24px 0 20px;font-size:14px;font-weight:800;color:var(--ink);">
+            <span>9:41</span>
+            <div style="display:flex;align-items:center;gap:7px;">
+              <svg width="17" height="11" viewBox="0 0 17 11" fill="var(--ink)"><rect x="0" y="6" width="3" height="5" rx="1"/><rect x="4.5" y="4" width="3" height="7" rx="1"/><rect x="9" y="2" width="3" height="9" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+              <svg width="16" height="11" viewBox="0 0 16 11" fill="var(--ink)"><path d="M8 2.2c2 0 3.8.75 5.2 2l1.1-1.2A9 9 0 0 0 8 .5 9 9 0 0 0 1.7 3l1.1 1.2A7.4 7.4 0 0 1 8 2.2Z"/><path d="M8 5.4c1.1 0 2.1.42 2.9 1.1l1.1-1.2A6 6 0 0 0 8 3.7a6 6 0 0 0-4 1.6l1.1 1.2A4.3 4.3 0 0 1 8 5.4Z"/><circle cx="8" cy="9" r="1.6"/></svg>
+              <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0.5" y="0.5" width="21" height="11" rx="3" fill="none" stroke="var(--ink)" stroke-opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="var(--ink)"/><rect x="23" y="4" width="2" height="4" rx="1" fill="var(--ink)" fill-opacity=".4"/></svg>
+            </div>
+          </div>
+
+          <!-- top bar -->
+          <div style="flex:0 0 auto;display:flex;align-items:center;gap:12px;padding:4px 18px 12px;">
+            <div style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1);"><path d="m15 18-6-6 6-6"/></svg>
+            </div>
+            <span style="font-size:15px;font-weight:800;color:var(--muted);">פרטי הימור</span>
+          </div>
+
+          <div style="flex:1 1 auto;overflow:hidden;padding:0 18px;">
+            <!-- market header -->
+            <div style="display:flex;align-items:flex-start;gap:12px;padding-bottom:13px;border-bottom:1px solid var(--line);margin-bottom:13px;">
+              <div style="flex:0 0 auto;width:46px;height:46px;border-radius:13px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:24px;">🎉</div>
+              <div style="flex:1;min-width:0;">
+                <div dir="auto" style="font-size:16.5px;font-weight:800;line-height:1.25;">נצא למסיבה בסופ״ש?</div>
+                <div style="font-size:12px;color:var(--faint);font-weight:600;margin-top:3px;">מאת עידו · קופה ₪80 · 7 משתתפים</div>
+              </div>
+            </div>
+
+            <!-- comments header -->
+            <div style="font-size:15px;font-weight:800;margin-bottom:13px;">תגובות <span style="color:var(--muted);">· 5</span></div>
+
+            <!-- comment 1 : עידו כן -->
+            <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;">
+              <div style="flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:#2b6ef2;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;">ע</div>
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;">
+                  <span style="font-size:13.5px;font-weight:800;">עידו</span>
+                  <span style="border-radius:999px;padding:1px 8px;font-size:10.5px;font-weight:800;color:var(--yes);background:var(--yes-b);">כן · ₪20</span>
+                  <span style="font-size:11px;font-weight:600;color:var(--faint);">לפני 8 דק׳</span>
+                </div>
+                <div dir="auto" style="font-size:14px;line-height:1.5;margin-top:2px;">ברור שיוצאים, כבר סגרתי עם הדיג׳יי 🎧 מי בפנים?</div>
+                <div style="display:flex;align-items:center;gap:7px;margin-top:7px;flex-wrap:wrap;">
+                  <span style="display:flex;align-items:center;gap:4px;border-radius:999px;border:1px solid var(--accent);background:var(--accent-soft);padding:3px 8px;font-size:12.5px;font-weight:700;"><span>🔥</span><span style="color:var(--muted);">3</span></span>
+                  <span style="display:flex;align-items:center;gap:4px;border-radius:999px;border:1px solid var(--border);background:var(--surface);padding:3px 8px;font-size:12.5px;font-weight:700;"><span>😂</span><span style="color:var(--muted);">1</span></span>
+                  <span style="display:flex;align-items:center;border-radius:999px;border:1px solid var(--border);background:var(--surface);padding:3px 7px;font-size:12.5px;">💀</span>
+                  <span style="display:flex;align-items:center;border-radius:999px;border:1px solid var(--border);background:var(--surface);padding:3px 7px;font-size:12.5px;">🤡</span>
+                  <span style="font-size:12px;font-weight:800;color:var(--muted);margin-inline-start:2px;">הגב</span>
+                  <span style="font-size:12px;font-weight:700;color:var(--faint);">מחק</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- comment 2 : ינאי לא -->
+            <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
+              <div style="flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:#f0405a;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;">י</div>
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;">
+                  <span style="font-size:13.5px;font-weight:800;">ינאי</span>
+                  <span style="border-radius:999px;padding:1px 8px;font-size:10.5px;font-weight:800;color:var(--no);background:var(--no-b);">לא · ₪35</span>
+                  <span style="font-size:11px;font-weight:600;color:var(--faint);">לפני 5 דק׳</span>
+                </div>
+                <div dir="auto" style="font-size:14px;line-height:1.5;margin-top:2px;">אין סיכוי. כולם מתים אחרי המבחנים. כסף קל 💸</div>
+                <div style="display:flex;align-items:center;gap:7px;margin-top:7px;flex-wrap:wrap;">
+                  <span style="display:flex;align-items:center;border-radius:999px;border:1px solid var(--border);background:var(--surface);padding:3px 7px;font-size:12.5px;">🔥</span>
+                  <span style="display:flex;align-items:center;gap:4px;border-radius:999px;border:1px solid var(--border);background:var(--surface);padding:3px 8px;font-size:12.5px;font-weight:700;"><span>😂</span><span style="color:var(--muted);">2</span></span>
+                  <span style="display:flex;align-items:center;gap:4px;border-radius:999px;border:1px solid var(--border);background:var(--surface);padding:3px 8px;font-size:12.5px;font-weight:700;"><span>💀</span><span style="color:var(--muted);">4</span></span>
+                  <span style="display:flex;align-items:center;border-radius:999px;border:1px solid var(--border);background:var(--surface);padding:3px 7px;font-size:12.5px;">🤡</span>
+                  <span style="font-size:12px;font-weight:800;color:var(--muted);margin-inline-start:2px;">הגב</span>
+                  <span style="font-size:12px;font-weight:700;color:var(--faint);">מחק</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- reply to ינאי : עידו -->
+            <div style="margin-inline-start:42px;display:flex;align-items:flex-start;gap:9px;margin-bottom:14px;">
+              <div style="flex:0 0 auto;width:30px;height:30px;border-radius:50%;background:#2b6ef2;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12.5px;">ע</div>
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;">
+                  <span style="font-size:13px;font-weight:800;">עידו</span>
+                  <span style="border-radius:999px;padding:1px 8px;font-size:10.5px;font-weight:800;color:var(--yes);background:var(--yes-b);">כן · ₪20</span>
+                  <span style="font-size:11px;font-weight:600;color:var(--faint);">לפני 3 דק׳</span>
+                </div>
+                <div dir="auto" style="font-size:14px;line-height:1.5;margin-top:2px;">תכין תירוצים <span style="font-weight:800;color:var(--accent);">@yanai</span>, נתראה ברחבה 😂</div>
+                <div style="display:flex;align-items:center;gap:7px;margin-top:7px;">
+                  <span style="display:flex;align-items:center;gap:4px;border-radius:999px;border:1px solid var(--border);background:var(--surface);padding:3px 8px;font-size:12.5px;font-weight:700;"><span>🔥</span><span style="color:var(--muted);">2</span></span>
+                  <span style="display:flex;align-items:center;border-radius:999px;border:1px solid var(--border);background:var(--surface);padding:3px 7px;font-size:12.5px;">😂</span>
+                  <span style="font-size:12px;font-weight:700;color:var(--faint);margin-inline-start:2px;">מחק</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- composer -->
+            <div style="display:flex;align-items:flex-end;gap:9px;">
+              <div style="flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:#2b6ef2;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;">ע</div>
+              <div style="flex:1;display:flex;align-items:center;gap:8px;border:1.5px solid var(--border);background:var(--surface);border-radius:14px;padding:8px 12px;">
+                <span dir="auto" style="flex:1;font-size:14px;font-weight:500;color:var(--faint);">כתוב תגובה… (@ לתיוג)</span>
+                <span style="flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1);"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7Z"/></svg>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================================= -->
+      <!-- FRAME 2 — CommentThread composer close-up                 -->
+      <!-- ========================================================= -->
+      <div style="width:390px;flex:0 0 auto;display:flex;flex-direction:column;gap:14px;">
+        <sc-if value="{{ showCaptions }}" hint-placeholder-val="{{ true }}">
+        <div style="padding:0 4px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span style="font-size:11px;font-weight:700;color:#fff;background:#2b6ef2;border-radius:6px;padding:2px 8px;font-family:'JetBrains Mono',monospace;">02</span>
+            <span style="font-size:12px;font-weight:700;color:#41506b;font-family:'JetBrains Mono',monospace;">CommentThread.tsx · composer</span>
+          </div>
+          <div style="font-size:15.5px;font-weight:800;color:#11141c;">קומפוזר מקרוב · @תיוג</div>
+          <div style="font-size:12.5px;font-weight:600;color:#5d6678;line-height:1.45;margin-top:3px;">השלמת @תיוג מחברי הקבוצה (מסומן בכחול), מצב ״משיב ל…״, ומחיקת תגובה משלך / כמנהל.</div>
+        </div>
+        </sc-if>
+
+        <div class="{{ th.cls }}" style="position:relative;width:390px;height:844px;background:var(--bg);border-radius:46px;box-shadow:0 2px 6px rgba(15,19,32,.05),0 30px 70px -22px rgba(15,19,32,.4);overflow:hidden;border:1px solid var(--border);color:var(--ink);display:flex;flex-direction:column;">
+          <div style="flex:0 0 auto;height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 24px 0 20px;font-size:14px;font-weight:800;color:var(--ink);">
+            <span>9:41</span>
+            <div style="display:flex;align-items:center;gap:7px;">
+              <svg width="17" height="11" viewBox="0 0 17 11" fill="var(--ink)"><rect x="0" y="6" width="3" height="5" rx="1"/><rect x="4.5" y="4" width="3" height="7" rx="1"/><rect x="9" y="2" width="3" height="9" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+              <svg width="16" height="11" viewBox="0 0 16 11" fill="var(--ink)"><path d="M8 2.2c2 0 3.8.75 5.2 2l1.1-1.2A9 9 0 0 0 8 .5 9 9 0 0 0 1.7 3l1.1 1.2A7.4 7.4 0 0 1 8 2.2Z"/><path d="M8 5.4c1.1 0 2.1.42 2.9 1.1l1.1-1.2A6 6 0 0 0 8 3.7a6 6 0 0 0-4 1.6l1.1 1.2A4.3 4.3 0 0 1 8 5.4Z"/><circle cx="8" cy="9" r="1.6"/></svg>
+              <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0.5" y="0.5" width="21" height="11" rx="3" fill="none" stroke="var(--ink)" stroke-opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="var(--ink)"/><rect x="23" y="4" width="2" height="4" rx="1" fill="var(--ink)" fill-opacity=".4"/></svg>
+            </div>
+          </div>
+
+          <div style="flex:0 0 auto;display:flex;align-items:center;gap:12px;padding:4px 18px 12px;">
+            <div style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1);"><path d="m15 18-6-6 6-6"/></svg>
+            </div>
+            <span style="font-size:15px;font-weight:800;color:var(--muted);">פרטי הימור</span>
+          </div>
+
+          <div style="flex:1 1 auto;overflow:hidden;padding:0 18px;display:flex;flex-direction:column;">
+            <div style="font-size:15px;font-weight:800;margin-bottom:14px;">תגובות <span style="color:var(--muted);">· 5</span></div>
+
+            <!-- one comment above -->
+            <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;">
+              <div style="flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:#f0a93a;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;">א</div>
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;">
+                  <span style="font-size:13.5px;font-weight:800;">אופק</span>
+                  <span style="font-size:11px;font-weight:600;color:var(--faint);">לפני דקה</span>
+                </div>
+                <div dir="auto" style="font-size:14px;line-height:1.5;margin-top:2px;">באתי רק בשביל הוויכוח 🍿</div>
+                <div style="display:flex;align-items:center;gap:7px;margin-top:7px;flex-wrap:wrap;">
+                  <span style="display:flex;align-items:center;border-radius:999px;border:1px solid var(--border);background:var(--surface);padding:3px 7px;font-size:12.5px;">🔥</span>
+                  <span style="display:flex;align-items:center;gap:4px;border-radius:999px;border:1px solid var(--border);background:var(--surface);padding:3px 8px;font-size:12.5px;font-weight:700;"><span>😂</span><span style="color:var(--muted);">3</span></span>
+                  <span style="display:flex;align-items:center;border-radius:999px;border:1px solid var(--border);background:var(--surface);padding:3px 7px;font-size:12.5px;">💀</span>
+                  <span style="display:flex;align-items:center;border-radius:999px;border:1px solid var(--border);background:var(--surface);padding:3px 7px;font-size:12.5px;">🤡</span>
+                  <span style="font-size:12px;font-weight:800;color:var(--muted);margin-inline-start:2px;">הגב</span>
+                  <span style="font-size:12px;font-weight:700;color:var(--faint);">מחק</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="flex:1;"></div>
+
+            <!-- composer block at bottom -->
+            <div style="position:relative;padding-bottom:14px;">
+              <!-- mention autocomplete (floats above field) -->
+              <div style="position:absolute;left:0;right:0;bottom:64px;border:1px solid var(--border);background:var(--surface);border-radius:12px;overflow:hidden;box-shadow:0 12px 30px -12px rgba(15,19,32,.4);">
+                <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--accent-soft);">
+                  <div style="flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:#7c5cff;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;">א</div>
+                  <span style="font-size:13.5px;font-weight:800;">אייל</span>
+                  <span style="font-size:12px;font-weight:600;color:var(--faint);direction:ltr;">@eyal</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;">
+                  <div style="flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:#ff7a59;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;">א</div>
+                  <span style="font-size:13.5px;font-weight:800;">אלעד</span>
+                  <span style="font-size:12px;font-weight:600;color:var(--faint);direction:ltr;">@elad</span>
+                </div>
+              </div>
+
+              <!-- reply context bar -->
+              <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surf2);border-radius:12px 12px 0 0;padding:7px 13px;font-size:12px;font-weight:700;color:var(--muted);">
+                <span>משיב ל־אופק</span>
+                <span style="color:var(--faint);">ביטול</span>
+              </div>
+              <!-- field (focused) -->
+              <div style="display:flex;align-items:flex-end;gap:9px;border:1.5px solid var(--accent);background:var(--surface);border-radius:0 0 14px 14px;padding:9px 12px;box-shadow:0 0 0 4px var(--accent-soft);">
+                <div dir="auto" style="flex:1;font-size:14.5px;font-weight:500;line-height:1.4;padding:4px 0;">נתראה שם <span style="font-weight:800;color:var(--accent);direction:ltr;">@e</span><span style="display:inline-block;width:2px;height:17px;background:var(--accent);vertical-align:-3px;margin-inline-start:1px;animation:gb-pulse .8s steps(2) infinite alternate;"></span></div>
+                <span style="flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1);"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7Z"/></svg>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================================= -->
+      <!-- FRAME 3 — PositionReactions on activity row               -->
+      <!-- ========================================================= -->
+      <div style="width:390px;flex:0 0 auto;display:flex;flex-direction:column;gap:14px;">
+        <sc-if value="{{ showCaptions }}" hint-placeholder-val="{{ true }}">
+        <div style="padding:0 4px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span style="font-size:11px;font-weight:700;color:#fff;background:#2b6ef2;border-radius:6px;padding:2px 8px;font-family:'JetBrains Mono',monospace;">03</span>
+            <span style="font-size:12px;font-weight:700;color:#41506b;font-family:'JetBrains Mono',monospace;">PositionReactions.tsx</span>
+          </div>
+          <div style="font-size:15.5px;font-weight:800;color:#11141c;">ריאקשן על פוזיציה · רשימת פעילות</div>
+          <div style="font-size:12.5px;font-weight:600;color:#5d6678;line-height:1.45;margin-top:3px;">סרגל 🔥😂💀🤡 על סטייק מסוים + צ׳יפ ה־shout שנכתב בהנחה. נגיעה = ריאקשן עף למעלה (רגע ה+1).</div>
+        </div>
+        </sc-if>
+
+        <div class="{{ th.cls }}" style="position:relative;width:390px;height:844px;background:var(--bg);border-radius:46px;box-shadow:0 2px 6px rgba(15,19,32,.05),0 30px 70px -22px rgba(15,19,32,.4);overflow:hidden;border:1px solid var(--border);color:var(--ink);display:flex;flex-direction:column;">
+          <div style="flex:0 0 auto;height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 24px 0 20px;font-size:14px;font-weight:800;color:var(--ink);">
+            <span>9:41</span>
+            <div style="display:flex;align-items:center;gap:7px;">
+              <svg width="17" height="11" viewBox="0 0 17 11" fill="var(--ink)"><rect x="0" y="6" width="3" height="5" rx="1"/><rect x="4.5" y="4" width="3" height="7" rx="1"/><rect x="9" y="2" width="3" height="9" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+              <svg width="16" height="11" viewBox="0 0 16 11" fill="var(--ink)"><path d="M8 2.2c2 0 3.8.75 5.2 2l1.1-1.2A9 9 0 0 0 8 .5 9 9 0 0 0 1.7 3l1.1 1.2A7.4 7.4 0 0 1 8 2.2Z"/><path d="M8 5.4c1.1 0 2.1.42 2.9 1.1l1.1-1.2A6 6 0 0 0 8 3.7a6 6 0 0 0-4 1.6l1.1 1.2A4.3 4.3 0 0 1 8 5.4Z"/><circle cx="8" cy="9" r="1.6"/></svg>
+              <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0.5" y="0.5" width="21" height="11" rx="3" fill="none" stroke="var(--ink)" stroke-opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="var(--ink)"/><rect x="23" y="4" width="2" height="4" rx="1" fill="var(--ink)" fill-opacity=".4"/></svg>
+            </div>
+          </div>
+
+          <div style="flex:0 0 auto;display:flex;align-items:center;gap:12px;padding:4px 18px 12px;">
+            <div style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1);"><path d="m15 18-6-6 6-6"/></svg>
+            </div>
+            <span style="font-size:15px;font-weight:800;color:var(--muted);">פרטי הימור</span>
+          </div>
+
+          <div style="flex:1 1 auto;overflow:hidden;padding:0 18px;">
+            <div style="font-size:15px;font-weight:800;margin-bottom:8px;">פעילות אחרונה</div>
+
+            <!-- focal row : ינאי לא ₪35, shout + reactions + +1 -->
+            <div style="border:1.5px solid var(--accent);background:var(--accent-soft);border-radius:16px;padding:12px;margin-bottom:8px;position:relative;">
+              <span style="position:absolute;top:-2px;inset-inline-end:54px;font-size:18px;animation:gb-plus 1.4s ease-out infinite;">💀</span>
+              <div style="display:flex;align-items:center;gap:11px;">
+                <div style="flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:#f0405a;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;">י</div>
+                <div style="flex:1;min-width:0;font-size:13.5px;font-weight:600;line-height:1.3;">
+                  <span style="font-weight:800;">ינאי</span> קנה <span style="font-weight:800;color:var(--no);">לא</span>
+                  <div style="font-size:12px;color:var(--faint);font-weight:600;">לפני 5 דק׳</div>
+                </div>
+                <span style="font-size:14px;font-weight:800;">₪35</span>
+              </div>
+              <div dir="auto" style="margin-inline-start:45px;margin-top:9px;display:inline-block;border-radius:10px;background:var(--surface);padding:5px 10px;font-size:12.5px;font-weight:700;color:var(--muted);">״אין מצב שאני טועה״</div>
+              <div style="margin-inline-start:45px;margin-top:9px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;">
+                <span style="display:flex;align-items:center;gap:4px;border-radius:999px;border:1px solid var(--accent);background:var(--surface);padding:3px 9px;font-size:13px;font-weight:700;"><span>💀</span><span style="color:var(--muted);">3</span></span>
+                <span style="display:flex;align-items:center;gap:4px;border-radius:999px;border:1px solid var(--border);background:var(--surface);padding:3px 9px;font-size:13px;font-weight:700;"><span>😂</span><span style="color:var(--muted);">2</span></span>
+                <span style="display:flex;align-items:center;border-radius:999px;border:1px solid var(--border);background:var(--surface);padding:3px 8px;font-size:13px;">🔥</span>
+                <span style="display:flex;align-items:center;border-radius:999px;border:1px solid var(--border);background:var(--surface);padding:3px 8px;font-size:13px;">🤡</span>
+              </div>
+            </div>
+
+            <!-- row : עידו כן ₪20 + shout -->
+            <div style="border-bottom:1px solid var(--line);padding:12px 2px;">
+              <div style="display:flex;align-items:center;gap:11px;">
+                <div style="flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:#2b6ef2;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;">ע</div>
+                <div style="flex:1;min-width:0;font-size:13.5px;font-weight:600;line-height:1.3;">
+                  <span style="font-weight:800;">עידו</span> קנה <span style="font-weight:800;color:var(--yes);">כן</span>
+                  <div style="font-size:12px;color:var(--faint);font-weight:600;">לפני 12 דק׳</div>
+                </div>
+                <span style="font-size:14px;font-weight:800;">₪20</span>
+              </div>
+              <div dir="auto" style="margin-inline-start:45px;margin-top:8px;display:inline-block;border-radius:10px;background:var(--surf2);padding:5px 10px;font-size:12.5px;font-weight:700;color:var(--muted);">״קראתי את זה 😎״</div>
+              <div style="margin-inline-start:45px;margin-top:8px;display:flex;align-items:center;gap:7px;">
+                <span style="display:flex;align-items:center;gap:4px;border-radius:999px;border:1px solid var(--border);background:var(--surface);padding:3px 9px;font-size:13px;font-weight:700;"><span>🔥</span><span style="color:var(--muted);">2</span></span>
+                <span style="display:flex;align-items:center;border-radius:999px;border:1px solid var(--border);background:var(--surface);padding:3px 8px;font-size:13px;">😂</span>
+                <span style="display:flex;align-items:center;border-radius:999px;border:1px solid var(--border);background:var(--surface);padding:3px 8px;font-size:13px;">💀</span>
+                <span style="display:flex;align-items:center;border-radius:999px;border:1px solid var(--border);background:var(--surface);padding:3px 8px;font-size:13px;">🤡</span>
+              </div>
+            </div>
+
+            <!-- row : עומרי כן ₪10 -->
+            <div style="border-bottom:1px solid var(--line);padding:12px 2px;">
+              <div style="display:flex;align-items:center;gap:11px;">
+                <div style="flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:#15b87a;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;">ע</div>
+                <div style="flex:1;min-width:0;font-size:13.5px;font-weight:600;line-height:1.3;">
+                  <span style="font-weight:800;">עומרי</span> קנה <span style="font-weight:800;color:var(--yes);">כן</span>
+                  <div style="font-size:12px;color:var(--faint);font-weight:600;">לפני שעה</div>
+                </div>
+                <span style="font-size:14px;font-weight:800;">₪10</span>
+              </div>
+              <div style="margin-inline-start:45px;margin-top:8px;display:flex;align-items:center;gap:7px;">
+                <span style="display:flex;align-items:center;gap:4px;border-radius:999px;border:1px solid var(--border);background:var(--surface);padding:3px 9px;font-size:13px;font-weight:700;"><span>🔥</span><span style="color:var(--muted);">1</span></span>
+                <span style="display:flex;align-items:center;border-radius:999px;border:1px solid var(--border);background:var(--surface);padding:3px 8px;font-size:13px;">😂</span>
+                <span style="display:flex;align-items:center;border-radius:999px;border:1px solid var(--border);background:var(--surface);padding:3px 8px;font-size:13px;">💀</span>
+                <span style="display:flex;align-items:center;border-radius:999px;border:1px solid var(--border);background:var(--surface);padding:3px 8px;font-size:13px;">🤡</span>
+              </div>
+            </div>
+
+            <!-- row : אייל לא ₪8 (compact) -->
+            <div style="padding:12px 2px;">
+              <div style="display:flex;align-items:center;gap:11px;">
+                <div style="flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:#7c5cff;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;">א</div>
+                <div style="flex:1;min-width:0;font-size:13.5px;font-weight:600;line-height:1.3;">
+                  <span style="font-weight:800;">אייל</span> קנה <span style="font-weight:800;color:var(--no);">לא</span>
+                  <div style="font-size:12px;color:var(--faint);font-weight:600;">לפני שעתיים</div>
+                </div>
+                <span style="font-size:14px;font-weight:800;">₪8</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================================= -->
+      <!-- FRAME 4 — TrashTalkBar inside BetSheet                     -->
+      <!-- ========================================================= -->
+      <div style="width:390px;flex:0 0 auto;display:flex;flex-direction:column;gap:14px;">
+        <sc-if value="{{ showCaptions }}" hint-placeholder-val="{{ true }}">
+        <div style="padding:0 4px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span style="font-size:11px;font-weight:700;color:#fff;background:#2b6ef2;border-radius:6px;padding:2px 8px;font-family:'JetBrains Mono',monospace;">04</span>
+            <span style="font-size:12px;font-weight:700;color:#41506b;font-family:'JetBrains Mono',monospace;">TrashTalkBar.tsx · BetSheet.tsx</span>
+          </div>
+          <div style="font-size:15.5px;font-weight:800;color:#11141c;">״קרא את הצעד שלך״ · שלב ההנחה</div>
+          <div style="font-size:12.5px;font-weight:600;color:#5d6678;line-height:1.45;margin-top:3px;">שורות באנטר מוכנות בעברית (בלי GIF). הבחירה נוסעת עם הפוזיציה ומופיעה כצ׳יפ בפעילות (למטה).</div>
+        </div>
+        </sc-if>
+
+        <div class="{{ th.cls }}" style="position:relative;width:390px;height:844px;background:var(--bg);border-radius:46px;box-shadow:0 2px 6px rgba(15,19,32,.05),0 30px 70px -22px rgba(15,19,32,.4);overflow:hidden;border:1px solid var(--border);color:var(--ink);">
+          <!-- dimmed detail behind -->
+          <div style="position:absolute;inset:0;background:var(--bg);"></div>
+          <div style="position:absolute;inset:0;background:rgba(15,19,32,.5);"></div>
+
+          <!-- bottom sheet -->
+          <div style="position:absolute;left:0;right:0;bottom:0;background:var(--surface);border-radius:26px 26px 0 0;padding:8px 20px 24px;box-shadow:0 -14px 40px -10px rgba(15,19,32,.4);">
+            <div style="width:40px;height:5px;border-radius:99px;background:var(--grab);margin:6px auto 16px;"></div>
+
+            <div style="display:flex;align-items:center;gap:11px;margin-bottom:16px;">
+              <div style="flex:0 0 auto;width:42px;height:42px;border-radius:12px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:22px;">🎉</div>
+              <div dir="auto" style="flex:1;font-size:15px;font-weight:800;line-height:1.25;">נצא למסיבה בסופ״ש?</div>
+            </div>
+
+            <div style="font-size:13px;font-weight:800;color:var(--muted);margin-bottom:9px;">בחר אפשרות</div>
+            <div style="display:flex;gap:9px;margin-bottom:16px;">
+              <div style="flex:1;border:1.5px solid var(--yes);background:var(--yes-b);color:var(--yes);padding:13px;border-radius:13px;font-size:15px;font-weight:800;text-align:center;">כן · 58%</div>
+              <div style="flex:1;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);padding:13px;border-radius:13px;font-size:15px;font-weight:800;text-align:center;">לא · 42%</div>
+            </div>
+
+            <div style="font-size:13px;font-weight:800;color:var(--muted);margin-bottom:9px;">סכום</div>
+            <div style="display:flex;align-items:center;background:var(--surf2);border:1.5px solid var(--border);border-radius:14px;padding:4px 16px;margin-bottom:10px;">
+              <span style="font-size:24px;font-weight:800;color:var(--faint);">₪</span>
+              <span style="flex:1;font-size:30px;font-weight:800;text-align:right;padding:8px 0;">20</span>
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:16px;">
+              <div style="flex:1;border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent);padding:9px;border-radius:11px;font-size:13.5px;font-weight:800;text-align:center;">₪20</div>
+              <div style="flex:1;border:1px solid var(--border);background:var(--surface);padding:9px;border-radius:11px;font-size:13.5px;font-weight:800;text-align:center;">₪25</div>
+              <div style="flex:1;border:1px solid var(--border);background:var(--surface);padding:9px;border-radius:11px;font-size:13.5px;font-weight:800;text-align:center;">₪50</div>
+              <div style="flex:1;border:1px solid var(--border);background:var(--surface);padding:9px;border-radius:11px;font-size:13.5px;font-weight:800;text-align:center;">₪100</div>
+            </div>
+
+            <!-- TrashTalkBar -->
+            <div style="margin-bottom:16px;">
+              <div style="font-size:13px;font-weight:800;color:var(--muted);margin-bottom:10px;">קרא את הצעד שלך (לא חובה)</div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                <span style="border-radius:999px;border:1.5px solid var(--accent);background:var(--accent-soft);color:var(--accent);padding:8px 13px;font-size:13px;font-weight:700;">קראתי את זה 😎</span>
+                <span style="border-radius:999px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);padding:8px 13px;font-size:13px;font-weight:700;">קל 💸</span>
+                <span style="border-radius:999px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);padding:8px 13px;font-size:13px;font-weight:700;">אין מצב שאני טועה</span>
+                <span style="border-radius:999px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);padding:8px 13px;font-size:13px;font-weight:700;">בנק 🏦</span>
+                <span style="border-radius:999px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);padding:8px 13px;font-size:13px;font-weight:700;">סומכים עליי</span>
+                <span style="border-radius:999px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);padding:8px 13px;font-size:13px;font-weight:700;">תבכו אחר כך 😂</span>
+              </div>
+            </div>
+
+            <div style="display:flex;justify-content:space-between;background:var(--surf2);border-radius:14px;padding:13px 16px;margin-bottom:16px;">
+              <div><div style="font-size:11.5px;color:var(--muted);font-weight:700;">זכייה אפשרית</div><div style="font-size:19px;font-weight:800;color:var(--yes);margin-top:3px;">₪34</div></div>
+              <div style="text-align:left;"><div style="font-size:11.5px;color:var(--muted);font-weight:700;">רווח פוטנציאלי</div><div style="font-size:19px;font-weight:800;color:var(--yes);margin-top:3px;">₪14</div></div>
+            </div>
+
+            <div style="background:var(--ink);color:var(--bg);padding:16px;border-radius:15px;font-size:17px;font-weight:800;text-align:center;">קנה כן · ₪20</div>
+          </div>
+        </div>
+
+        <!-- result chip note -->
+        <sc-if value="{{ showCaptions }}" hint-placeholder-val="{{ true }}">
+        <div style="border:1px dashed #c2c7d2;border-radius:14px;padding:11px 13px;background:#eef0f4;">
+          <div style="font-size:11.5px;font-weight:800;color:#5d6678;margin-bottom:8px;">↳ וכך זה מופיע בפעילות:</div>
+          <div style="display:flex;align-items:center;gap:9px;">
+            <span style="flex:0 0 auto;width:28px;height:28px;border-radius:50%;background:#2b6ef2;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;">ע</span>
+            <span style="font-size:12.5px;font-weight:600;color:#2a2f3c;"><b>עידו</b> קנה <b style="color:#15b87a;">כן</b> · ₪20</span>
+            <span dir="auto" style="margin-inline-start:auto;border-radius:9px;background:#fff;border:1px solid #e2e5ec;padding:4px 9px;font-size:11.5px;font-weight:700;color:#5d6678;">״קראתי את זה 😎״</span>
+          </div>
+        </div>
+        </sc-if>
+      </div>
+
+      <!-- ========================================================= -->
+      <!-- FRAME 5 — CalledItCard on resolved detail                 -->
+      <!-- ========================================================= -->
+      <div style="width:390px;flex:0 0 auto;display:flex;flex-direction:column;gap:14px;">
+        <sc-if value="{{ showCaptions }}" hint-placeholder-val="{{ true }}">
+        <div style="padding:0 4px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span style="font-size:11px;font-weight:700;color:#fff;background:#2b6ef2;border-radius:6px;padding:2px 8px;font-family:'JetBrains Mono',monospace;">05</span>
+            <span style="font-size:12px;font-weight:700;color:#41506b;font-family:'JetBrains Mono',monospace;">CalledItCard.tsx</span>
+          </div>
+          <div style="font-size:15.5px;font-weight:800;color:#11141c;">״מי צדק?״ · קבלות אחרי הכרעה</div>
+          <div style="font-size:12.5px;font-weight:600;color:#5d6678;line-height:1.45;margin-top:3px;">כרטיס מנצח (ירוק) + כרטיס רוסט (אדום) למי שהכי טעה. כפתור שיתוף native (טקסט + לינק).</div>
+        </div>
+        </sc-if>
+
+        <div class="{{ th.cls }}" style="position:relative;width:390px;height:844px;background:var(--bg);border-radius:46px;box-shadow:0 2px 6px rgba(15,19,32,.05),0 30px 70px -22px rgba(15,19,32,.4);overflow:hidden;border:1px solid var(--border);color:var(--ink);display:flex;flex-direction:column;">
+          <div style="flex:0 0 auto;height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 24px 0 20px;font-size:14px;font-weight:800;color:var(--ink);">
+            <span>9:41</span>
+            <div style="display:flex;align-items:center;gap:7px;">
+              <svg width="17" height="11" viewBox="0 0 17 11" fill="var(--ink)"><rect x="0" y="6" width="3" height="5" rx="1"/><rect x="4.5" y="4" width="3" height="7" rx="1"/><rect x="9" y="2" width="3" height="9" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+              <svg width="16" height="11" viewBox="0 0 16 11" fill="var(--ink)"><path d="M8 2.2c2 0 3.8.75 5.2 2l1.1-1.2A9 9 0 0 0 8 .5 9 9 0 0 0 1.7 3l1.1 1.2A7.4 7.4 0 0 1 8 2.2Z"/><path d="M8 5.4c1.1 0 2.1.42 2.9 1.1l1.1-1.2A6 6 0 0 0 8 3.7a6 6 0 0 0-4 1.6l1.1 1.2A4.3 4.3 0 0 1 8 5.4Z"/><circle cx="8" cy="9" r="1.6"/></svg>
+              <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0.5" y="0.5" width="21" height="11" rx="3" fill="none" stroke="var(--ink)" stroke-opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="var(--ink)"/><rect x="23" y="4" width="2" height="4" rx="1" fill="var(--ink)" fill-opacity=".4"/></svg>
+            </div>
+          </div>
+
+          <div style="flex:0 0 auto;display:flex;align-items:center;gap:12px;padding:4px 18px 12px;">
+            <div style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1);"><path d="m15 18-6-6 6-6"/></svg>
+            </div>
+            <span style="font-size:15px;font-weight:800;color:var(--muted);">פרטי הימור</span>
+          </div>
+
+          <div style="flex:1 1 auto;overflow:hidden;padding:0 18px;">
+            <!-- header -->
+            <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:16px;">
+              <div style="flex:0 0 auto;width:50px;height:50px;border-radius:14px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:26px;">⏰</div>
+              <div style="flex:1;min-width:0;">
+                <div dir="auto" style="font-size:18px;font-weight:800;line-height:1.25;">ינאי יגיע בזמן לערב המשחקים?</div>
+                <div style="display:flex;align-items:center;gap:7px;margin-top:5px;">
+                  <span style="font-size:10.5px;font-weight:800;color:var(--muted);background:var(--surf2);border-radius:999px;padding:3px 9px;">הוכרע</span>
+                  <span style="font-size:12px;color:var(--faint);font-weight:600;">תוצאה: <b style="color:var(--no);">לא</b> · קופה ₪80</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- מי צדק -->
+            <div style="font-size:15px;font-weight:800;margin-bottom:11px;">מי צדק? 🎯</div>
+
+            <!-- winner card -->
+            <div style="position:relative;overflow:hidden;border-radius:18px;padding:15px;color:#fff;background:linear-gradient(135deg,#15b87a,#0f8f5f);box-shadow:0 12px 26px -16px rgba(15,19,32,.6);margin-bottom:11px;">
+              <div style="position:absolute;inset-inline-start:-24px;top:-32px;width:112px;height:112px;border-radius:50%;background:rgba(255,255,255,.1);"></div>
+              <div style="position:relative;display:flex;align-items:center;gap:12px;">
+                <div style="flex:0 0 auto;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;">ע</div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-size:11px;font-weight:800;letter-spacing:.4px;color:rgba(255,255,255,.82);">קרא את זה</div>
+                  <div dir="auto" style="font-size:16px;font-weight:800;line-height:1.15;">עידו 🏆</div>
+                  <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.82);margin-top:2px;">⏰ ינאי יגיע בזמן…</div>
+                </div>
+                <div style="text-align:left;">
+                  <div style="font-size:20px;font-weight:900;line-height:1;">+₪34</div>
+                  <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.82);margin-top:3px;">לא</div>
+                </div>
+                <div style="flex:0 0 auto;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5 8.6 10.5"/></svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- roast card -->
+            <div style="position:relative;overflow:hidden;border-radius:18px;padding:15px;color:#fff;background:linear-gradient(135deg,#f0405a,#c32741);box-shadow:0 12px 26px -16px rgba(15,19,32,.6);margin-bottom:18px;">
+              <div style="position:absolute;inset-inline-start:-24px;top:-32px;width:112px;height:112px;border-radius:50%;background:rgba(255,255,255,.1);"></div>
+              <div style="position:relative;display:flex;align-items:center;gap:12px;">
+                <div style="flex:0 0 auto;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;">י</div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-size:11px;font-weight:800;letter-spacing:.4px;color:rgba(255,255,255,.82);">הכי טעה</div>
+                  <div dir="auto" style="font-size:16px;font-weight:800;line-height:1.15;">ינאי 🤡</div>
+                  <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.82);margin-top:2px;">⏰ הימר על עצמו… ואיחר</div>
+                </div>
+                <div style="text-align:left;">
+                  <div style="font-size:20px;font-weight:900;line-height:1;">−₪50</div>
+                  <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.82);margin-top:3px;">כן</div>
+                </div>
+                <div style="flex:0 0 auto;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5 8.6 10.5"/></svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- results -->
+            <div style="font-size:15px;font-weight:800;margin-bottom:10px;">תוצאות</div>
+            <div style="display:flex;flex-direction:column;gap:9px;">
+              <div style="position:relative;overflow:hidden;border:1px solid var(--yes);border-radius:14px;background:var(--yes-b);">
+                <div style="position:relative;display:flex;align-items:center;justify-content:space-between;padding:13px 15px;">
+                  <span style="font-size:15px;font-weight:800;color:var(--yes);">לא ✓</span>
+                  <span style="font-size:12px;font-weight:800;color:#fff;background:var(--yes);padding:5px 11px;border-radius:9px;">זכתה</span>
+                </div>
+              </div>
+              <div style="border:1px solid var(--border);border-radius:14px;background:var(--surface);">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 15px;">
+                  <span style="font-size:15px;font-weight:700;color:var(--muted);">כן</span>
+                  <span style="font-size:12px;font-weight:700;color:var(--faint);">הפסידה</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================================= -->
+      <!-- FRAME 6 — notifications/page social types                 -->
+      <!-- ========================================================= -->
+      <div style="width:390px;flex:0 0 auto;display:flex;flex-direction:column;gap:14px;">
+        <sc-if value="{{ showCaptions }}" hint-placeholder-val="{{ true }}">
+        <div style="padding:0 4px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span style="font-size:11px;font-weight:700;color:#fff;background:#2b6ef2;border-radius:6px;padding:2px 8px;font-family:'JetBrains Mono',monospace;">06</span>
+            <span style="font-size:12px;font-weight:700;color:#41506b;font-family:'JetBrains Mono',monospace;">notifications/page.tsx</span>
+          </div>
+          <div style="font-size:15.5px;font-weight:800;color:#11141c;">התראות · סוגים חברתיים</div>
+          <div style="font-size:12.5px;font-weight:600;color:#5d6678;line-height:1.45;margin-top:3px;">COMMENT 💬 · MENTION @ · POSITION_REACTION 🔥 · BET_AGAINST ⚔️ — כל אחת עושה דיפ-לינק להימור.</div>
+        </div>
+        </sc-if>
+
+        <div class="{{ th.cls }}" style="position:relative;width:390px;height:844px;background:var(--bg);border-radius:46px;box-shadow:0 2px 6px rgba(15,19,32,.05),0 30px 70px -22px rgba(15,19,32,.4);overflow:hidden;border:1px solid var(--border);color:var(--ink);display:flex;flex-direction:column;">
+          <div style="flex:0 0 auto;height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 24px 0 20px;font-size:14px;font-weight:800;color:var(--ink);">
+            <span>9:41</span>
+            <div style="display:flex;align-items:center;gap:7px;">
+              <svg width="17" height="11" viewBox="0 0 17 11" fill="var(--ink)"><rect x="0" y="6" width="3" height="5" rx="1"/><rect x="4.5" y="4" width="3" height="7" rx="1"/><rect x="9" y="2" width="3" height="9" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+              <svg width="16" height="11" viewBox="0 0 16 11" fill="var(--ink)"><path d="M8 2.2c2 0 3.8.75 5.2 2l1.1-1.2A9 9 0 0 0 8 .5 9 9 0 0 0 1.7 3l1.1 1.2A7.4 7.4 0 0 1 8 2.2Z"/><path d="M8 5.4c1.1 0 2.1.42 2.9 1.1l1.1-1.2A6 6 0 0 0 8 3.7a6 6 0 0 0-4 1.6l1.1 1.2A4.3 4.3 0 0 1 8 5.4Z"/><circle cx="8" cy="9" r="1.6"/></svg>
+              <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0.5" y="0.5" width="21" height="11" rx="3" fill="none" stroke="var(--ink)" stroke-opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="var(--ink)"/><rect x="23" y="4" width="2" height="4" rx="1" fill="var(--ink)" fill-opacity=".4"/></svg>
+            </div>
+          </div>
+
+          <div style="flex:0 0 auto;display:flex;align-items:center;gap:11px;padding:4px 18px 8px;">
+            <div style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1);"><path d="m15 18-6-6 6-6"/></svg>
+            </div>
+            <span style="font-size:15px;font-weight:800;color:var(--muted);">חזרה</span>
+          </div>
+          <div style="flex:0 0 auto;padding:2px 18px 14px;">
+            <div style="font-size:23px;font-weight:800;">התראות</div>
+            <div style="font-size:13px;font-weight:600;color:var(--muted);margin-top:3px;">כל העדכונים שלך בקבוצה הזו.</div>
+          </div>
+
+          <div style="flex:1 1 auto;overflow:hidden;padding:0 18px;display:flex;flex-direction:column;gap:9px;">
+            <!-- COMMENT -->
+            <div style="display:flex;align-items:flex-start;gap:12px;border:1px solid var(--border);background:var(--surface);border-radius:16px;padding:13px;box-shadow:0 1px 2px rgba(15,19,32,.03);">
+              <span style="flex:0 0 auto;width:42px;height:42px;border-radius:13px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:20px;">💬</span>
+              <div dir="auto" style="flex:1;min-width:0;font-size:14px;font-weight:600;line-height:1.4;"><b>עומרי</b> הגיב על ההימור שלך: ״אני בפנים, מביא את האחים״</div>
+              <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:7px;">
+                <span style="width:9px;height:9px;border-radius:50%;background:var(--accent);"></span>
+                <span style="font-size:11px;font-weight:600;color:var(--faint);white-space:nowrap;">לפני 3 דק׳</span>
+              </div>
+            </div>
+            <!-- MENTION -->
+            <div style="display:flex;align-items:flex-start;gap:12px;border:1px solid var(--border);background:var(--surface);border-radius:16px;padding:13px;box-shadow:0 1px 2px rgba(15,19,32,.03);">
+              <span style="flex:0 0 auto;width:42px;height:42px;border-radius:13px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:var(--accent);">@</span>
+              <div dir="auto" style="flex:1;min-width:0;font-size:14px;font-weight:600;line-height:1.4;"><b>עידו</b> תייג אותך בתגובה על ״נצא למסיבה בסופ״ש?״</div>
+              <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:7px;">
+                <span style="width:9px;height:9px;border-radius:50%;background:var(--accent);"></span>
+                <span style="font-size:11px;font-weight:600;color:var(--faint);white-space:nowrap;">לפני 18 דק׳</span>
+              </div>
+            </div>
+            <!-- POSITION_REACTION -->
+            <div style="display:flex;align-items:flex-start;gap:12px;border:1px solid var(--border);background:var(--surface);border-radius:16px;padding:13px;box-shadow:0 1px 2px rgba(15,19,32,.03);">
+              <span style="flex:0 0 auto;width:42px;height:42px;border-radius:13px;background:var(--yes-b);display:flex;align-items:center;justify-content:center;font-size:20px;">🔥</span>
+              <div dir="auto" style="flex:1;min-width:0;font-size:14px;font-weight:600;line-height:1.4;"><b>אופק</b> הגיב 🔥 על ההימור שלך — ₪20 על כן</div>
+              <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:7px;">
+                <span style="width:9px;height:9px;border-radius:50%;background:var(--accent);"></span>
+                <span style="font-size:11px;font-weight:600;color:var(--faint);white-space:nowrap;">לפני שעה</span>
+              </div>
+            </div>
+            <!-- BET_AGAINST -->
+            <div style="display:flex;align-items:flex-start;gap:12px;border:1px solid var(--border);background:var(--surface);border-radius:16px;padding:13px;box-shadow:0 1px 2px rgba(15,19,32,.03);">
+              <span style="flex:0 0 auto;width:42px;height:42px;border-radius:13px;background:var(--no-b);display:flex;align-items:center;justify-content:center;font-size:20px;">⚔️</span>
+              <div dir="auto" style="flex:1;min-width:0;font-size:14px;font-weight:600;line-height:1.4;"><b>ינאי</b> הימר נגדך — ₪35 על לא ב״נצא למסיבה בסופ״ש?״</div>
+              <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:7px;">
+                <span style="width:9px;height:9px;border-radius:50%;background:var(--accent);"></span>
+                <span style="font-size:11px;font-weight:600;color:var(--faint);white-space:nowrap;">לפני שעה</span>
+              </div>
+            </div>
+            <!-- NEW_MARKET (existing, read) -->
+            <div style="display:flex;align-items:flex-start;gap:12px;border:1px solid var(--border);background:var(--surface);border-radius:16px;padding:13px;box-shadow:0 1px 2px rgba(15,19,32,.03);opacity:.72;">
+              <span style="flex:0 0 auto;width:42px;height:42px;border-radius:13px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:20px;">🆕</span>
+              <div dir="auto" style="flex:1;min-width:0;font-size:14px;font-weight:600;line-height:1.4;">נפתח הימור חדש: ״מי מביא אוכל לערב המשחקים?״</div>
+              <span style="font-size:11px;font-weight:600;color:var(--faint);white-space:nowrap;">אתמול</span>
+            </div>
+            <!-- MARKET_RESOLVED (existing, read) -->
+            <div style="display:flex;align-items:flex-start;gap:12px;border:1px solid var(--border);background:var(--surface);border-radius:16px;padding:13px;box-shadow:0 1px 2px rgba(15,19,32,.03);opacity:.72;">
+              <span style="flex:0 0 auto;width:42px;height:42px;border-radius:13px;background:var(--no-b);display:flex;align-items:center;justify-content:center;font-size:20px;">🏁</span>
+              <div dir="auto" style="flex:1;min-width:0;font-size:14px;font-weight:600;line-height:1.4;">ההימור ״ינאי יגיע בזמן?״ הוכרע — לא</div>
+              <span style="font-size:11px;font-weight:600;color:var(--faint);white-space:nowrap;">אתמול</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  </sc-for>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showCaptions&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;גלריה&quot;},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;both&quot;,&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;both&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;גלריה&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const all = [
+      { key: 'light', cls: '', label: 'ערכה בהירה · Light' },
+      { key: 'dark', cls: 'gb-dark', label: 'ערכה כהה · Dark' },
+    ];
+    const theme = this.props.theme ?? 'both';
+    const themes = theme === 'both' ? all : all.filter((t) => t.key === theme);
+    return {
+      themes,
+      showCaptions: this.props.showCaptions ?? true,
+    };
+  }
+}
+</script>
+<script>
+(async () => {
+  if (!document.title || !document.title.trim()) document.title = "GruBet Social Layer";
+  // Prepend so page-supplied @page / break rules (deck-stage's margin:0,
+  // author CSS) keep source-order precedence over the baseline.
+  const baseCss = document.createElement('style');
+  baseCss.textContent = "@media print {\n  figure, table { break-inside: avoid; }\n  *, *::before, *::after {\n    print-color-adjust: exact; -webkit-print-color-adjust: exact;\n    backdrop-filter: none !important; -webkit-backdrop-filter: none !important;\n    animation-delay: -99s !important; animation-duration: .001s !important;\n    animation-iteration-count: 1 !important; animation-fill-mode: both !important;\n    animation-play-state: running !important; transition-duration: 0s !important;\n  }\n}";
+  document.head.prepend(baseCss);
+  if (document.readyState === 'loading') {
+    await new Promise((r) => document.addEventListener('DOMContentLoaded', r, { once: true }));
+  }
+  let ds = document.querySelector('deck-stage');
+  // whenDefined never resolves when nothing registers the element, so only
+  // await it when a <deck-stage> tag exists (and race a timeout regardless).
+  if (ds && !customElements.get('deck-stage')) {
+    try {
+      await Promise.race([
+        customElements.whenDefined('deck-stage'),
+        new Promise((r) => setTimeout(r, 3000)),
+      ]);
+    } catch (e) {}
+    ds = document.querySelector('deck-stage');
+  }
+  // dc-runtime assigns window.DCLogic at init and mounts into #dc-root on
+  // DOMContentLoaded; settle on that subtree so React has rendered before
+  // print(). Non-DC pages fall through to weighing body.
+  const isDc = !ds && 'DCLogic' in window;
+  const settleRoot = ds || (isDc ? document.getElementById('dc-root') : null) || document.body;
+  if (settleRoot) {
+    // Weigh only content children — skip script/style/template so inline
+    // Babel/CSS doesn't register as stable "content" before the framework
+    // has mounted anything.
+    const MEDIA = 'img,svg,canvas,video,picture,iframe,embed,object';
+    const weigh = () => {
+      let text = 0, media = 0;
+      for (const c of settleRoot.children) {
+        const t = c.tagName;
+        if (t === 'SCRIPT' || t === 'STYLE' || t === 'TEMPLATE') continue;
+        text += (c.textContent || '').trim().length;
+        media += c.querySelectorAll(MEDIA).length + (c.matches(MEDIA) ? 1 : 0);
+      }
+      return text + media * 100;
+    };
+    // "Non-zero and stable" alone is not sufficient to mean rendered: generic
+    // body can carry a static shell while async main content is pending, and
+    // #dc-root can carry the root DC's static text while child refs are still
+    // .sc-placeholder boxes. Gate generic on readyState 'complete', and never
+    // accept stability while a dc-runtime placeholder is present.
+    const isGeneric = settleRoot === document.body;
+    const deadline = Date.now() + 15000;
+    let last = -1, stable = 0;
+    while (Date.now() < deadline) {
+      const n = weigh();
+      const ready =
+        (!isGeneric || document.readyState === 'complete') &&
+        !settleRoot.querySelector('.sc-placeholder');
+      if (n > 0 && n === last && ready) { if (++stable >= 2) break; } else { stable = 0; }
+      last = n;
+      await new Promise((r) => setTimeout(r, 250));
+    }
+  }
+  // Project support.js may predate runtime default-seeding; push via bridge.
+  if (isDc && window.__dcSetProps && window.__dcRootName) {
+    try {
+      const dpEl = document.querySelector('script[data-dc-script]');
+      const meta = JSON.parse((dpEl && dpEl.getAttribute('data-props')) || '{}');
+      const bag = {};
+      for (const k in meta)
+        if (k[0] !== '$' && meta[k] && meta[k].default !== undefined)
+          bag[k] = meta[k].default;
+      if (Object.keys(bag).length) {
+        window.__dcSetProps(window.__dcRootName(), bag);
+        await new Promise((r) => setTimeout(r, 50));
+      }
+    } catch (e) {}
+  }
+  // Reveal content gated on scroll or visibility before printing. Lazy <img>,
+  // IntersectionObserver fade-ins, and collapsed <details> don't render while
+  // off-screen, so a long page would print with them blank or closed. Open
+  // every <details>, force native-lazy images eager, and scroll the document
+  // through its full height to trip lazy-load + IO; then wait (bounded) for the
+  // newly-triggered images. Inert for deck-stage (slides aren't scroll-gated).
+  try {
+    for (const d of document.querySelectorAll('details')) d.open = true;
+    for (const img of document.querySelectorAll('img[loading="lazy"]'))
+      img.loading = 'eager';
+    const scroller = document.scrollingElement || document.documentElement;
+    const full = Math.max(scroller.scrollHeight, document.body.scrollHeight);
+    const step = window.innerHeight || 800;
+    for (let y = 0; y <= full; y += step) {
+      window.scrollTo(0, y);
+      await new Promise((r) => requestAnimationFrame(r));
+    }
+    window.scrollTo(0, 0);
+    await Promise.race([
+      Promise.all(
+        [...document.images].map((img) =>
+          img.complete
+            ? null
+            : new Promise((res) => {
+                img.addEventListener('load', res, { once: true });
+                img.addEventListener('error', res, { once: true });
+              })
+        )
+      ),
+      new Promise((r) => setTimeout(r, 4000)),
+    ]);
+  } catch (e) {}
+  try { await document.fonts.ready; } catch (e) {}
+  // Jump every animation to its end state so print() never captures a slide
+  // mid-entrance. Ordering matters: the 0s-transition style must be live
+  // BEFORE data-deck-active is set so attribute-keyed transitions don't
+  // start a (now-0s) run from the pre-active base.
+  const st = document.createElement('style');
+  st.textContent = '*,*::before,*::after{animation-delay:-99s !important;animation-duration:.001s !important;animation-iteration-count:1 !important;animation-fill-mode:both !important;animation-play-state:running !important;transition-duration:0s !important}';
+  document.head.appendChild(st);
+  for (const d of document.querySelectorAll('deck-stage')) {
+    for (const c of d.children) {
+      const t = c.tagName;
+      if (t === 'SCRIPT' || t === 'STYLE' || t === 'TEMPLATE') continue;
+      c.setAttribute('data-deck-active', '');
+    }
+  }
+  // Re-append deck-stage's @page last so no author @page can add a margin and
+  // spill each full-bleed slide onto two sheets. Backstop for old copies.
+  if (ds) {
+    let pg = document.getElementById('deck-stage-print-page');
+    if (!pg) {
+      pg = document.createElement('style');
+      pg.textContent = '@page{size:' + (+ds.getAttribute('width') || 1920) +
+        'px ' + (+ds.getAttribute('height') || 1080) + 'px;margin:0}';
+    }
+    document.body.appendChild(pg);
+  }
+  try {
+    const sweep = () => {
+      for (const a of document.getAnimations()) {
+        try { a.finish(); } catch (e) {
+          try { a.currentTime = (a.effect && a.effect.getComputedTiming().duration) || 0; a.pause(); } catch (e2) {}
+        }
+      }
+    };
+    sweep();
+    await new Promise((r) => requestAnimationFrame(r));
+    sweep();
+    await new Promise((r) => requestAnimationFrame(r));
+  } catch (e) {}
+  // Size the PDF page to the rendered design unless the file opted into
+  // standard paper via @page{size:letter|A4|…}. Decks own their own @page.
+  // Wrappers (body, …) lose padding+margin so the frame sits at (0,0); the
+  // frame itself loses only margin — its padding is INSIDE the measured
+  // rect and must stay, or content shifts and leaves a gap at bottom/right.
+  var __m = null;
+  try { __m = (() => {
+  var docEl = document.documentElement;
+  var doc = { width: docEl.scrollWidth, height: docEl.scrollHeight };
+
+  var ds = document.querySelector('deck-stage');
+  if (ds) {
+    var dw = Number(ds.getAttribute('width')) || 1920;
+    var dh = Number(ds.getAttribute('height')) || 1080;
+    var n = typeof ds.length === 'number' ? ds.length : ds.children.length;
+    var idx = typeof ds.index === 'number' ? ds.index : 0;
+    var frames = [];
+    for (var i = 0; i < n; i++) frames.push({ left: 0, top: 0, width: dw, height: dh });
+    return { kind: 'deck', doc: doc, frames: frames,
+      authored: frames.map(function(){return{width:true,height:true}}),
+      deck: { width: dw, height: dh, slideCount: n, index: idx },
+      signals: { paperPage: false, pxPage: false } };
+  }
+
+  var paperPage = false, pxPage = false;
+  var eachRule = function (fn) {
+    for (var s = 0; s < document.styleSheets.length; s++) {
+      var rs; try { rs = document.styleSheets[s].cssRules; } catch (e) { continue; }
+      for (var r = 0; r < rs.length; r++) {
+        fn(rs[r]);
+        if (rs[r].cssRules) for (var n = 0; n < rs[r].cssRules.length; n++) fn(rs[r].cssRules[n]);
+      }
+    }
+  };
+  eachRule(function (r) {
+    if (r.type !== 6) return;
+    var m = /\bsize\s*:\s*([^;}]+)/i.exec(r.cssText || '');
+    if (!m) return;
+    if (/\b(letter|a[3-5]|legal|ledger)\b/i.test(m[1])) paperPage = true;
+    if (/\d+(?:\.\d+)?px\b/i.test(m[1])) pxPage = true;
+  });
+  var signals = { paperPage: paperPage, pxPage: pxPage };
+
+  var pxVal = function (v) {
+    var m = /^(\d+(?:\.\d+)?)px$/.exec(v || ''); return m ? +m[1] : 0;
+  };
+  var authoredPx = function (el, prop) {
+    if (pxVal(el.style[prop])) return true;
+    var attr = el.getAttribute(prop);
+    if (attr && /^\d+$/.test(attr)) return true;
+    var hit = false;
+    eachRule(function (r) {
+      if (hit || r.type !== 1 || !r.style) return;
+      try { if (el.matches(r.selectorText) && pxVal(r.style[prop])) hit = true; } catch (e) {}
+    });
+    return hit;
+  };
+
+  var el = document.body, rootPxW = false;
+  for (;;) {
+    var kids = [];
+    for (var c = 0; c < el.children.length; c++) {
+      var t = el.children[c].tagName;
+      if (t !== 'SCRIPT' && t !== 'STYLE' && t !== 'TEMPLATE') kids.push(el.children[c]);
+    }
+    if (kids.length !== 1 || !(kids[0] instanceof HTMLElement)) break;
+    el.setAttribute('data-om-frame-wrap', '');
+    el = kids[0];
+    rootPxW = authoredPx(el, 'width');
+    if (rootPxW) break;
+  }
+  if (!rootPxW) rootPxW = authoredPx(el, 'width');
+
+  // @page{size:letter} alone is a flowing doc; with a px-width root it's a
+  // fixed sheet pretending to be paper — fall through and size to render.
+  if (paperPage && !rootPxW) {
+    return { kind: 'paper-doc', doc: doc, signals: signals,
+      frames: [{ left: 0, top: 0, width: doc.width, height: doc.height }],
+      authored: [{ width: false, height: false }] };
+  }
+
+  var sx = window.scrollX || 0, sy = window.scrollY || 0;
+  var rectOf = function (e) {
+    var r = e.getBoundingClientRect();
+    var oy; try { oy = getComputedStyle(e).overflowY; } catch (err) {}
+    var h = oy === 'visible' ? Math.max(r.height, e.scrollHeight || 0) : r.height;
+    return { left: r.left + sx, top: r.top + sy, width: r.width, height: h };
+  };
+
+  // Multi-frame: ≥2 visible non-fixed children, each with authored px width
+  // AND height, all within ±2px of each other. Off unless the page opts in
+  // via data-om-multi-frame on the stop element — guards against card grids
+  // and pricing tables that match the geometry but aren't separate canvases.
+  if (el.hasAttribute('data-om-multi-frame')) {
+    var cands = [];
+    for (var k = 0; k < el.children.length; k++) {
+      var ch = el.children[k];
+      var cs; try { cs = getComputedStyle(ch); } catch (e) { continue; }
+      if (cs.display === 'none' || cs.visibility === 'hidden' || cs.position === 'fixed') continue;
+      var rc = rectOf(ch);
+      if (rc.width < 2 || rc.height < 2) continue;
+      if (!authoredPx(ch, 'width') || !authoredPx(ch, 'height')) continue;
+      cands.push(rc);
+    }
+    if (cands.length >= 2) {
+      var w0 = cands[0].width, h0 = cands[0].height, ok = true;
+      for (var q = 1; q < cands.length; q++)
+        if (Math.abs(cands[q].width - w0) > 2 || Math.abs(cands[q].height - h0) > 2) ok = false;
+      if (ok) return { kind: 'multi-frame', doc: doc, signals: signals,
+        frames: cands, authored: cands.map(function(){return{width:true,height:true}}) };
+    }
+  }
+
+  el.setAttribute('data-om-frame', '');
+  return { kind: 'single-canvas', doc: doc, signals: signals,
+    frames: [rectOf(el)],
+    authored: [{ width: rootPxW, height: authoredPx(el, 'height') }] };
+})(); } catch (e) {}
+  var frame = null;
+  if (__m && __m.kind === 'single-canvas') {
+    var f = __m.frames && __m.frames[0];
+    if (f && f.width >= 200 && f.height >= 200) {
+      frame = f;
+      var fst = document.createElement('style');
+      fst.textContent = '@media print{@page{size:' + Math.ceil(f.width) + 'px ' +
+        Math.ceil(f.height) + 'px;margin:0}' +
+        'html,body,[data-om-frame-wrap]{padding:0!important;margin:0!important;background:none!important}' +
+        '[data-om-frame]{margin:0!important}}';
+      document.body.appendChild(fst);
+    }
+  }
+  // Relax break-inside on oversized elements. An element taller than a
+  // printable page can't honor break-inside: avoid — browsers either overflow
+  // it or push it whole to the next page, leaving a blank gap, then break it
+  // anyway at an arbitrary point. After the final layout (content revealed,
+  // animations jumped), find elements taller than a page that still compute
+  // break-inside: avoid and reset them to auto, so the browser breaks them at
+  // their children's boundaries instead (children keep their own avoid). PAGE_PX
+  // is a conservative portrait estimate at 96 CSS px/in — Letter/A4 usable
+  // height minus our 0.5in margins — so only clearly-oversized elements are
+  // touched and under-page elements still stay whole. Skipped for decks (slides
+  // are sized to the page) and for fixed-size canvases (frame set, or an author
+  // px-based @page) — runs as before for flowing docs on letter/A4.
+  try {
+    if (!ds && !frame && !(__m && __m.signals && __m.signals.pxPage)) {
+      const PAGE_PX = 1024;
+      // Our print defaults add a real @page margin only when the source has
+      // no @page of its own; computed style can't tell us (it reports screen
+      // media), so read the injected rule directly.
+      const defaults = document.querySelector('style[data-omelette-print-defaults]');
+      const pageInset = /@page\s*\{[^}]*margin/.test(defaults ? defaults.textContent || '' : '');
+      const SEL = 'section,article,figure,table,pre,blockquote,[class~="card" i],[class~="page" i],[class~="sheet" i]';
+      for (const el of document.body.querySelectorAll(SEL)) {
+        if (el instanceof HTMLElement && el.offsetHeight > PAGE_PX) {
+          el.setAttribute('data-om-oversized', '');
+          // Fake-paged docs simulate sheets with over-tall break-after:page
+          // boxes; honoring the break spills half-blank pages and ends a
+          // colored box mid-sheet. Flow them, and (only when we own the page
+          // inset) drop the redundant padding/background via the rule below.
+          const cs = getComputedStyle(el);
+          if (cs.breakAfter === 'page' || cs.pageBreakAfter === 'always') {
+            el.setAttribute('data-om-fakepage', '');
+          }
+        }
+      }
+      const ost = document.createElement('style');
+      ost.textContent = '@media print{' +
+        '[data-om-oversized]{break-inside:auto !important;page-break-inside:auto !important}' +
+        '[data-om-fakepage]{break-after:auto !important;page-break-after:auto !important}' +
+        (pageInset ? '[data-om-fakepage]{padding:0 !important;background:none !important}' : '') +
+        '}';
+      document.head.appendChild(ost);
+    }
+  } catch (e) {}
+  // macOS Preview renders Skia-PDF Luminosity soft-masks as opaque grey boxes;
+  // swap the CSS that triggers them for Preview-safe forms.
+  try {
+    for (const el of document.body.querySelectorAll('*')) {
+      const cs = getComputedStyle(el);
+
+      if (cs.boxShadow !== 'none' && cs.filter === 'none') {
+        const outs = [], kept = [];
+        for (const s of cs.boxShadow.split(/,(?![^(]*[)])/)) {
+          const t = s.trim();
+          const m = t.match(/^(rgba?[(][^)]+[)]) (-?[0-9.]+px) (-?[0-9.]+px) ([0-9.]+px) -?[0-9.]+px$/);
+          if (m && parseFloat(m[4]) > 0) outs.push('drop-shadow(' + m[2] + ' ' + m[3] + ' ' + m[4] + ' ' + m[1] + ')');
+          else kept.push(t);
+        }
+        if (outs.length) {
+          el.style.setProperty('filter', outs.join(' '), 'important');
+          el.style.setProperty('box-shadow', kept.join(', ') || 'none', 'important');
+        }
+      }
+
+      const mask = cs.maskImage && cs.maskImage !== 'none' ? cs.maskImage : cs.webkitMaskImage;
+      if (mask && mask !== 'none' && cs.filter === 'none') el.style.setProperty('filter', 'opacity(1)', 'important');
+    }
+  } catch (e) {}
+  setTimeout(() => { try { window.print(); } catch (e) {} }, 200);
+})();
+</script>
+</body>
+</html>

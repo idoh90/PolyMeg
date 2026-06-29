@@ -12,11 +12,13 @@ export function agorotToShekels(agorot: number): number {
   return agorot / 100;
 }
 
-/** Format agorot as a human string, e.g. 1250 -> "₪12.50". */
+/** Format agorot as a human string: 2000 -> "₪20", 1250 -> "₪12.50". */
 export function formatAgorot(agorot: number): string {
   const sign = agorot < 0 ? "-" : "";
   const abs = Math.abs(agorot);
   const shekels = Math.floor(abs / 100);
   const rem = abs % 100;
-  return `${sign}₪${shekels}.${rem.toString().padStart(2, "0")}`;
+  return rem === 0
+    ? `${sign}₪${shekels}`
+    : `${sign}₪${shekels}.${rem.toString().padStart(2, "0")}`;
 }

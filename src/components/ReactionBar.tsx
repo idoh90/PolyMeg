@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { REACTION_EMOJI, type GroupedReaction } from "@/lib/social";
 
 // Emoji toggle bar for a comment or a position. Optimistic; one target only.
@@ -14,6 +14,8 @@ export default function ReactionBar({
   initial: GroupedReaction[];
 }) {
   const [reactions, setReactions] = useState<GroupedReaction[]>(initial);
+  const [pop, setPop] = useState<{ emoji: string; id: number } | null>(null);
+  const popSeq = useRef(0);
 
   function apply(emoji: string) {
     setReactions((prev) => {
@@ -28,7 +30,13 @@ export default function ReactionBar({
   }
 
   async function toggle(emoji: string) {
+    const turningOn = !reactions.find((r) => r.emoji === emoji)?.mine;
     apply(emoji); // optimistic
+    if (turningOn) {
+      const id = ++popSeq.current;
+      setPop({ emoji, id });
+      setTimeout(() => setPop((p) => (p?.id === id ? null : p)), 1300);
+    }
     await fetch("/api/reactions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -37,7 +45,16 @@ export default function ReactionBar({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
+    <div className="relative flex flex-wrap items-center gap-1.5">
+      {pop && (
+        <span
+          key={pop.id}
+          className="pointer-events-none absolute -top-1 z-10 text-[18px]"
+          style={{ insetInlineStart: 4, animation: "pm-reactpop 1.3s ease-out forwards" }}
+        >
+          {pop.emoji}
+        </span>
+      )}
       {REACTION_EMOJI.map((e) => {
         const r = reactions.find((x) => x.emoji === e);
         const on = r?.mine;

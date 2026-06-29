@@ -153,6 +153,11 @@ input[type="number"] {
   0% { transform: translateY(0) rotate(0); opacity: 1; }
   100% { transform: translateY(150px) rotate(300deg); opacity: 0; }
 }
+@keyframes pm-reactpop {
+  0% { opacity: 0; transform: translateY(6px) scale(0.6); }
+  40% { opacity: 1; transform: translateY(-10px) scale(1.1); }
+  100% { opacity: 0; transform: translateY(-28px) scale(1); }
+}
 
 .pm-screen { animation: pm-screen 0.28s ease both; }
 .pm-marq { animation: pm-marq 26s linear infinite; }
