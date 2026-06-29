@@ -42,6 +42,8 @@ export interface ProfileData {
     won: number;
     lost: number;
     winRate: number | null;
+    dayStreak: number; // consecutive days with at least one bet
+    winStreak: number; // current "called it" run (consecutive recent wins)
   };
   portfolio: ChartSeries;
   openPositions: OpenPosition[];
@@ -173,6 +175,25 @@ export async function getProfile(userId: string, groupId: string): Promise<Profi
     });
   }
 
+  // ---- Streaks ----
+  const dk = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+  const dayKeys = new Set(positions.map((p) => dk(p.createdAt)));
+  let dayStreak = 0;
+  const cur = new Date();
+  cur.setHours(0, 0, 0, 0);
+  if (!dayKeys.has(dk(cur))) cur.setDate(cur.getDate() - 1); // grace: today optional
+  while (dayKeys.has(dk(cur))) {
+    dayStreak++;
+    cur.setDate(cur.getDate() - 1);
+  }
+  let winStreak = 0;
+  for (const m of resolvedMine) {
+    const r = marketProfits(m).find((x) => x.userId === userId);
+    if (!r) continue;
+    if (r.profit > 0) winStreak++;
+    else break;
+  }
+
   const decided = won + lost;
 
   return {
@@ -192,6 +213,8 @@ export async function getProfile(userId: string, groupId: string): Promise<Profi
       won,
       lost,
       winRate: decided > 0 ? won / decided : null,
+      dayStreak,
+      winStreak,
     },
     portfolio: buildPortfolioSeries(profitEntries, user.createdAt, nowMs()),
     openPositions,

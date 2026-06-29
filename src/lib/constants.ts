@@ -45,6 +45,7 @@ export const NotificationType = {
   MENTION: "MENTION",
   POSITION_REACTION: "POSITION_REACTION",
   BET_AGAINST: "BET_AGAINST",
+  SETTLE_REMINDER: "SETTLE_REMINDER",
 } as const;
 export type NotificationType =
   (typeof NotificationType)[keyof typeof NotificationType];

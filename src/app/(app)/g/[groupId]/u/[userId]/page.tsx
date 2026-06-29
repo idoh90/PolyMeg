@@ -80,9 +80,27 @@ export default async function ProfilePage({
           style={{ background: "radial-gradient(circle,rgba(43,110,242,.45),transparent 70%)" }}
         />
         <div className="relative">
-          <div className="text-[12.5px] font-bold tracking-wide text-[#aeb7c9]">רווח/הפסד נטו</div>
-          <div className="my-1 text-[38px] font-black tracking-tight" style={{ color: netColor }}>
-            {signed(stats.realizedNet)}
+          <div className="flex items-start justify-between">
+            <div>
+              <div className="text-[12.5px] font-bold tracking-wide text-[#aeb7c9]">רווח/הפסד נטו</div>
+              <div className="my-1 text-[38px] font-black tracking-tight" style={{ color: netColor }}>
+                {signed(stats.realizedNet)}
+              </div>
+            </div>
+            {(stats.dayStreak > 0 || stats.winStreak >= 2) && (
+              <div className="flex flex-col items-end gap-1.5">
+                {stats.dayStreak > 0 && (
+                  <div className="flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-[13px] font-extrabold">
+                    🔥 {stats.dayStreak} {stats.dayStreak === 1 ? "יום" : "ימים"}
+                  </div>
+                )}
+                {stats.winStreak >= 2 && (
+                  <div className="rounded-full bg-white/10 px-2.5 py-1 text-[11.5px] font-bold text-[#aeb7c9]">
+                    🎯 {stats.winStreak} ברצף
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           <div className="mt-3 flex gap-7">
             <div>

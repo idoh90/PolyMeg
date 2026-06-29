@@ -25,6 +25,7 @@ export interface NamedTransfer {
 export async function getSettlement(groupId: string): Promise<{
   balances: UserBalance[];
   transfers: NamedTransfer[];
+  oldestResolvedAt: Date | null;
 }> {
   const [markets, sold] = await Promise.all([
     prisma.market.findMany({
@@ -37,6 +38,7 @@ export async function getSettlement(groupId: string): Promise<{
         kind: true,
         winningOptionId: true,
         resolvedValue: true,
+        resolvedAt: true,
         positions: { select: { userId: true, optionId: true, amount: true, guess: true, soldAt: true, soldValue: true } },
       },
     }),
@@ -81,5 +83,10 @@ export async function getSettlement(groupId: string): Promise<{
     amount: t.amount,
   }));
 
-  return { balances: namedBalances, transfers: namedTransfers };
+  let oldestResolvedAt: Date | null = null;
+  for (const m of markets) {
+    if (m.resolvedAt && (!oldestResolvedAt || m.resolvedAt < oldestResolvedAt)) oldestResolvedAt = m.resolvedAt;
+  }
+
+  return { balances: namedBalances, transfers: namedTransfers, oldestResolvedAt };
 }

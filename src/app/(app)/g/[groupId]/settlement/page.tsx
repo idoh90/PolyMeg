@@ -2,7 +2,9 @@ import Link from "next/link";
 import { getSettlement } from "@/lib/settlementData";
 import { getCurrentUser } from "@/lib/currentUser";
 import { formatAgorot } from "@/lib/money";
+import { nowMs } from "@/lib/format";
 import Avatar from "@/components/Avatar";
+import NudgeButton from "@/components/NudgeButton";
 
 function signed(n: number) {
   return `${n > 0 ? "+" : ""}${formatAgorot(n)}`;
@@ -15,12 +17,15 @@ export default async function SettlementPage({
 }) {
   const { groupId } = await params;
   const user = await getCurrentUser();
-  const { balances, transfers } = await getSettlement(groupId);
+  const { balances, transfers, oldestResolvedAt } = await getSettlement(groupId);
   const base = `/g/${groupId}`;
 
   const mine = transfers.filter(
     (t) => t.fromUserId === user?.id || t.toUserId === user?.id,
   );
+  const daysOutstanding = oldestResolvedAt
+    ? Math.floor((nowMs() - oldestResolvedAt.getTime()) / 86400000)
+    : 0;
 
   return (
     <div className="px-[18px] pb-8 pt-1.5">
@@ -49,16 +54,24 @@ export default async function SettlementPage({
                     style={{ background: youPay ? "var(--no-b)" : "var(--yes-b)" }}
                   >
                     <Avatar name={other.name} size={34} />
-                    <span className="flex-1 text-sm font-bold">
-                      {youPay ? "שלם ל־" : "גבה מ־"}
-                      <strong>{other.name}</strong>
-                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-bold">
+                        {youPay ? "שלם ל־" : "גבה מ־"}
+                        <strong>{other.name}</strong>
+                      </div>
+                      {!youPay && daysOutstanding > 0 && (
+                        <div className="mt-0.5 text-[11.5px] font-semibold text-faint">פתוח כבר {daysOutstanding} ימים</div>
+                      )}
+                    </div>
                     <span
                       className="text-base font-extrabold"
                       style={{ color: youPay ? "var(--no)" : "var(--yes)" }}
                     >
                       {formatAgorot(t.amount)}
                     </span>
+                    {!youPay && (
+                      <NudgeButton groupId={groupId} toUserId={other.id} amount={t.amount} />
+                    )}
                   </div>
                 );
               })}

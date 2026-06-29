@@ -15,6 +15,7 @@ const NOTIF: Record<string, { icon: string; bg: string }> = {
   MENTION: { icon: "@", bg: "var(--accent-soft)" },
   POSITION_REACTION: { icon: "🔥", bg: "var(--yes-b)" },
   BET_AGAINST: { icon: "⚔️", bg: "var(--no-b)" },
+  SETTLE_REMINDER: { icon: "💰", bg: "var(--no-b)" },
 };
 
 export default async function NotificationsPage({
