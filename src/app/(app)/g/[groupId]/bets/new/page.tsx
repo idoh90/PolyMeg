@@ -87,6 +87,7 @@ export default function NewBetPage() {
   const [fixedAmt, setFixedAmt] = useState("10");
   const [recurring, setRecurring] = useState(false);
   const [recurDays, setRecurDays] = useState(7);
+  const [cashOut, setCashOut] = useState(false);
   const [closeKey, setCloseKey] = useState("3");
   const [customDate, setCustomDate] = useState("");
   const [idx, setIdx] = useState(0);
@@ -158,6 +159,7 @@ export default function NewBetPage() {
         fixedStake: fixed,
         recurring,
         recurrenceDays: recurring ? recurDays : null,
+        cashOutEnabled: mode === "scalar" ? false : cashOut,
         kind: mode === "scalar" ? "SCALAR" : undefined,
         scalarMin: mode === "scalar" ? Number(scMin) : undefined,
         scalarMax: mode === "scalar" ? Number(scMax) : undefined,
@@ -567,6 +569,21 @@ export default function NewBetPage() {
                 </div>
               )}
             </div>
+
+            {/* cash-out (not for numeric markets) */}
+            {mode !== "scalar" && (
+              <div className="mt-2.5 rounded-[14px] border border-border bg-surface p-3.5">
+                <button onClick={() => setCashOut((v) => !v)} className="flex w-full items-center gap-3 text-start">
+                  <span className="relative h-[26px] w-[44px] flex-none rounded-full transition-colors" style={{ background: cashOut ? "var(--accent)" : "var(--border)" }}>
+                    <span className="absolute top-[3px] h-5 w-5 rounded-full bg-white shadow transition-all" style={{ insetInlineStart: cashOut ? 21 : 3 }} />
+                  </span>
+                  <span className="flex-1">
+                    <span className="block text-[14.5px] font-extrabold">💵 מכירה מוקדמת</span>
+                    <span className="block text-[11.5px] font-semibold text-faint">שחקנים יוכלו למכור פוזיציה לפי השווי הנוכחי לפני ההכרעה</span>
+                  </span>
+                </button>
+              </div>
+            )}
           </div>
         )}
 

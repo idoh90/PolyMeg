@@ -127,23 +127,84 @@ export function computeScalarPayouts(
   return computePayouts(mapped, "W");
 }
 
+export interface MarketPosition {
+  userId: string;
+  optionId: string;
+  amount: number;
+  guess?: number | null;
+  soldAt?: Date | string | null;
+  soldValue?: number | null;
+}
+
 /**
- * Realized payouts for a RESOLVED market of any kind. Single entry point used by
- * leaderboard / settlement / profile so the BINARY/MULTI/SCALAR branch lives in
- * one place. Pass plain position rows (include `guess` for scalar markets).
+ * Resolution payouts for the *non-cashed-out* positions of a RESOLVED market of
+ * any kind (BINARY/MULTI/SCALAR). Single entry point for leaderboard /
+ * settlement / profile. Pass ALL positions (sold + live): cashed-out stakes are
+ * excluded from the winners but their realized gain is drained from the pot so
+ * the books stay zero-sum (sellers' gains are funded by the remaining pool).
+ * The sellers' own realized P/L (soldValue - amount) is added separately by
+ * callers, so it is not double-counted here.
  */
 export function marketProfits(m: {
   kind: string;
   winningOptionId: string | null;
   resolvedValue: number | null;
-  positions: { userId: string; optionId: string; amount: number; guess?: number | null }[];
+  positions: MarketPosition[];
 }): PayoutResult[] {
+  const live = m.positions.filter((p) => !p.soldAt);
+  const sold = m.positions.filter((p) => p.soldAt);
+  if (live.length === 0) return [];
+
+  let isWinner: (p: MarketPosition) => boolean;
   if (m.kind === "SCALAR" && m.resolvedValue != null) {
-    const scalar = m.positions
-      .filter((p) => p.guess != null)
-      .map((p) => ({ userId: p.userId, guess: p.guess as number, amount: p.amount }));
-    return computeScalarPayouts(scalar, m.resolvedValue);
+    let minDiff = Infinity;
+    for (const p of live) if (p.guess != null) minDiff = Math.min(minDiff, Math.abs(p.guess - m.resolvedValue));
+    isWinner = (p) => p.guess != null && Math.abs(p.guess - m.resolvedValue!) === minDiff;
+  } else if (m.winningOptionId) {
+    isWinner = (p) => p.optionId === m.winningOptionId;
+  } else {
+    return [];
   }
-  if (m.winningOptionId) return computePayouts(m.positions, m.winningOptionId);
-  return [];
+
+  const stakedByUser = new Map<string, number>();
+  const wonStakeByUser = new Map<string, number>();
+  let total = 0;
+  let winningPool = 0;
+  for (const p of live) {
+    total += p.amount;
+    stakedByUser.set(p.userId, (stakedByUser.get(p.userId) ?? 0) + p.amount);
+    if (isWinner(p)) {
+      winningPool += p.amount;
+      wonStakeByUser.set(p.userId, (wonStakeByUser.get(p.userId) ?? 0) + p.amount);
+    }
+  }
+  // Pot available to the remaining players, net of what cash-outs already drained.
+  const cashDrain = sold.reduce((s, p) => s + ((p.soldValue ?? p.amount) - p.amount), 0);
+  const pot = total - cashDrain;
+  const losingPool = total - winningPool;
+
+  const payoutByUser = new Map<string, number>();
+  const assign = (entries: [string, number][], poolBase: number) => {
+    const ranked = [...entries].sort((a, b) => b[1] - a[1]);
+    let distributed = 0;
+    for (const [u, share] of ranked) {
+      const pay = poolBase > 0 ? Math.floor((share / poolBase) * pot) : 0;
+      payoutByUser.set(u, pay);
+      distributed += pay;
+    }
+    const remainder = pot - distributed;
+    if (remainder !== 0 && ranked.length > 0)
+      payoutByUser.set(ranked[0][0], (payoutByUser.get(ranked[0][0]) ?? 0) + remainder);
+  };
+  if (winningPool > 0 && losingPool > 0) {
+    assign([...wonStakeByUser.entries()], winningPool);
+  } else {
+    // Wash (no losing side): split the (drained) pot proportional to all stakes.
+    assign([...stakedByUser.entries()], total);
+  }
+
+  return [...stakedByUser.entries()].map(([userId, staked]) => {
+    const payout = payoutByUser.get(userId) ?? 0;
+    return { userId, staked, payout, profit: payout - staked, won: (wonStakeByUser.get(userId) ?? 0) > 0 };
+  });
 }

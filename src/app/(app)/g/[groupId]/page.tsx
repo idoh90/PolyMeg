@@ -50,7 +50,7 @@ export default async function GroupHomePage({
       include: {
         creator: { select: { displayName: true } },
         options: { orderBy: { sortOrder: "asc" } },
-        positions: { select: { optionId: true, amount: true } },
+        positions: { where: { soldAt: null }, select: { optionId: true, amount: true } },
       },
     }),
     getLeaderboard(groupId),

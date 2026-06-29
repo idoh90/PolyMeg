@@ -38,6 +38,7 @@ export async function POST(req: Request) {
   const recurrenceDays = recurring
     ? Math.max(1, Math.round(Number(body.recurrenceDays) || 7))
     : null;
+  const cashOutEnabled = body.cashOutEnabled === true && body.kind !== "SCALAR";
   const closesAt = new Date(body.closesAt);
   let labels: string[] = Array.isArray(body.options)
     ? body.options.map((o: unknown) => String(o).trim()).filter(Boolean)
@@ -113,6 +114,7 @@ export async function POST(req: Request) {
       maxStake: fixedStake ?? maxStake,
       perUserCap: fixedStake ? null : perUserCap,
       fixedStake,
+      cashOutEnabled,
       recurring,
       recurrenceDays,
       closesAt,

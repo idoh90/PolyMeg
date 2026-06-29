@@ -16,6 +16,7 @@ import ScalarBet from "@/components/ScalarBet";
 import ScalarDecision from "@/components/ScalarDecision";
 import AdminBetControls from "@/components/AdminBetControls";
 import PositionDeleteControl from "@/components/PositionDeleteControl";
+import CashOutControl from "@/components/CashOutControl";
 import ReactionBar from "@/components/ReactionBar";
 import CommentThread from "@/components/CommentThread";
 import CalledItCard from "@/components/CalledItCard";
@@ -74,7 +75,9 @@ export default async function BetDetailPage({
 
   const isAdmin = isAdminRole(membership?.role);
   const members = memberRows.map((m) => m.user);
-  const { options, totalPot } = poolFor(market.options, market.positions, market.winningOptionId);
+  // live pool excludes cashed-out stakes
+  const livePositions = market.positions.filter((p) => !p.soldAt);
+  const { options, totalPot } = poolFor(market.options, livePositions, market.winningOptionId);
   const isOpen = market.status === MarketStatus.OPEN;
   const isResolved = market.status === MarketStatus.RESOLVED;
   const canDecide = !isResolved && (market.creatorId === user.id || isAdmin);
@@ -305,12 +308,19 @@ export default async function BetDetailPage({
                     </div>
                   </Link>
                   <span className="text-sm font-extrabold">{formatAgorot(p.amount)}</span>
+                  {p.soldAt ? (
+                    <span className="flex-none rounded-full bg-surface-2 px-2.5 py-1 text-[11px] font-extrabold text-faint">
+                      נמכר · {formatAgorot(p.soldValue ?? 0)}
+                    </span>
+                  ) : market.cashOutEnabled && isOpen && !isScalar && p.userId === user.id ? (
+                    <CashOutControl positionId={p.id} />
+                  ) : null}
                   <PositionDeleteControl
                     positionId={p.id}
                     createdAtMs={p.createdAt.getTime()}
                     mine={p.userId === user.id}
                     isAdmin={isAdmin}
-                    marketOpen={isOpen}
+                    marketOpen={isOpen && !p.soldAt}
                   />
                 </div>
                 {p.shout && (

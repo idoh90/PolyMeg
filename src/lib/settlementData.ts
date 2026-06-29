@@ -26,23 +26,32 @@ export async function getSettlement(groupId: string): Promise<{
   balances: UserBalance[];
   transfers: NamedTransfer[];
 }> {
-  const markets = await prisma.market.findMany({
-    where: {
-      groupId,
-      status: MarketStatus.RESOLVED,
-      OR: [{ winningOptionId: { not: null } }, { kind: "SCALAR", resolvedValue: { not: null } }],
-    },
-    select: {
-      kind: true,
-      winningOptionId: true,
-      resolvedValue: true,
-      positions: { select: { userId: true, optionId: true, amount: true, guess: true } },
-    },
-  });
+  const [markets, sold] = await Promise.all([
+    prisma.market.findMany({
+      where: {
+        groupId,
+        status: MarketStatus.RESOLVED,
+        OR: [{ winningOptionId: { not: null } }, { kind: "SCALAR", resolvedValue: { not: null } }],
+      },
+      select: {
+        kind: true,
+        winningOptionId: true,
+        resolvedValue: true,
+        positions: { select: { userId: true, optionId: true, amount: true, guess: true, soldAt: true, soldValue: true } },
+      },
+    }),
+    prisma.position.findMany({
+      where: { market: { groupId }, soldAt: { not: null } },
+      select: { userId: true, amount: true, soldValue: true },
+    }),
+  ]);
 
   const profits: { userId: string; profit: number }[] = [];
   for (const m of markets) {
     for (const r of marketProfits(m)) profits.push({ userId: r.userId, profit: r.profit });
+  }
+  for (const s of sold) {
+    profits.push({ userId: s.userId, profit: (s.soldValue ?? s.amount) - s.amount });
   }
 
   const balances = netBalances(profits);

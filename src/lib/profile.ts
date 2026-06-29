@@ -78,7 +78,7 @@ export async function getProfile(userId: string, groupId: string): Promise<Profi
     where: { id: { in: marketIds } },
     include: {
       options: { orderBy: { sortOrder: "asc" } },
-      positions: { select: { userId: true, optionId: true, amount: true, guess: true } },
+      positions: { select: { userId: true, optionId: true, amount: true, guess: true, soldAt: true, soldValue: true } },
     },
   });
   const marketById = new Map(markets.map((m) => [m.id, m]));
@@ -86,9 +86,14 @@ export async function getProfile(userId: string, groupId: string): Promise<Profi
   // ---- Open positions (with parimutuel toWin estimate) ----
   const openPositions: OpenPosition[] = [];
   for (const p of positions) {
+    if (p.soldAt) continue; // cashed-out — no longer an open position
     const m = marketById.get(p.market.id);
     if (!m || m.status !== MarketStatus.OPEN) continue;
-    const { options, totalPot } = poolFor(m.options, m.positions, m.winningOptionId);
+    const { options, totalPot } = poolFor(
+      m.options,
+      m.positions.filter((q) => !q.soldAt),
+      m.winningOptionId,
+    );
     const opt = options.find((o) => o.id === p.optionId);
     const toWin = opt && opt.total > 0 ? Math.round((p.amount / opt.total) * totalPot) : p.amount;
     const isScalar = m.kind === "SCALAR";
@@ -146,6 +151,25 @@ export async function getProfile(userId: string, groupId: string): Promise<Profi
       sideLabel,
       won: isWin,
       profit: mine.profit,
+    });
+  }
+
+  // Cashed-out positions realize P/L immediately, regardless of resolution.
+  for (const p of positions) {
+    if (!p.soldAt) continue;
+    const profit = (p.soldValue ?? p.amount) - p.amount;
+    realizedNet += profit;
+    if (profit > 0) won++;
+    else if (profit < 0) lost++;
+    profitEntries.push({ resolvedAt: p.soldAt, profit });
+    const mk = marketById.get(p.market.id);
+    history.push({
+      marketId: p.market.id,
+      title: mk?.title ?? "",
+      imageUrl: mk?.imageUrl ?? null,
+      sideLabel: `${p.option.label} · נמכר`,
+      won: profit > 0,
+      profit,
     });
   }
 

@@ -13,7 +13,7 @@ export interface LeaderRow {
 
 /** Per-member net P/L, wins and bet counts from a group's resolved markets. */
 export async function getLeaderboard(groupId: string): Promise<LeaderRow[]> {
-  const [members, markets] = await Promise.all([
+  const [members, markets, sold] = await Promise.all([
     prisma.membership.findMany({
       where: { groupId, status: "ACTIVE" },
       select: { user: { select: { id: true, displayName: true, avatarUrl: true } } },
@@ -28,8 +28,14 @@ export async function getLeaderboard(groupId: string): Promise<LeaderRow[]> {
         kind: true,
         winningOptionId: true,
         resolvedValue: true,
-        positions: { select: { userId: true, optionId: true, amount: true, guess: true } },
+        // all positions: marketProfits drains cashed-out stakes from the pot.
+        positions: { select: { userId: true, optionId: true, amount: true, guess: true, soldAt: true, soldValue: true } },
       },
+    }),
+    // Realized cash-outs (any market, open or resolved).
+    prisma.position.findMany({
+      where: { market: { groupId }, soldAt: { not: null } },
+      select: { userId: true, amount: true, soldValue: true },
     }),
   ]);
   const users = members.map((m) => m.user);
@@ -44,6 +50,12 @@ export async function getLeaderboard(groupId: string): Promise<LeaderRow[]> {
       bets.set(r.userId, (bets.get(r.userId) ?? 0) + 1);
       if (r.profit > 0) wins.set(r.userId, (wins.get(r.userId) ?? 0) + 1);
     }
+  }
+  for (const s of sold) {
+    const profit = (s.soldValue ?? s.amount) - s.amount;
+    net.set(s.userId, (net.get(s.userId) ?? 0) + profit);
+    bets.set(s.userId, (bets.get(s.userId) ?? 0) + 1);
+    if (profit > 0) wins.set(s.userId, (wins.get(s.userId) ?? 0) + 1);
   }
 
   return users
