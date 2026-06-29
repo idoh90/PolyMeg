@@ -82,6 +82,7 @@ model Market {
   minStake              Int // agorot
   maxStake              Int? // per-bet cap (agorot)
   perUserCap            Int? // total a single user may stake in this market (agorot)
+  fixedStake            Int? // if set, every bet must equal exactly this (overrides min/max/cap)
   cashOutEnabled        Boolean   @default(false) // allow selling before resolution
   scalarMin             Int? // numeric markets: range start
   scalarMax             Int? // numeric markets: range end

@@ -80,9 +80,12 @@ export default function NewBetPage() {
   const [minStake, setMinStake] = useState("5");
   const [maxStake, setMaxStake] = useState("");
   const [perUserCap, setPerUserCap] = useState("");
+  const [fixedMode, setFixedMode] = useState(false);
+  const [fixedAmt, setFixedAmt] = useState("10");
   const [recurring, setRecurring] = useState(false);
   const [recurDays, setRecurDays] = useState(7);
   const [closeKey, setCloseKey] = useState("3");
+  const [customDate, setCustomDate] = useState("");
   const [idx, setIdx] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -124,6 +127,8 @@ export default function NewBetPage() {
     setBusy(true);
     setError("");
     const days = CLOSE_CHIPS.find((c) => c.key === closeKey)?.days ?? 3;
+    const closesAt = customDate ? new Date(customDate).toISOString() : closeISO(days);
+    const fixed = fixedMode && Number(fixedAmt) > 0 ? Number(fixedAmt) : null;
     const res = await fetch("/api/markets", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -132,12 +137,13 @@ export default function NewBetPage() {
         title: title.trim(),
         emoji: emoji || null,
         imageUrl,
-        minStake: Number(minStake) || 0,
-        maxStake: maxStake ? Number(maxStake) : null,
-        perUserCap: perUserCap ? Number(perUserCap) : null,
+        minStake: fixed ?? (Number(minStake) || 0),
+        maxStake: fixed ? null : maxStake ? Number(maxStake) : null,
+        perUserCap: fixed ? null : perUserCap ? Number(perUserCap) : null,
+        fixedStake: fixed,
         recurring,
         recurrenceDays: recurring ? recurDays : null,
-        closesAt: closeISO(days),
+        closesAt,
         options: finalOpts,
       }),
     });
@@ -414,27 +420,41 @@ export default function NewBetPage() {
               </div>
             </div>
 
-            <div className="mb-2.5 text-[13px] font-extrabold text-muted">סכום מינימלי להשתתפות</div>
-            <div className="field mb-[22px] flex items-center !py-0">
+            <div className="mb-2.5 flex items-center justify-between">
+              <span className="text-[13px] font-extrabold text-muted">{fixedMode ? "סכום קבוע לכולם" : "סכום מינימלי להשתתפות"}</span>
+              <button onClick={() => setFixedMode((v) => !v)} className="flex items-center gap-2 text-[12px] font-extrabold text-accent">
+                <span className="relative h-[22px] w-[38px] rounded-full transition-colors" style={{ background: fixedMode ? "var(--accent)" : "var(--border)" }}>
+                  <span className="absolute top-[3px] h-4 w-4 rounded-full bg-white shadow transition-all" style={{ insetInlineStart: fixedMode ? 19 : 3 }} />
+                </span>
+                סכום קבוע
+              </button>
+            </div>
+            <div className="field flex items-center !py-0">
               <span className="text-[22px] font-extrabold text-faint">₪</span>
               <input
                 type="number"
                 inputMode="decimal"
-                value={minStake}
-                onChange={(e) => setMinStake(e.target.value)}
-                placeholder="5"
+                value={fixedMode ? fixedAmt : minStake}
+                onChange={(e) => (fixedMode ? setFixedAmt(e.target.value) : setMinStake(e.target.value))}
+                placeholder={fixedMode ? "10" : "5"}
                 className="w-full bg-transparent px-2.5 py-3 text-right text-[22px] font-extrabold text-text outline-none"
               />
             </div>
+            <div className="mb-[22px] mt-1.5 text-[11.5px] font-semibold text-faint">
+              {fixedMode ? "כולם נכנסים בדיוק בסכום הזה — אין בחירת סכום." : " "}
+            </div>
 
             <div className="mb-2.5 text-[13px] font-extrabold text-muted">מתי ההימור נסגר?</div>
-            <div className="flex gap-2">
+            <div className="flex gap-2" style={{ opacity: customDate ? 0.5 : 1 }}>
               {CLOSE_CHIPS.map((c) => {
-                const on = closeKey === c.key;
+                const on = closeKey === c.key && !customDate;
                 return (
                   <button
                     key={c.key}
-                    onClick={() => setCloseKey(c.key)}
+                    onClick={() => {
+                      setCloseKey(c.key);
+                      setCustomDate("");
+                    }}
                     className={`flex-1 rounded-xl border px-1.5 py-3 text-[13.5px] font-extrabold transition ${
                       on ? "border-accent bg-accent-soft text-accent" : "border-border bg-surface text-muted"
                     }`}
@@ -444,25 +464,42 @@ export default function NewBetPage() {
                 );
               })}
             </div>
+            <div className="mt-2.5 text-[12px] font-extrabold text-muted">או תאריך מדויק</div>
+            <input
+              type="datetime-local"
+              value={customDate}
+              onChange={(e) => setCustomDate(e.target.value)}
+              className="field mt-1.5 w-full text-[14px] font-bold"
+              style={{ direction: "ltr", textAlign: "start" }}
+            />
+            {customDate && (
+              <button onClick={() => setCustomDate("")} className="mt-1.5 text-[11.5px] font-bold text-no">
+                נקה תאריך
+              </button>
+            )}
 
-            {/* stake caps */}
-            <div className="mt-[22px] grid grid-cols-2 gap-2.5">
-              <div>
-                <div className="mb-2 text-[13px] font-extrabold text-muted">מקס׳ להימור</div>
-                <div className="field flex items-center !py-0">
-                  <span className="text-[18px] font-extrabold text-faint">₪</span>
-                  <input type="number" inputMode="decimal" value={maxStake} onChange={(e) => setMaxStake(e.target.value)} placeholder="ללא" className="w-full bg-transparent px-2 py-3 text-right text-[18px] font-extrabold outline-none" />
+            {/* stake caps (hidden when a fixed amount is set) */}
+            {!fixedMode && (
+              <>
+                <div className="mt-[22px] grid grid-cols-2 gap-2.5">
+                  <div>
+                    <div className="mb-2 text-[13px] font-extrabold text-muted">מקס׳ להימור</div>
+                    <div className="field flex items-center !py-0">
+                      <span className="text-[18px] font-extrabold text-faint">₪</span>
+                      <input type="number" inputMode="decimal" value={maxStake} onChange={(e) => setMaxStake(e.target.value)} placeholder="ללא" className="w-full bg-transparent px-2 py-3 text-right text-[18px] font-extrabold outline-none" />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="mb-2 text-[13px] font-extrabold text-muted">תקרה למשתתף</div>
+                    <div className="field flex items-center !py-0">
+                      <span className="text-[18px] font-extrabold text-faint">₪</span>
+                      <input type="number" inputMode="decimal" value={perUserCap} onChange={(e) => setPerUserCap(e.target.value)} placeholder="ללא" className="w-full bg-transparent px-2 py-3 text-right text-[18px] font-extrabold outline-none" />
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div>
-                <div className="mb-2 text-[13px] font-extrabold text-muted">תקרה למשתתף</div>
-                <div className="field flex items-center !py-0">
-                  <span className="text-[18px] font-extrabold text-faint">₪</span>
-                  <input type="number" inputMode="decimal" value={perUserCap} onChange={(e) => setPerUserCap(e.target.value)} placeholder="ללא" className="w-full bg-transparent px-2 py-3 text-right text-[18px] font-extrabold outline-none" />
-                </div>
-              </div>
-            </div>
-            <div className="mt-1.5 text-[11.5px] font-semibold text-faint">תקרה מונעת ממשתתף יחיד לעוות את הקופה.</div>
+                <div className="mt-1.5 text-[11.5px] font-semibold text-faint">תקרה מונעת ממשתתף יחיד לעוות את הקופה.</div>
+              </>
+            )}
 
             {/* recurring */}
             <div className="mt-[22px] rounded-[14px] border border-border bg-surface p-3.5">

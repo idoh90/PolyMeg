@@ -56,6 +56,12 @@ export async function POST(
     return NextResponse.json({ error: "הזן סכום תקין." }, { status: 400 });
   }
   const amount = shekelsToAgorot(amountShekels);
+  if (market.fixedStake !== null && amount !== market.fixedStake) {
+    return NextResponse.json(
+      { error: `סכום ההימור חייב להיות בדיוק ${formatAgorot(market.fixedStake)}.` },
+      { status: 400 },
+    );
+  }
   if (amount < market.minStake) {
     return NextResponse.json(
       { error: `הסכום המינימלי הוא ${formatAgorot(market.minStake)}.` },

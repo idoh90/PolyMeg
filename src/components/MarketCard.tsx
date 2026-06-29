@@ -14,6 +14,7 @@ export interface MarketCardData {
   creatorName: string;
   status: string;
   minStake: number; // agorot
+  fixedStake: number | null; // agorot, when the market locks the bet amount
   pot: number; // agorot
   potText: string;
   timeText: string;
@@ -39,6 +40,7 @@ export default function MarketCard({ market }: { market: MarketCardData }) {
     imageUrl: market.imageUrl,
     emoji: market.emoji,
     minStake: market.minStake,
+    fixedStake: market.fixedStake,
     pot: market.pot,
     options: market.options.map((o) => ({
       id: o.id,

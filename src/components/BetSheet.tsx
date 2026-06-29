@@ -18,6 +18,7 @@ export interface SheetMarket {
   imageUrl: string | null;
   emoji?: string | null;
   minStake: number; // agorot
+  fixedStake?: number | null; // if set, the only allowed stake (agorot)
   pot: number; // agorot
   options: { id: string; label: string; total: number; pct: number }[];
 }
@@ -73,8 +74,9 @@ function BetSheet({
   const [busy, setBusy] = useState(false);
 
   const minShekels = agorotToShekels(market.minStake);
+  const fixed = market.fixedStake ?? null;
   const sel = market.options.find((o) => o.id === optionId) ?? null;
-  const amtAg = Math.round((parseFloat(amount) || 0) * 100);
+  const amtAg = fixed ?? Math.round((parseFloat(amount) || 0) * 100);
 
   const { payout, profit } = useMemo(() => {
     if (!sel || amtAg <= 0) return { payout: 0, profit: 0 };
@@ -93,7 +95,7 @@ function BetSheet({
     const res = await fetch(`/api/markets/${market.id}/positions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ optionId: sel.id, amount: Number(amount), shout }),
+      body: JSON.stringify({ optionId: sel.id, amount: fixed ? agorotToShekels(fixed) : Number(amount), shout }),
     });
     if (res.ok) {
       setPlaced(true);
@@ -182,28 +184,37 @@ function BetSheet({
             </div>
 
             <div className="mb-2.5 text-[13px] font-extrabold text-muted">סכום</div>
-            <div className="mb-2.5 flex items-center rounded-[14px] border-[1.5px] border-border bg-surface-2 px-4 py-1">
-              <span className="text-2xl font-extrabold text-faint">₪</span>
-              <input
-                type="number"
-                inputMode="decimal"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="0"
-                className="w-full bg-transparent p-2.5 text-right text-3xl font-extrabold text-text outline-none"
-              />
-            </div>
-            <div className="mb-[18px] flex gap-2">
-              {[10, 25, 50, 100].map((v) => (
-                <button
-                  key={v}
-                  onClick={() => setAmount(String(v))}
-                  className="flex-1 rounded-[11px] border border-border bg-surface py-2.5 text-[13.5px] font-extrabold"
-                >
-                  ₪{v}
-                </button>
-              ))}
-            </div>
+            {fixed ? (
+              <div className="mb-[18px] flex items-center justify-between rounded-[14px] border-[1.5px] border-border bg-surface-2 px-4 py-3.5">
+                <span className="text-[13px] font-extrabold text-muted">סכום קבוע</span>
+                <span className="text-2xl font-extrabold">{formatAgorot(fixed)}</span>
+              </div>
+            ) : (
+              <>
+                <div className="mb-2.5 flex items-center rounded-[14px] border-[1.5px] border-border bg-surface-2 px-4 py-1">
+                  <span className="text-2xl font-extrabold text-faint">₪</span>
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="0"
+                    className="w-full bg-transparent p-2.5 text-right text-3xl font-extrabold text-text outline-none"
+                  />
+                </div>
+                <div className="mb-[18px] flex gap-2">
+                  {[10, 25, 50, 100].map((v) => (
+                    <button
+                      key={v}
+                      onClick={() => setAmount(String(v))}
+                      className="flex-1 rounded-[11px] border border-border bg-surface py-2.5 text-[13.5px] font-extrabold"
+                    >
+                      ₪{v}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
 
             <TrashTalkBar value={shout} onChange={setShout} />
 

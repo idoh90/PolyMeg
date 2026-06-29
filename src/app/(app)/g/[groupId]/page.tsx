@@ -92,6 +92,7 @@ export default async function GroupHomePage({
       creatorName: m.creator.displayName,
       status: m.status,
       minStake: m.minStake,
+      fixedStake: m.fixedStake,
       pot: totalPot,
       potText: formatAgorot(totalPot),
       timeText:
@@ -126,6 +127,7 @@ export default async function GroupHomePage({
         imageUrl: featMarket.imageUrl,
         emoji: featMarket.emoji,
         minStake: featMarket.minStake,
+        fixedStake: featMarket.fixedStake,
         pot: totalPot,
         options: options.map((o) => ({ id: o.id, label: o.label, total: o.total, pct: o.pct })),
       },

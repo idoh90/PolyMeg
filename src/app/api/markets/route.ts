@@ -33,6 +33,7 @@ export async function POST(req: Request) {
   };
   const maxStake = toAgPositive(body.maxStake);
   const perUserCap = toAgPositive(body.perUserCap);
+  const fixedStake = toAgPositive(body.fixedStake);
   const recurring = body.recurring === true;
   const recurrenceDays = recurring
     ? Math.max(1, Math.round(Number(body.recurrenceDays) || 7))
@@ -75,8 +76,9 @@ export async function POST(req: Request) {
       emoji,
       kind,
       minStake: shekelsToAgorot(minStakeShekels),
-      maxStake,
-      perUserCap,
+      maxStake: fixedStake ?? maxStake,
+      perUserCap: fixedStake ? null : perUserCap,
+      fixedStake,
       recurring,
       recurrenceDays,
       closesAt,

@@ -100,6 +100,7 @@ export default async function BetDetailPage({
     imageUrl: market.imageUrl,
     emoji: market.emoji,
     minStake: market.minStake,
+    fixedStake: market.fixedStake,
     pot: totalPot,
     options: options.map((o) => ({ id: o.id, label: o.label, total: o.total, pct: o.pct })),
   };
