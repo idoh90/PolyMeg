@@ -12,6 +12,8 @@ import Avatar from "@/components/Avatar";
 import PriceChart from "@/components/PriceChart";
 import BuyOptionList from "@/components/BuyOptionList";
 import DecisionBet from "@/components/DecisionBet";
+import ScalarBet from "@/components/ScalarBet";
+import ScalarDecision from "@/components/ScalarDecision";
 import AdminBetControls from "@/components/AdminBetControls";
 import PositionDeleteControl from "@/components/PositionDeleteControl";
 import ReactionBar from "@/components/ReactionBar";
@@ -94,6 +96,7 @@ export default async function BetDetailPage({
         )
       : 0;
 
+  const isScalar = market.kind === "SCALAR";
   const sheet: SheetMarket = {
     id: market.id,
     title: market.title,
@@ -101,6 +104,10 @@ export default async function BetDetailPage({
     emoji: market.emoji,
     minStake: market.minStake,
     fixedStake: market.fixedStake,
+    kind: market.kind,
+    scalarMin: market.scalarMin,
+    scalarMax: market.scalarMax,
+    scalarUnit: market.scalarUnit,
     pot: totalPot,
     options: options.map((o) => ({ id: o.id, label: o.label, total: o.total, pct: o.pct })),
   };
@@ -162,52 +169,89 @@ export default async function BetDetailPage({
         {/* called-it receipts */}
         {isResolved && receipt && <CalledItCard receipt={receipt} />}
 
-        {/* big price */}
-        <div className="mb-1 flex items-baseline gap-2.5">
-          <span className="text-[44px] font-black leading-none" style={{ color: topColor }}>
-            {top.pct}
-            <span className="text-[22px]">%</span>
-          </span>
-          <span className="text-[15px] font-bold text-faint">{top.label}</span>
-          <span
-            className="me-auto text-sm font-extrabold"
-            style={{ color: isResolved ? "var(--muted)" : change >= 0 ? "var(--yes)" : "var(--no)" }}
-          >
-            {isResolved ? "הוכרע" : `${change >= 0 ? "▲" : "▼"} ${Math.abs(change)}% היום`}
-          </span>
-        </div>
-        <div className="mb-3 text-[13px] font-semibold text-muted">סיכוי משתמע מתוך הקופה</div>
-
-        {/* chart — leading option's probability trend */}
-        {market.positions.length > 0 && topSeries ? (
-          <div className="mb-5 rounded-[18px] border border-border bg-surface p-3 shadow-[0_1px_2px_rgba(15,19,32,.03)]">
-            <div className="mb-1.5 flex items-center justify-between px-1">
-              <span className="text-[11.5px] font-extrabold text-muted">מגמת הסיכוי · {top.label}</span>
-              <span className="text-[13px] font-extrabold" style={{ color: topColor }}>{top.pct}%</span>
+        {isScalar ? (
+          /* numeric market summary */
+          <div className="mb-5 rounded-[18px] border border-border bg-surface p-4">
+            <div className="text-[13px] font-extrabold text-muted">טווח ניחושים</div>
+            <div className="mt-1 text-[28px] font-black leading-none">
+              {market.scalarMin}–{market.scalarMax}
+              {market.scalarUnit ? <span className="ms-1.5 text-[15px] font-bold text-faint">{market.scalarUnit}</span> : null}
             </div>
-            <PriceChart series={[{ ...topSeries, color: topColor }]} />
+            {isResolved && market.resolvedValue != null ? (
+              <div className="mt-2.5 text-[14px] font-extrabold text-yes">
+                התוצאה: {market.resolvedValue}
+                {market.scalarUnit ? ` ${market.scalarUnit}` : ""} · הכי קרוב זכה
+              </div>
+            ) : (
+              <div className="mt-2 text-[12.5px] font-semibold text-faint">
+                {market.positions.length} ניחושים · הכי קרוב לוקח את הקופה
+              </div>
+            )}
           </div>
         ) : (
-          <div className="mb-5 rounded-[18px] border border-dashed border-border p-6 text-center text-sm text-muted">
-            עדיין אין הימורים — היה הראשון!
-          </div>
+          <>
+            {/* big price */}
+            <div className="mb-1 flex items-baseline gap-2.5">
+              <span className="text-[44px] font-black leading-none" style={{ color: topColor }}>
+                {top.pct}
+                <span className="text-[22px]">%</span>
+              </span>
+              <span className="text-[15px] font-bold text-faint">{top.label}</span>
+              <span
+                className="me-auto text-sm font-extrabold"
+                style={{ color: isResolved ? "var(--muted)" : change >= 0 ? "var(--yes)" : "var(--no)" }}
+              >
+                {isResolved ? "הוכרע" : `${change >= 0 ? "▲" : "▼"} ${Math.abs(change)}% היום`}
+              </span>
+            </div>
+            <div className="mb-3 text-[13px] font-semibold text-muted">סיכוי משתמע מתוך הקופה</div>
+
+            {/* chart — leading option's probability trend */}
+            {market.positions.length > 0 && topSeries ? (
+              <div className="mb-5 rounded-[18px] border border-border bg-surface p-3 shadow-[0_1px_2px_rgba(15,19,32,.03)]">
+                <div className="mb-1.5 flex items-center justify-between px-1">
+                  <span className="text-[11.5px] font-extrabold text-muted">מגמת הסיכוי · {top.label}</span>
+                  <span className="text-[13px] font-extrabold" style={{ color: topColor }}>{top.pct}%</span>
+                </div>
+                <PriceChart series={[{ ...topSeries, color: topColor }]} />
+              </div>
+            ) : (
+              <div className="mb-5 rounded-[18px] border border-dashed border-border p-6 text-center text-sm text-muted">
+                עדיין אין הימורים — היה הראשון!
+              </div>
+            )}
+          </>
         )}
 
         {/* buy / results */}
-        <div className="mb-2.5 text-[15px] font-extrabold">{isOpen ? "קנה אפשרות" : "תוצאות"}</div>
+        <div className="mb-2.5 text-[15px] font-extrabold">{isOpen ? (isScalar ? "נחש מספר" : "קנה אפשרות") : "תוצאות"}</div>
         <div className="mb-5">
-          <BuyOptionList sheet={sheet} isOpen={isOpen} winningOptionId={market.winningOptionId} />
+          {isScalar ? (
+            isOpen ? (
+              <ScalarBet sheet={sheet} />
+            ) : (
+              <div className="rounded-[14px] border border-border bg-surface p-4 text-center text-sm font-semibold text-muted">
+                {isResolved ? "ההימור הוכרע." : "ההימור נסגר לניחושים."}
+              </div>
+            )
+          ) : (
+            <BuyOptionList sheet={sheet} isOpen={isOpen} winningOptionId={market.winningOptionId} />
+          )}
         </div>
 
         {/* decision (creator/admin) */}
         {canDecide && (
           <div className="mb-5">
-            <DecisionBet
-              marketId={market.id}
-              options={market.options.map((o) => ({ id: o.id, label: o.label }))}
-              closesAtISO={market.closesAt.toISOString()}
-              pendingWinnerOptionId={market.pendingWinnerOptionId}
-            />
+            {isScalar ? (
+              <ScalarDecision marketId={market.id} unit={market.scalarUnit} />
+            ) : (
+              <DecisionBet
+                marketId={market.id}
+                options={market.options.map((o) => ({ id: o.id, label: o.label }))}
+                closesAtISO={market.closesAt.toISOString()}
+                pendingWinnerOptionId={market.pendingWinnerOptionId}
+              />
+            )}
           </div>
         )}
         {!isOpen && !canDecide && !isResolved && (
@@ -244,10 +288,19 @@ export default async function BetDetailPage({
                   >
                     <Avatar name={p.user.displayName} src={p.user.avatarUrl} size={34} />
                     <div className="min-w-0 flex-1 text-[13.5px] font-semibold leading-tight">
-                      <span className="font-extrabold">{p.user.displayName}</span> קנה{" "}
-                      <span className="font-extrabold" style={{ color: SIDE_HEX[k] }}>
-                        {opt?.label}
-                      </span>
+                      <span className="font-extrabold">{p.user.displayName}</span>{" "}
+                      {isScalar ? (
+                        <>
+                          ניחש <span className="font-extrabold text-accent">{p.guess}</span>
+                        </>
+                      ) : (
+                        <>
+                          קנה{" "}
+                          <span className="font-extrabold" style={{ color: SIDE_HEX[k] }}>
+                            {opt?.label}
+                          </span>
+                        </>
+                      )}
                       <div className="text-xs font-semibold text-faint">{timeUntil(p.createdAt)}</div>
                     </div>
                   </Link>

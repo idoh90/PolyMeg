@@ -19,6 +19,10 @@ export interface SheetMarket {
   emoji?: string | null;
   minStake: number; // agorot
   fixedStake?: number | null; // if set, the only allowed stake (agorot)
+  kind?: string; // BINARY | MULTI | SCALAR
+  scalarMin?: number | null;
+  scalarMax?: number | null;
+  scalarUnit?: string | null;
   pot: number; // agorot
   options: { id: string; label: string; total: number; pct: number }[];
 }
@@ -66,8 +70,10 @@ function BetSheet({
   onClose: () => void;
 }) {
   const router = useRouter();
+  const isScalar = market.kind === "SCALAR";
   const [optionId, setOptionId] = useState<string | null>(initialOption);
   const [amount, setAmount] = useState("");
+  const [guess, setGuess] = useState("");
   const [shout, setShout] = useState<string | null>(null);
   const [placed, setPlaced] = useState(false);
   const [error, setError] = useState("");
@@ -75,8 +81,15 @@ function BetSheet({
 
   const minShekels = agorotToShekels(market.minStake);
   const fixed = market.fixedStake ?? null;
-  const sel = market.options.find((o) => o.id === optionId) ?? null;
+  const sel = isScalar ? (market.options[0] ?? null) : (market.options.find((o) => o.id === optionId) ?? null);
   const amtAg = fixed ?? Math.round((parseFloat(amount) || 0) * 100);
+  const guessNum = Number(guess);
+  const guessValid =
+    !isScalar ||
+    (guess !== "" &&
+      Number.isFinite(guessNum) &&
+      (market.scalarMin == null || guessNum >= market.scalarMin) &&
+      (market.scalarMax == null || guessNum <= market.scalarMax));
 
   const { payout, profit } = useMemo(() => {
     if (!sel || amtAg <= 0) return { payout: 0, profit: 0 };
@@ -86,7 +99,7 @@ function BetSheet({
     return { payout: Math.round(p), profit: Math.round(p - amtAg) };
   }, [sel, amtAg, market.pot]);
 
-  const valid = !!sel && amtAg >= market.minStake;
+  const valid = !!sel && amtAg >= market.minStake && guessValid;
 
   async function place() {
     if (!valid || !sel) return;
@@ -95,7 +108,12 @@ function BetSheet({
     const res = await fetch(`/api/markets/${market.id}/positions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ optionId: sel.id, amount: fixed ? agorotToShekels(fixed) : Number(amount), shout }),
+      body: JSON.stringify({
+        optionId: sel.id,
+        amount: fixed ? agorotToShekels(fixed) : Number(amount),
+        shout,
+        guess: isScalar ? guessNum : undefined,
+      }),
     });
     if (res.ok) {
       setPlaced(true);
@@ -162,26 +180,50 @@ function BetSheet({
               </div>
             </div>
 
-            <div className="mb-2.5 text-[13px] font-extrabold text-muted">בחר אפשרות</div>
-            <div className="mb-[18px] flex flex-wrap gap-2.5">
-              {market.options.map((o) => {
-                const k = sideKind(o.label);
-                const on = optionId === o.id;
-                return (
-                  <button
-                    key={o.id}
-                    onClick={() => setOptionId(o.id)}
-                    className={`min-w-[calc(50%-5px)] flex-1 rounded-[13px] border-[1.5px] px-3 py-3.5 text-[15px] font-extrabold transition ${
-                      on
-                        ? `${KIND_BG[k]} ${KIND_TEXT[k]} border-current`
-                        : "border-border bg-surface text-muted"
-                    }`}
-                  >
-                    {o.label} · {o.pct}%
-                  </button>
-                );
-              })}
-            </div>
+            {isScalar ? (
+              <>
+                <div className="mb-2.5 text-[13px] font-extrabold text-muted">
+                  הניחוש שלך{market.scalarUnit ? ` (${market.scalarUnit})` : ""}
+                </div>
+                <div data-field className="mb-1.5 flex items-center rounded-[14px] border-[1.5px] border-border bg-surface-2 px-4 py-1">
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    value={guess}
+                    onChange={(e) => setGuess(e.target.value)}
+                    placeholder={market.scalarMin != null ? String(market.scalarMin) : "0"}
+                    className="w-full bg-transparent p-2.5 text-right text-3xl font-extrabold text-text outline-none"
+                  />
+                </div>
+                <div className="mb-[18px] text-[12px] font-semibold text-faint">
+                  טווח {market.scalarMin}–{market.scalarMax}
+                  {market.scalarUnit ? ` ${market.scalarUnit}` : ""} · הכי קרוב לוקח את הקופה
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="mb-2.5 text-[13px] font-extrabold text-muted">בחר אפשרות</div>
+                <div className="mb-[18px] flex flex-wrap gap-2.5">
+                  {market.options.map((o) => {
+                    const k = sideKind(o.label);
+                    const on = optionId === o.id;
+                    return (
+                      <button
+                        key={o.id}
+                        onClick={() => setOptionId(o.id)}
+                        className={`min-w-[calc(50%-5px)] flex-1 rounded-[13px] border-[1.5px] px-3 py-3.5 text-[15px] font-extrabold transition ${
+                          on
+                            ? `${KIND_BG[k]} ${KIND_TEXT[k]} border-current`
+                            : "border-border bg-surface text-muted"
+                        }`}
+                      >
+                        {o.label} · {o.pct}%
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
 
             <div className="mb-2.5 text-[13px] font-extrabold text-muted">סכום</div>
             {fixed ? (
@@ -218,10 +260,16 @@ function BetSheet({
 
             <TrashTalkBar value={shout} onChange={setShout} />
 
-            <div className="mb-4 flex justify-between rounded-[14px] bg-surface-2 px-4 py-3.5">
-              <Stat label="זכייה אפשרית" value={formatAgorot(payout)} />
-              <Stat label="רווח פוטנציאלי" value={formatAgorot(profit)} alignLeft />
-            </div>
+            {isScalar ? (
+              <div className="mb-4 rounded-[14px] bg-surface-2 px-4 py-3.5 text-center text-[12.5px] font-semibold text-muted">
+                הניחוש הקרוב ביותר לתוצאה לוקח את כל הקופה.
+              </div>
+            ) : (
+              <div className="mb-4 flex justify-between rounded-[14px] bg-surface-2 px-4 py-3.5">
+                <Stat label="זכייה אפשרית" value={formatAgorot(payout)} />
+                <Stat label="רווח פוטנציאלי" value={formatAgorot(profit)} alignLeft />
+              </div>
+            )}
 
             {error && <p className="mb-3 text-center text-sm font-semibold text-no">{error}</p>}
 
@@ -233,11 +281,15 @@ function BetSheet({
             >
               {busy
                 ? "רושם…"
-                : !sel
-                  ? "בחר אפשרות"
-                  : amtAg < market.minStake
-                    ? `מינימום ₪${minShekels}`
-                    : `קנה ${sel.label} · ${formatAgorot(amtAg)}`}
+                : isScalar && !guessValid
+                  ? "הזן ניחוש בטווח"
+                  : !sel
+                    ? "בחר אפשרות"
+                    : amtAg < market.minStake
+                      ? `מינימום ₪${minShekels}`
+                      : isScalar
+                        ? `נחש ${guessNum} · ${formatAgorot(amtAg)}`
+                        : `קנה ${sel.label} · ${formatAgorot(amtAg)}`}
             </button>
             <div className="mt-2.5 text-center text-[11.5px] font-semibold text-faint">
               פארימוצ׳ואל · כל ההימורים נכנסים לקופה אחת והזוכים מתחלקים בה

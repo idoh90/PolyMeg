@@ -32,7 +32,7 @@ export const MARKET_TEMPLATES: MarketTemplate[] = [
   { emoji: "🌧️", title: "ירד גשם בסופ״ש?", kind: "BINARY" },
   { emoji: "⚽", title: "מי ינצח במשחק?", kind: "MULTI", options: ["קבוצה א׳", "קבוצה ב׳", "תיקו"] },
   { emoji: "🍕", title: "מי מביא אוכל למפגש?", kind: "MULTI", options: ["", "", ""] },
-  { emoji: "🎯", title: "נשבור שיא השבוע?", kind: "BINARY" },
+  { emoji: "👥", title: "כמה אנשים יגיעו בשבת?", kind: "SCALAR", scalarUnit: "אנשים" },
   { emoji: "💪", title: "נעמוד ביעד השבוע?", kind: "BINARY" },
 ];
 

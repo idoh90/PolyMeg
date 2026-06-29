@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { computePayouts } from "@/lib/payout";
+import { marketProfits } from "@/lib/payout";
 import { MarketStatus } from "@/lib/constants";
 
 export interface LeaderRow {
@@ -19,10 +19,16 @@ export async function getLeaderboard(groupId: string): Promise<LeaderRow[]> {
       select: { user: { select: { id: true, displayName: true, avatarUrl: true } } },
     }),
     prisma.market.findMany({
-      where: { groupId, status: MarketStatus.RESOLVED, winningOptionId: { not: null } },
+      where: {
+        groupId,
+        status: MarketStatus.RESOLVED,
+        OR: [{ winningOptionId: { not: null } }, { kind: "SCALAR", resolvedValue: { not: null } }],
+      },
       select: {
+        kind: true,
         winningOptionId: true,
-        positions: { select: { userId: true, optionId: true, amount: true } },
+        resolvedValue: true,
+        positions: { select: { userId: true, optionId: true, amount: true, guess: true } },
       },
     }),
   ]);
@@ -33,7 +39,7 @@ export async function getLeaderboard(groupId: string): Promise<LeaderRow[]> {
   const bets = new Map<string, number>();
 
   for (const m of markets) {
-    for (const r of computePayouts(m.positions, m.winningOptionId!)) {
+    for (const r of marketProfits(m)) {
       net.set(r.userId, (net.get(r.userId) ?? 0) + r.profit);
       bets.set(r.userId, (bets.get(r.userId) ?? 0) + 1);
       if (r.profit > 0) wins.set(r.userId, (wins.get(r.userId) ?? 0) + 1);

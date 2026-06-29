@@ -15,7 +15,7 @@ export async function POST(
 
   const { id } = await params;
   const body = await req.json().catch(() => null);
-  const optionId = String(body?.optionId ?? "");
+  let optionId = String(body?.optionId ?? "");
   const amountShekels = Number(body?.amount);
   const shout =
     typeof body?.shout === "string" && body.shout.trim()
@@ -31,6 +31,24 @@ export async function POST(
   const membership = await getMembership(user.id, market.groupId);
   if (!membership || membership.status !== "ACTIVE")
     return NextResponse.json({ error: "אינך חבר בקבוצה." }, { status: 403 });
+
+  // Numeric markets: the bet is a guess on the single synthetic option.
+  let guess: number | null = null;
+  if (market.kind === "SCALAR") {
+    optionId = market.options[0]?.id ?? "";
+    guess = Number(body?.guess);
+    if (!Number.isFinite(guess))
+      return NextResponse.json({ error: "הזן ניחוש מספרי." }, { status: 400 });
+    if (
+      market.scalarMin != null &&
+      market.scalarMax != null &&
+      (guess < market.scalarMin || guess > market.scalarMax)
+    )
+      return NextResponse.json(
+        { error: `הניחוש חייב להיות בין ${market.scalarMin} ל-${market.scalarMax}.` },
+        { status: 400 },
+      );
+  }
 
   const chosen = market.options.find((o) => o.id === optionId);
   if (chosen?.blockedUserIds.includes(user.id)) {
@@ -104,7 +122,15 @@ export async function POST(
   const entryPct = pot > 0 ? (optTotal / pot) * 100 : 100 / market.options.length;
 
   await prisma.position.create({
-    data: { marketId: id, optionId, userId: user.id, amount, shout, entryPct },
+    data: {
+      marketId: id,
+      optionId,
+      userId: user.id,
+      amount,
+      shout,
+      guess,
+      entryPct: market.kind === "SCALAR" ? null : entryPct,
+    },
   });
 
   const optLabel = market.options.find((o) => o.id === optionId)?.label ?? "";

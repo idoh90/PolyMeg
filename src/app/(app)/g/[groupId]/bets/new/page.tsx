@@ -75,8 +75,11 @@ export default function NewBetPage() {
   const [title, setTitle] = useState("");
   const [emoji, setEmoji] = useState<string>("");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [mode, setMode] = useState<"binary" | "multi">("binary");
+  const [mode, setMode] = useState<"binary" | "multi" | "scalar">("binary");
   const [opts, setOpts] = useState<string[]>(["", ""]);
+  const [scMin, setScMin] = useState("0");
+  const [scMax, setScMax] = useState("20");
+  const [scUnit, setScUnit] = useState("");
   const [minStake, setMinStake] = useState("5");
   const [maxStake, setMaxStake] = useState("");
   const [perUserCap, setPerUserCap] = useState("");
@@ -99,8 +102,17 @@ export default function NewBetPage() {
   }, [step]);
 
   const suggestion = SUGGESTIONS[((idx % SUGGESTIONS.length) + SUGGESTIONS.length) % SUGGESTIONS.length];
-  const finalOpts = mode === "binary" ? ["כן", "לא"] : opts.map((o) => o.trim()).filter(Boolean);
-  const canNext = step === 0 ? title.trim().length >= 3 : step === 1 ? finalOpts.length >= 2 : true;
+  const finalOpts =
+    mode === "binary" ? ["כן", "לא"] : mode === "scalar" ? ["ניחוש"] : opts.map((o) => o.trim()).filter(Boolean);
+  const scalarValid = scMin !== "" && scMax !== "" && Number(scMin) < Number(scMax);
+  const canNext =
+    step === 0
+      ? title.trim().length >= 3
+      : step === 1
+        ? mode === "scalar"
+          ? scalarValid
+          : finalOpts.length >= 2
+        : true;
 
   function applyTemplate(t: MarketTemplate) {
     setTitle(t.title);
@@ -108,6 +120,9 @@ export default function NewBetPage() {
     if (t.kind === "MULTI") {
       setMode("multi");
       setOpts(t.options && t.options.length >= 2 ? [...t.options] : ["", "", ""]);
+    } else if (t.kind === "SCALAR") {
+      setMode("scalar");
+      if (t.scalarUnit) setScUnit(t.scalarUnit);
     } else {
       setMode("binary");
     }
@@ -143,6 +158,10 @@ export default function NewBetPage() {
         fixedStake: fixed,
         recurring,
         recurrenceDays: recurring ? recurDays : null,
+        kind: mode === "scalar" ? "SCALAR" : undefined,
+        scalarMin: mode === "scalar" ? Number(scMin) : undefined,
+        scalarMax: mode === "scalar" ? Number(scMax) : undefined,
+        scalarUnit: mode === "scalar" ? scUnit || null : undefined,
         closesAt,
         options: finalOpts,
       }),
@@ -319,15 +338,15 @@ export default function NewBetPage() {
             <div className="mb-1.5 text-[23px] font-extrabold">איך מכריעים?</div>
             <div className="mb-[18px] text-sm font-semibold leading-relaxed text-muted">כן/לא לשאלה פשוטה, או כמה אפשרויות לבחירה.</div>
             <div className="mb-5 flex gap-1.5 rounded-[14px] bg-surface-2 p-1.5">
-              {(["binary", "multi"] as const).map((m) => (
+              {(["binary", "multi", "scalar"] as const).map((m) => (
                 <button
                   key={m}
                   onClick={() => setMode(m)}
-                  className={`flex-1 rounded-[10px] py-2.5 text-sm font-extrabold transition ${
+                  className={`flex-1 rounded-[10px] py-2.5 text-[13px] font-extrabold transition ${
                     mode === m ? "bg-surface text-text shadow-[0_1px_3px_rgba(15,19,32,.1)]" : "text-muted"
                   }`}
                 >
-                  {m === "binary" ? "כן / לא" : "בחירה מרובה"}
+                  {m === "binary" ? "כן / לא" : m === "multi" ? "בחירה" : "מספר"}
                 </button>
               ))}
             </div>
@@ -340,6 +359,25 @@ export default function NewBetPage() {
                 </div>
                 <div className="mt-3 text-center text-[12.5px] font-semibold text-faint">המשתתפים יקנו צד אחד מהשניים.</div>
               </>
+            ) : mode === "scalar" ? (
+              <div>
+                <div className="mb-4 text-sm font-semibold leading-relaxed text-faint">כל משתתף ינחש מספר בטווח. הניחוש הקרוב ביותר לוקח את הקופה.</div>
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div>
+                    <div className="mb-2 text-[13px] font-extrabold text-muted">מינימום</div>
+                    <input type="number" inputMode="numeric" value={scMin} onChange={(e) => setScMin(e.target.value)} className="field w-full text-[16px] font-bold" />
+                  </div>
+                  <div>
+                    <div className="mb-2 text-[13px] font-extrabold text-muted">מקסימום</div>
+                    <input type="number" inputMode="numeric" value={scMax} onChange={(e) => setScMax(e.target.value)} className="field w-full text-[16px] font-bold" />
+                  </div>
+                </div>
+                <div className="mb-2 mt-3.5 text-[13px] font-extrabold text-muted">
+                  יחידה <span className="font-semibold text-faint">(לא חובה)</span>
+                </div>
+                <input value={scUnit} onChange={(e) => setScUnit(e.target.value)} dir="auto" placeholder="אנשים, גולים, דקות…" className="field w-full text-[15px] font-bold" />
+                {!scalarValid && <div className="mt-2.5 text-[12px] font-bold text-no">המקסימום חייב להיות גדול מהמינימום.</div>}
+              </div>
             ) : (
               <div className="flex flex-col gap-2.5">
                 {opts.map((o, i) => (

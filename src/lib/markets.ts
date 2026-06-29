@@ -101,6 +101,47 @@ export async function spawnNextInstance(marketId: string) {
 }
 
 /**
+ * Resolve a numeric (SCALAR) market to its actual value. Closest guess(es) win;
+ * payouts are derived on read via marketProfits/computeScalarPayouts.
+ */
+export async function resolveScalarMarket(marketId: string, value: number) {
+  const market = await prisma.market.findUnique({
+    where: { id: marketId },
+    select: { id: true, groupId: true, title: true, status: true, kind: true },
+  });
+  if (!market || market.kind !== "SCALAR" || market.status === MarketStatus.RESOLVED) return;
+
+  await prisma.market.update({
+    where: { id: marketId },
+    data: {
+      status: MarketStatus.RESOLVED,
+      resolvedValue: value,
+      resolvedAt: new Date(),
+      pendingWinnerOptionId: null,
+    },
+  });
+
+  const participants = await prisma.position.findMany({
+    where: { marketId },
+    distinct: ["userId"],
+    select: { userId: true },
+  });
+  if (participants.length > 0) {
+    await prisma.notification.createMany({
+      data: participants.map((p) => ({
+        userId: p.userId,
+        groupId: market.groupId,
+        type: NotificationType.MARKET_RESOLVED,
+        marketId,
+        message: `ההימור "${market.title}" הוכרע: התוצאה ${value}. בדוק את ההתחשבנות שלך.`,
+      })),
+    });
+  }
+
+  await spawnNextInstance(marketId);
+}
+
+/**
  * Lazy cron: handle markets whose close time passed. If the creator scheduled a
  * winner, auto-resolve to it; otherwise just flip OPEN -> CLOSED.
  */

@@ -15,6 +15,10 @@ export interface MarketCardData {
   status: string;
   minStake: number; // agorot
   fixedStake: number | null; // agorot, when the market locks the bet amount
+  kind: string; // BINARY | MULTI | SCALAR
+  scalarMin: number | null;
+  scalarMax: number | null;
+  scalarUnit: string | null;
   pot: number; // agorot
   potText: string;
   timeText: string;
@@ -41,6 +45,10 @@ export default function MarketCard({ market }: { market: MarketCardData }) {
     emoji: market.emoji,
     minStake: market.minStake,
     fixedStake: market.fixedStake,
+    kind: market.kind,
+    scalarMin: market.scalarMin,
+    scalarMax: market.scalarMax,
+    scalarUnit: market.scalarUnit,
     pot: market.pot,
     options: market.options.map((o) => ({
       id: o.id,
@@ -71,7 +79,19 @@ export default function MarketCard({ market }: { market: MarketCardData }) {
         </span>
       </div>
 
-      {market.isBinary ? (
+      {market.kind === "SCALAR" ? (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            open(sheet, market.options[0]?.id);
+          }}
+          disabled={!isOpen}
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-accent-soft bg-accent-soft py-[11px] text-sm font-extrabold text-accent disabled:opacity-60"
+        >
+          🔢 נחש מספר · {market.scalarMin}–{market.scalarMax}
+          {market.scalarUnit ? ` ${market.scalarUnit}` : ""}
+        </button>
+      ) : market.isBinary ? (
         <div className="mt-3 flex gap-2.5">
           <SideButton
             label={yes.label}

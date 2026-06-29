@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/currentUser";
 import { getMembership, isAdminRole } from "@/lib/membership";
 import { MarketStatus } from "@/lib/constants";
-import { resolveMarket } from "@/lib/markets";
+import { resolveMarket, resolveScalarMarket } from "@/lib/markets";
 
 // Creator-only decision endpoint.
 //   mode "now"      -> resolve immediately (any time, even before close)
@@ -24,7 +24,7 @@ export async function POST(
 
   const market = await prisma.market.findUnique({
     where: { id },
-    include: { options: { select: { id: true } } },
+    select: { id: true, groupId: true, creatorId: true, status: true, kind: true, scalarMin: true, scalarMax: true, closesAt: true, options: { select: { id: true } } },
   });
   if (!market) return NextResponse.json({ error: "ההימור לא נמצא" }, { status: 404 });
   const membership = await getMembership(user.id, market.groupId);
@@ -32,6 +32,14 @@ export async function POST(
     return NextResponse.json({ error: "רק יוצר ההימור יכול להכריע." }, { status: 403 });
   if (market.status === MarketStatus.RESOLVED)
     return NextResponse.json({ error: "ההימור כבר הוכרע." }, { status: 400 });
+
+  // Numeric markets resolve to a value, not an option.
+  if (market.kind === "SCALAR") {
+    const value = Number(body?.value);
+    if (!Number.isFinite(value)) return NextResponse.json({ error: "הזן את התוצאה המספרית." }, { status: 400 });
+    await resolveScalarMarket(id, value);
+    return NextResponse.json({ ok: true });
+  }
 
   const valid = (oid: string) => market.options.some((o) => o.id === oid);
 

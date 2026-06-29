@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     ? Math.max(1, Math.round(Number(body.recurrenceDays) || 7))
     : null;
   const closesAt = new Date(body.closesAt);
-  const labels: string[] = Array.isArray(body.options)
+  let labels: string[] = Array.isArray(body.options)
     ? body.options.map((o: unknown) => String(o).trim()).filter(Boolean)
     : [];
   // blocks[i] = userIds barred from option i (parallel to options).
@@ -49,12 +49,39 @@ export async function POST(req: Request) {
       )
     : [];
 
+  // Numeric (SCALAR) markets: no user options — one synthetic "ניחוש" option
+  // holds the pot; each position carries a numeric guess.
+  const isScalar = body.kind === "SCALAR";
+  let scalarMin: number | null = null;
+  let scalarMax: number | null = null;
+  let scalarUnit: string | null = null;
+  if (isScalar) {
+    scalarMin = Math.round(Number(body.scalarMin));
+    scalarMax = Math.round(Number(body.scalarMax));
+    scalarUnit =
+      typeof body.scalarUnit === "string" && body.scalarUnit.trim()
+        ? body.scalarUnit.trim().slice(0, 20)
+        : null;
+    labels = ["ניחוש"];
+  }
+
   // Validation.
   if (!title) return bad("נא להוסיף כותרת.");
   if (!criteria) return bad("נא לתאר איך ההימור מוכרע.");
-  if (labels.length < 2) return bad("הוסף לפחות שתי אפשרויות.");
-  if (new Set(labels.map((l) => l.toLowerCase())).size !== labels.length)
-    return bad("האפשרויות חייבות להיות שונות זו מזו.");
+  if (isScalar) {
+    if (
+      scalarMin === null ||
+      scalarMax === null ||
+      !Number.isFinite(scalarMin) ||
+      !Number.isFinite(scalarMax) ||
+      scalarMin >= scalarMax
+    )
+      return bad("טווח מספרי לא תקין.");
+  } else {
+    if (labels.length < 2) return bad("הוסף לפחות שתי אפשרויות.");
+    if (new Set(labels.map((l) => l.toLowerCase())).size !== labels.length)
+      return bad("האפשרויות חייבות להיות שונות זו מזו.");
+  }
   if (!Number.isFinite(minStakeShekels) || minStakeShekels < 0)
     return bad("הסכום המינימלי אינו תקין.");
   if (maxStake !== null && maxStake < shekelsToAgorot(minStakeShekels))
@@ -64,7 +91,11 @@ export async function POST(req: Request) {
   if (isNaN(closesAt.getTime()) || closesAt.getTime() <= Date.now())
     return bad("מועד הסגירה חייב להיות בעתיד.");
 
-  const kind = isBinaryMarket(labels.map((l) => ({ label: l }))) ? "BINARY" : "MULTI";
+  const kind = isScalar
+    ? "SCALAR"
+    : isBinaryMarket(labels.map((l) => ({ label: l })))
+      ? "BINARY"
+      : "MULTI";
 
   const market = await prisma.market.create({
     data: {
@@ -75,6 +106,9 @@ export async function POST(req: Request) {
       imageUrl,
       emoji,
       kind,
+      scalarMin,
+      scalarMax,
+      scalarUnit,
       minStake: shekelsToAgorot(minStakeShekels),
       maxStake: fixedStake ?? maxStake,
       perUserCap: fixedStake ? null : perUserCap,

@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { computePayouts } from "@/lib/payout";
+import { marketProfits } from "@/lib/payout";
 import { buildPortfolioSeries } from "@/lib/charts";
 import { poolFor, sideKind } from "@/lib/markets";
 import { nowMs } from "@/lib/format";
@@ -78,7 +78,7 @@ export async function getProfile(userId: string, groupId: string): Promise<Profi
     where: { id: { in: marketIds } },
     include: {
       options: { orderBy: { sortOrder: "asc" } },
-      positions: { select: { userId: true, optionId: true, amount: true } },
+      positions: { select: { userId: true, optionId: true, amount: true, guess: true } },
     },
   });
   const marketById = new Map(markets.map((m) => [m.id, m]));
@@ -91,12 +91,13 @@ export async function getProfile(userId: string, groupId: string): Promise<Profi
     const { options, totalPot } = poolFor(m.options, m.positions, m.winningOptionId);
     const opt = options.find((o) => o.id === p.optionId);
     const toWin = opt && opt.total > 0 ? Math.round((p.amount / opt.total) * totalPot) : p.amount;
+    const isScalar = m.kind === "SCALAR";
     openPositions.push({
       marketId: m.id,
       title: m.title,
       imageUrl: m.imageUrl,
-      sideLabel: p.option.label,
-      sideKind: sideKind(p.option.label),
+      sideLabel: isScalar ? `ניחוש ${p.guess ?? ""}` : p.option.label,
+      sideKind: isScalar ? "accent" : sideKind(p.option.label),
       stake: p.amount,
       toWin,
     });
@@ -110,11 +111,15 @@ export async function getProfile(userId: string, groupId: string): Promise<Profi
   let lost = 0;
 
   const resolvedMine = markets
-    .filter((m) => m.status === MarketStatus.RESOLVED && m.winningOptionId)
+    .filter(
+      (m) =>
+        m.status === MarketStatus.RESOLVED &&
+        (m.winningOptionId || (m.kind === "SCALAR" && m.resolvedValue != null)),
+    )
     .sort((a, b) => (b.resolvedAt?.getTime() ?? 0) - (a.resolvedAt?.getTime() ?? 0));
 
   for (const m of resolvedMine) {
-    const mine = computePayouts(m.positions, m.winningOptionId!).find((r) => r.userId === userId);
+    const mine = marketProfits(m).find((r) => r.userId === userId);
     if (!mine) continue;
     realizedNet += mine.profit;
     const isWin = mine.profit > 0;
@@ -124,10 +129,15 @@ export async function getProfile(userId: string, groupId: string): Promise<Profi
 
     // The user's main side in this market (largest stake).
     const mineHere = m.positions.filter((p) => p.userId === userId);
-    const byOpt = new Map<string, number>();
-    for (const p of mineHere) byOpt.set(p.optionId, (byOpt.get(p.optionId) ?? 0) + p.amount);
-    const topOptId = [...byOpt.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
-    const sideLabel = m.options.find((o) => o.id === topOptId)?.label ?? "";
+    let sideLabel: string;
+    if (m.kind === "SCALAR") {
+      sideLabel = `ניחוש ${mineHere[0]?.guess ?? ""}`;
+    } else {
+      const byOpt = new Map<string, number>();
+      for (const p of mineHere) byOpt.set(p.optionId, (byOpt.get(p.optionId) ?? 0) + p.amount);
+      const topOptId = [...byOpt.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+      sideLabel = m.options.find((o) => o.id === topOptId)?.label ?? "";
+    }
 
     history.push({
       marketId: m.id,

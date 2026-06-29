@@ -93,6 +93,10 @@ export default async function GroupHomePage({
       status: m.status,
       minStake: m.minStake,
       fixedStake: m.fixedStake,
+      kind: m.kind,
+      scalarMin: m.scalarMin,
+      scalarMax: m.scalarMax,
+      scalarUnit: m.scalarUnit,
       pot: totalPot,
       potText: formatAgorot(totalPot),
       timeText:
@@ -111,7 +115,7 @@ export default async function GroupHomePage({
   );
 
   const featMarket = allMarkets
-    .filter((m) => m.status === MarketStatus.OPEN)
+    .filter((m) => m.status === MarketStatus.OPEN && m.kind !== "SCALAR")
     .sort((a, b) => b.positions.length - a.positions.length)[0];
   let featured: FeaturedData | null = null;
   if (featMarket) {

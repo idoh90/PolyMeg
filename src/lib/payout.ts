@@ -100,3 +100,50 @@ export function computePayouts(
     };
   });
 }
+
+export interface ScalarPositionInput {
+  userId: string;
+  guess: number;
+  amount: number;
+}
+
+/**
+ * Payouts for a numeric (SCALAR) market: the guess(es) closest to the actual
+ * value win and split the whole pot parimutuel-style by stake. Ties (same
+ * distance) all win. Reuses computePayouts by tagging closest = winners.
+ */
+export function computeScalarPayouts(
+  positions: ScalarPositionInput[],
+  actual: number,
+): PayoutResult[] {
+  if (positions.length === 0) return [];
+  let minDiff = Infinity;
+  for (const p of positions) minDiff = Math.min(minDiff, Math.abs(p.guess - actual));
+  const mapped = positions.map((p) => ({
+    userId: p.userId,
+    optionId: Math.abs(p.guess - actual) === minDiff ? "W" : "L",
+    amount: p.amount,
+  }));
+  return computePayouts(mapped, "W");
+}
+
+/**
+ * Realized payouts for a RESOLVED market of any kind. Single entry point used by
+ * leaderboard / settlement / profile so the BINARY/MULTI/SCALAR branch lives in
+ * one place. Pass plain position rows (include `guess` for scalar markets).
+ */
+export function marketProfits(m: {
+  kind: string;
+  winningOptionId: string | null;
+  resolvedValue: number | null;
+  positions: { userId: string; optionId: string; amount: number; guess?: number | null }[];
+}): PayoutResult[] {
+  if (m.kind === "SCALAR" && m.resolvedValue != null) {
+    const scalar = m.positions
+      .filter((p) => p.guess != null)
+      .map((p) => ({ userId: p.userId, guess: p.guess as number, amount: p.amount }));
+    return computeScalarPayouts(scalar, m.resolvedValue);
+  }
+  if (m.winningOptionId) return computePayouts(m.positions, m.winningOptionId);
+  return [];
+}
