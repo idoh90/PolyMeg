@@ -3,16 +3,12 @@ import bcrypt from "bcryptjs";
 import { randomUUID } from "node:crypto";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
+import { debugLoginEnabled } from "@/lib/debug";
 
-// DEBUG BACKDOOR — passwordless login for development.
-// Gated by ALLOW_DEBUG_LOGIN: enabled unless explicitly set to "false".
-// Used by the login screen shortcuts: 1234 -> admin (ido), 0000 -> friend picker.
-function debugAllowed() {
-  return process.env.ALLOW_DEBUG_LOGIN !== "false";
-}
-
+// DEBUG BACKDOOR — passwordless login. Off unless ALLOW_DEBUG_LOGIN="true".
+// Login screen shortcuts: 1234 -> admin (ido), 0000 -> friend picker.
 export async function POST(req: Request) {
-  if (!debugAllowed())
+  if (!debugLoginEnabled())
     return NextResponse.json({ error: "debug login disabled" }, { status: 403 });
 
   const body = await req.json().catch(() => ({}));

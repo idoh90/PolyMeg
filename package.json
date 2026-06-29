@@ -1,5 +1,5 @@
 {
-  "name": "polymeg",
+  "name": "grubet",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -12,10 +12,7 @@
     "test:watch": "vitest",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
-    "db:seed": "tsx prisma/seed.ts"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "db:seed:debug": "node scripts/grubet-seed-debug.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

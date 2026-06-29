@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
+import { debugLoginEnabled } from "@/lib/debug";
 import QuickPicker from "@/components/QuickPicker";
 
 export const dynamic = "force-dynamic";
@@ -7,7 +8,7 @@ export const dynamic = "force-dynamic";
 // Debug quick-login: the old Polymeg "friends" avatar grid. Tap a user to enter
 // GRUbet instantly (no password). Reached from the login screen by entering 0000.
 export default async function QuickLoginPage() {
-  if (process.env.ALLOW_DEBUG_LOGIN === "false") redirect("/login");
+  if (!debugLoginEnabled()) redirect("/login");
 
   const users = await prisma.user.findMany({
     orderBy: { createdAt: "asc" },
