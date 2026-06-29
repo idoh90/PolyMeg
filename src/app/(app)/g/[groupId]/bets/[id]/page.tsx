@@ -17,6 +17,7 @@ import ScalarDecision from "@/components/ScalarDecision";
 import AdminBetControls from "@/components/AdminBetControls";
 import PositionDeleteControl from "@/components/PositionDeleteControl";
 import CashOutControl from "@/components/CashOutControl";
+import ShareBet from "@/components/ShareBet";
 import ReactionBar from "@/components/ReactionBar";
 import CommentThread from "@/components/CommentThread";
 import CalledItCard from "@/components/CalledItCard";
@@ -130,14 +131,17 @@ export default async function BetDetailPage({
           </svg>
         </Link>
         <span className="text-[15px] font-extrabold text-muted">פרטי הימור</span>
-        {(market.creatorId === user.id || isAdmin) && (
-          <Link
-            href={`${base}/bets/${market.id}/edit`}
-            className="ms-auto rounded-full border border-border bg-surface px-3 py-1.5 text-sm font-bold"
-          >
-            ערוך
-          </Link>
-        )}
+        <div className="ms-auto flex items-center gap-2">
+          <ShareBet id={market.id} title={market.title} />
+          {(market.creatorId === user.id || isAdmin) && (
+            <Link
+              href={`${base}/bets/${market.id}/edit`}
+              className="rounded-full border border-border bg-surface px-3 py-1.5 text-sm font-bold"
+            >
+              ערוך
+            </Link>
+          )}
+        </div>
       </div>
 
       <div className="px-[18px]">
