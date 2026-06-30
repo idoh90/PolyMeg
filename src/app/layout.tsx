@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Heebo } from "next/font/google";
 import "./globals.css";
+import { getI18n } from "@/lib/i18n/server";
+import { I18nProvider } from "@/lib/i18n/provider";
 
 const heebo = Heebo({
   variable: "--font-heebo",
@@ -20,14 +22,19 @@ export const metadata: Metadata = {
   openGraph: { title: "GruBet", description: "שוק הניבויים של כל קבוצת חברים.", type: "website" },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { locale, dir, dict } = await getI18n();
   return (
-    <html lang="he" dir="rtl" className={`${heebo.variable} h-full antialiased`}>
-      <body className="min-h-full">{children}</body>
+    <html lang={locale} dir={dir} className={`${heebo.variable} h-full antialiased`}>
+      <body className="min-h-full">
+        <I18nProvider locale={locale} dict={dict}>
+          {children}
+        </I18nProvider>
+      </body>
     </html>
   );
 }

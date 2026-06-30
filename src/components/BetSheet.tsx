@@ -9,8 +9,10 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import { formatAgorot, agorotToShekels } from "@/lib/money";
-import { sideKind } from "@/lib/markets";
+import { sideKind, displayLabel } from "@/lib/markets";
 import TrashTalkBar from "@/components/TrashTalkBar";
+import { useT } from "@/lib/i18n/provider";
+import { interpolate } from "@/lib/i18n/interpolate";
 
 export interface SheetMarket {
   id: string;
@@ -69,6 +71,7 @@ function BetSheet({
   initialOption: string | null;
   onClose: () => void;
 }) {
+  const { dict } = useT();
   const router = useRouter();
   const isScalar = market.kind === "SCALAR";
   const [optionId, setOptionId] = useState<string | null>(initialOption);
@@ -120,7 +123,7 @@ function BetSheet({
       router.refresh();
     } else {
       const d = await res.json().catch(() => ({}));
-      setError(d.error ?? "לא ניתן להניח את ההימור.");
+      setError(d.error ?? dict.betSheet.placeFailed);
     }
     setBusy(false);
   }
@@ -143,25 +146,25 @@ function BetSheet({
                 <path d="M20 6 9 17l-5-5" />
               </svg>
             </div>
-            <div className="mb-1.5 text-[21px] font-extrabold">ההימור נקלט! 🎉</div>
+            <div className="mb-1.5 text-[21px] font-extrabold">{dict.betSheet.placedTitle}</div>
             <div className="mb-1.5 text-sm font-semibold text-muted">
-              הימרת {formatAgorot(amtAg)} על{" "}
+              {interpolate(dict.betSheet.youBetOn, { amount: formatAgorot(amtAg) })}{" "}
               <span className={`font-extrabold ${KIND_TEXT[sideKind(sel!.label)]}`}>
-                {sel!.label}
+                {displayLabel(sel!.label, dict)}
               </span>
             </div>
             <div dir="auto" className="mb-[22px] text-[13px] font-semibold text-faint">
               {market.title}
             </div>
             <div className="mb-5 flex justify-around rounded-[14px] bg-surface-2 p-3.5">
-              <Stat label="זכייה אפשרית" value={formatAgorot(payout)} />
-              <Stat label="רווח" value={formatAgorot(profit)} />
+              <Stat label={dict.betSheet.possibleWin} value={formatAgorot(payout)} />
+              <Stat label={dict.betSheet.profit} value={formatAgorot(profit)} />
             </div>
             <button
               onClick={finish}
               className="w-full rounded-[14px] bg-[var(--text)] py-[15px] text-base font-extrabold text-white"
             >
-              סיום
+              {dict.betSheet.done}
             </button>
           </div>
         ) : (
@@ -183,7 +186,7 @@ function BetSheet({
             {isScalar ? (
               <>
                 <div className="mb-2.5 text-[13px] font-extrabold text-muted">
-                  הניחוש שלך{market.scalarUnit ? ` (${market.scalarUnit})` : ""}
+                  {dict.betSheet.yourGuess}{market.scalarUnit ? ` (${market.scalarUnit})` : ""}
                 </div>
                 <div data-field className="mb-1.5 flex items-center rounded-[14px] border-[1.5px] border-border bg-surface-2 px-4 py-1">
                   <input
@@ -192,17 +195,17 @@ function BetSheet({
                     value={guess}
                     onChange={(e) => setGuess(e.target.value)}
                     placeholder={market.scalarMin != null ? String(market.scalarMin) : "0"}
-                    className="w-full bg-transparent p-2.5 text-right text-3xl font-extrabold text-text outline-none"
+                    className="w-full bg-transparent p-2.5 text-start text-3xl font-extrabold text-text outline-none"
                   />
                 </div>
                 <div className="mb-[18px] text-[12px] font-semibold text-faint">
-                  טווח {market.scalarMin}–{market.scalarMax}
-                  {market.scalarUnit ? ` ${market.scalarUnit}` : ""} · הכי קרוב לוקח את הקופה
+                  {dict.betSheet.range} {market.scalarMin}–{market.scalarMax}
+                  {market.scalarUnit ? ` ${market.scalarUnit}` : ""} · {dict.betDetail.closestTakesPot}
                 </div>
               </>
             ) : (
               <>
-                <div className="mb-2.5 text-[13px] font-extrabold text-muted">בחר אפשרות</div>
+                <div className="mb-2.5 text-[13px] font-extrabold text-muted">{dict.betSheet.chooseOption}</div>
                 <div className="mb-[18px] flex flex-wrap gap-2.5">
                   {market.options.map((o) => {
                     const k = sideKind(o.label);
@@ -217,7 +220,7 @@ function BetSheet({
                             : "border-border bg-surface text-muted"
                         }`}
                       >
-                        {o.label} · {o.pct}%
+                        {displayLabel(o.label, dict)} · {o.pct}%
                       </button>
                     );
                   })}
@@ -225,10 +228,10 @@ function BetSheet({
               </>
             )}
 
-            <div className="mb-2.5 text-[13px] font-extrabold text-muted">סכום</div>
+            <div className="mb-2.5 text-[13px] font-extrabold text-muted">{dict.betSheet.amount}</div>
             {fixed ? (
               <div className="mb-[18px] flex items-center justify-between rounded-[14px] border-[1.5px] border-border bg-surface-2 px-4 py-3.5">
-                <span className="text-[13px] font-extrabold text-muted">סכום קבוע</span>
+                <span className="text-[13px] font-extrabold text-muted">{dict.betSheet.fixedAmount}</span>
                 <span className="text-2xl font-extrabold">{formatAgorot(fixed)}</span>
               </div>
             ) : (
@@ -241,7 +244,7 @@ function BetSheet({
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     placeholder="0"
-                    className="w-full bg-transparent p-2.5 text-right text-3xl font-extrabold text-text outline-none"
+                    className="w-full bg-transparent p-2.5 text-start text-3xl font-extrabold text-text outline-none"
                   />
                 </div>
                 <div className="mb-[18px] flex gap-2">
@@ -262,12 +265,12 @@ function BetSheet({
 
             {isScalar ? (
               <div className="mb-4 rounded-[14px] bg-surface-2 px-4 py-3.5 text-center text-[12.5px] font-semibold text-muted">
-                הניחוש הקרוב ביותר לתוצאה לוקח את כל הקופה.
+                {dict.betSheet.scalarInfo}
               </div>
             ) : (
               <div className="mb-4 flex justify-between rounded-[14px] bg-surface-2 px-4 py-3.5">
-                <Stat label="זכייה אפשרית" value={formatAgorot(payout)} />
-                <Stat label="רווח פוטנציאלי" value={formatAgorot(profit)} alignLeft />
+                <Stat label={dict.betSheet.possibleWin} value={formatAgorot(payout)} />
+                <Stat label={dict.betSheet.potentialProfit} value={formatAgorot(profit)} alignLeft />
               </div>
             )}
 
@@ -280,19 +283,19 @@ function BetSheet({
               style={{ background: valid ? "var(--text)" : "#c5cad6" }}
             >
               {busy
-                ? "רושם…"
+                ? dict.betSheet.placing
                 : isScalar && !guessValid
-                  ? "הזן ניחוש בטווח"
+                  ? dict.betSheet.enterGuessInRange
                   : !sel
-                    ? "בחר אפשרות"
+                    ? dict.betSheet.chooseOption
                     : amtAg < market.minStake
-                      ? `מינימום ₪${minShekels}`
+                      ? interpolate(dict.betSheet.minimum, { n: minShekels })
                       : isScalar
-                        ? `נחש ${guessNum} · ${formatAgorot(amtAg)}`
-                        : `קנה ${sel.label} · ${formatAgorot(amtAg)}`}
+                        ? `${interpolate(dict.betSheet.guessAction, { n: guessNum })} · ${formatAgorot(amtAg)}`
+                        : `${dict.market.buy} ${displayLabel(sel.label, dict)} · ${formatAgorot(amtAg)}`}
             </button>
             <div className="mt-2.5 text-center text-[11.5px] font-semibold text-faint">
-              פארימוצ׳ואל · כל ההימורים נכנסים לקופה אחת והזוכים מתחלקים בה
+              {dict.betSheet.parimutuelNote}
             </div>
           </div>
         )}
@@ -311,7 +314,7 @@ function Stat({
   alignLeft?: boolean;
 }) {
   return (
-    <div className={alignLeft ? "text-left" : ""}>
+    <div className={alignLeft ? "text-end" : ""}>
       <div className="text-[11.5px] font-bold text-muted">{label}</div>
       <div className="mt-0.5 text-[19px] font-extrabold text-yes">{value}</div>
     </div>

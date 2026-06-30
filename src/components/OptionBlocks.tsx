@@ -1,6 +1,8 @@
 "use client";
 
 import Avatar from "./Avatar";
+import { useT } from "@/lib/i18n/provider";
+import { interpolate } from "@/lib/i18n/interpolate";
 
 export type BlockUser = { id: string; name: string; avatarUrl: string | null };
 
@@ -17,13 +19,14 @@ export default function OptionBlocks({
   value: Record<string, string[]>;
   onToggle: (key: string, userId: string) => void;
 }) {
+  const { dict } = useT();
   if (users.length === 0 || options.length === 0) return null;
   return (
     <div className="flex flex-col gap-3">
       {options.map((o) => (
         <div key={o.key}>
           <div className="mb-1.5 text-xs font-bold text-muted">
-            חסום מהאפשרות &quot;{o.label}&quot;:
+            {interpolate(dict.optionBlocks.blockFrom, { label: o.label })}
           </div>
           <div className="flex flex-wrap gap-1.5">
             {users.map((u) => {

@@ -2,8 +2,9 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { formatAgorot } from "@/lib/money";
 import { timeUntil, nowMs } from "@/lib/format";
-import { sideKind } from "@/lib/markets";
+import { sideKind, displayLabel } from "@/lib/markets";
 import { MarketStatus } from "@/lib/constants";
+import { getI18n } from "@/lib/i18n/server";
 
 const SIDE_HEX = { yes: "#15b87a", no: "#f0405a", accent: "#2b6ef2" };
 const SIDE_SOFT = { yes: "#e6f6ef", no: "#fdebee", accent: "#e9f0fe" };
@@ -37,8 +38,6 @@ function dayBucket(ts: number, now: number): "today" | "yesterday" | "earlier" {
   return "earlier";
 }
 
-const BUCKET_LABEL = { today: "היום", yesterday: "אתמול", earlier: "מוקדם יותר" };
-
 export default async function NewsPage({
   params,
 }: {
@@ -46,6 +45,8 @@ export default async function NewsPage({
 }) {
   const { groupId } = await params;
   const base = `/g/${groupId}`;
+  const { dict } = await getI18n();
+  const BUCKET_LABEL = { today: dict.news.today, yesterday: dict.news.yesterday, earlier: dict.news.earlier };
   const [positions, markets] = await Promise.all([
     prisma.position.findMany({
       where: { market: { groupId } },
@@ -77,8 +78,8 @@ export default async function NewsPage({
       emoji: p.market.emoji,
       kind: "buy",
       actor: { name: p.user.displayName, avatarUrl: p.user.avatarUrl },
-      action: "הימר על",
-      sideLabel: p.option.label,
+      action: dict.news.betOn,
+      sideLabel: displayLabel(p.option.label, dict),
       sideK: sideKind(p.option.label),
       amount: p.amount,
     });
@@ -91,7 +92,7 @@ export default async function NewsPage({
       emoji: m.emoji,
       kind: "open",
       actor: { name: m.creator.displayName, avatarUrl: m.creator.avatarUrl },
-      action: "פתח הימור חדש",
+      action: dict.news.openedBet,
     });
     if (m.status === MarketStatus.RESOLVED && m.winningOptionId && m.resolvedAt) {
       const w = m.options.find((o) => o.id === m.winningOptionId)?.label ?? "?";
@@ -101,7 +102,7 @@ export default async function NewsPage({
         title: m.title,
         emoji: m.emoji,
         kind: "resolve",
-        action: `הוכרע · ${w} ניצח`,
+        action: `${dict.news.resolved} · ${displayLabel(w, dict)} ${dict.decision.won}`,
       });
     }
   }
@@ -123,11 +124,11 @@ export default async function NewsPage({
 
   return (
     <div className="px-[18px] pb-8 pt-3">
-      <h1 className="text-2xl font-extrabold">מה חדש</h1>
-      <p className="mb-4 text-sm text-muted">כל מה שקרה בחבר׳ה — מי פתח, מי הימר ומה הוכרע.</p>
+      <h1 className="text-2xl font-extrabold">{dict.news.title}</h1>
+      <p className="mb-4 text-sm text-muted">{dict.news.subtitle}</p>
 
       {feed.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-border p-8 text-center text-muted">עדיין אין תנועות.</p>
+        <p className="rounded-2xl border border-dashed border-border p-8 text-center text-muted">{dict.news.empty}</p>
       ) : (
         groups.map((g) => (
           <div key={g.key} className="mb-5">
@@ -174,9 +175,9 @@ export default async function NewsPage({
 
                   <div className="flex shrink-0 flex-col items-end gap-1.5">
                     {e.ts === newestTs && (
-                      <span className="rounded-full bg-accent px-1.5 py-0.5 text-[9px] font-black tracking-wide text-white">חדש</span>
+                      <span className="rounded-full bg-accent px-1.5 py-0.5 text-[9px] font-black tracking-wide text-white">{dict.news.new}</span>
                     )}
-                    <span className="whitespace-nowrap text-[11px] font-semibold text-faint">{timeUntil(new Date(e.ts))}</span>
+                    <span className="whitespace-nowrap text-[11px] font-semibold text-faint">{timeUntil(new Date(e.ts), dict.time)}</span>
                   </div>
                 </Link>
               ))}

@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useT } from "@/lib/i18n/provider";
+import { interpolate } from "@/lib/i18n/interpolate";
+import { displayLabel } from "@/lib/markets";
 
 type Opt = { id: string; label: string };
 
@@ -16,6 +19,7 @@ export default function DecisionBet({
   closesAtISO: string;
   pendingWinnerOptionId: string | null;
 }) {
+  const { dict } = useT();
   const router = useRouter();
   const closesAt = new Date(closesAtISO).getTime();
   const [now, setNow] = useState(() => Date.now());
@@ -44,42 +48,40 @@ export default function DecisionBet({
     if (res.ok) router.refresh();
     else {
       const d = await res.json().catch(() => ({}));
-      setError(d.error ?? "הפעולה נכשלה.");
+      setError(d.error ?? dict.decision.actionFailed);
     }
     setBusy(false);
   }
 
   function resolveNow() {
-    if (!sel) return setError("בחר את האפשרות המנצחת.");
-    if (!confirm("להכריע עכשיו ולחלק את הקופה? לא ניתן לבטל.")) return;
+    if (!sel) return setError(dict.decision.chooseWinner);
+    if (!confirm(dict.decision.confirmResolve)) return;
     call("now", sel);
   }
 
   function schedule() {
-    if (!sel) return setError("בחר אפשרות.");
+    if (!sel) return setError(dict.betSheet.chooseOption);
     call("schedule", sel);
   }
 
   return (
     <div className="rounded-[16px] border-[1.5px] border-accent-soft bg-surface p-4">
-      <h3 className="mb-1 font-extrabold">החלטה</h3>
+      <h3 className="mb-1 font-extrabold">{dict.decision.title}</h3>
       <p className="mb-3 text-sm text-muted">
-        {ended
-          ? "הזמן נגמר — בחר מי ניצח כדי לחלק את הקופה."
-          : "בחר מנצח: הכרע עכשיו, או קבע שייכנס לתוקף כשייגמר הזמן (ניתן לשנות עד אז)."}
+        {ended ? dict.decision.endedHint : dict.decision.openHint}
       </p>
 
       {pendingWinnerOptionId && !ended && (
         <div className="mb-3 flex items-center justify-between rounded-lg bg-accent-soft px-3 py-2 text-sm">
           <span className="font-bold text-accent">
-            מתוכנן: {pendingLabel} — ייכנס לתוקף בסיום
+            {interpolate(dict.decision.scheduled, { label: displayLabel(pendingLabel ?? "", dict) })}
           </span>
           <button
             onClick={() => call("schedule", null)}
             disabled={busy}
             className="text-xs font-bold text-no disabled:opacity-50"
           >
-            בטל
+            {dict.common.cancel}
           </button>
         </div>
       )}
@@ -90,13 +92,13 @@ export default function DecisionBet({
             key={o.id}
             type="button"
             onClick={() => setSel(o.id)}
-            className={`rounded-xl border px-3 py-2.5 text-right text-sm font-bold transition ${
+            className={`rounded-xl border px-3 py-2.5 text-start text-sm font-bold transition ${
               sel === o.id
                 ? "border-yes bg-yes-b text-yes"
                 : "border-border text-muted hover:text-text"
             }`}
           >
-            {o.label} ניצח
+            {displayLabel(o.label, dict)} {dict.decision.won}
           </button>
         ))}
       </div>
@@ -110,7 +112,7 @@ export default function DecisionBet({
             disabled={busy}
             className="w-full rounded-[13px] border border-accent bg-accent-soft py-2.5 font-bold text-accent disabled:opacity-50"
           >
-            {busy ? "…" : "קבע לסיום הזמן"}
+            {busy ? "…" : dict.decision.scheduleForClose}
           </button>
         )}
         <button
@@ -118,7 +120,7 @@ export default function DecisionBet({
           disabled={busy}
           className="w-full rounded-[13px] bg-yes py-3 font-extrabold text-white disabled:opacity-50"
         >
-          {busy ? "מכריע…" : "הכרע עכשיו וחלק את הקופה"}
+          {busy ? dict.decision.resolving : dict.decision.resolveNowSplit}
         </button>
       </div>
     </div>

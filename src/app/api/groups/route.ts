@@ -3,10 +3,12 @@ import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/session";
 import { hashPassword } from "@/lib/auth";
 import { makeJoinCode } from "@/lib/membership";
+import { getI18n } from "@/lib/i18n/server";
 
 export async function POST(req: Request) {
+  const { dict } = await getI18n();
   const userId = await getCurrentUserId();
-  if (!userId) return NextResponse.json({ error: "לא מחובר" }, { status: 401 });
+  if (!userId) return NextResponse.json({ error: dict.errors.notLoggedIn }, { status: 401 });
 
   const body = await req.json().catch(() => ({}));
   const name = String(body.name ?? "").trim();
@@ -17,7 +19,7 @@ export async function POST(req: Request) {
   const joinMode = body.joinMode === "APPROVAL" ? "APPROVAL" : "CODE";
   const password = String(body.password ?? "");
 
-  if (name.length < 2) return NextResponse.json({ error: "שם קבוצה קצר מדי." }, { status: 400 });
+  if (name.length < 2) return NextResponse.json({ error: dict.errors.groupNameShort }, { status: 400 });
 
   // unique code (retry a few times)
   let code = makeJoinCode();

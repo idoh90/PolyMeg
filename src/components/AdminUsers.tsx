@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Avatar from "./Avatar";
+import { useT } from "@/lib/i18n/provider";
 
 type U = {
   id: string;
@@ -12,6 +13,7 @@ type U = {
 };
 
 export default function AdminUsers({ users }: { users: U[] }) {
+  const { dict } = useT();
   const router = useRouter();
   const [name, setName] = useState("");
   const [pin, setPin] = useState("");
@@ -37,7 +39,7 @@ export default function AdminUsers({ users }: { users: U[] }) {
       router.refresh();
     } else {
       const d = await res.json().catch(() => ({}));
-      setError(d.error ?? "לא ניתן להוסיף חבר.");
+      setError(d.error ?? dict.adminUsers.addFailed);
     }
     setBusy(false);
   }
@@ -55,7 +57,7 @@ export default function AdminUsers({ users }: { users: U[] }) {
       router.refresh();
     } else {
       const d = await res.json().catch(() => ({}));
-      setError(d.error ?? "לא ניתן לאפס את הקוד.");
+      setError(d.error ?? dict.adminUsers.resetFailed);
     }
   }
 
@@ -65,19 +67,19 @@ export default function AdminUsers({ users }: { users: U[] }) {
         onSubmit={addUser}
         className="rounded-2xl border border-border bg-surface p-4"
       >
-        <h2 className="mb-3 font-semibold">הוספת חבר</h2>
+        <h2 className="mb-3 font-semibold">{dict.adminUsers.addMember}</h2>
         <div className="flex flex-col gap-3 sm:flex-row">
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="שם"
+            placeholder={dict.manage.name}
             className="flex-1 rounded-lg border border-border bg-bg px-3 py-2 outline-none focus:border-accent"
             required
           />
           <input
             value={pin}
             onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
-            placeholder="קוד בן 4 ספרות"
+            placeholder={dict.adminUsers.pinPlaceholder}
             inputMode="numeric"
             className="w-32 rounded-lg border border-border bg-bg px-3 py-2 outline-none focus:border-accent"
             required
@@ -87,7 +89,7 @@ export default function AdminUsers({ users }: { users: U[] }) {
             disabled={busy}
             className="rounded-lg bg-accent px-4 py-2 font-semibold text-white disabled:opacity-50"
           >
-            הוסף
+            {dict.adminUsers.add}
           </button>
         </div>
         <label className="mt-3 flex items-center gap-2 text-sm text-muted">
@@ -96,13 +98,13 @@ export default function AdminUsers({ users }: { users: U[] }) {
             checked={isAdmin}
             onChange={(e) => setIsAdmin(e.target.checked)}
           />
-          הפוך גם את החבר הזה למנהל
+          {dict.adminUsers.makeAdmin}
         </label>
         {error && <p className="mt-2 text-sm text-no">{error}</p>}
       </form>
 
       <div>
-        <h2 className="mb-3 font-semibold">חשבונות ({users.length})</h2>
+        <h2 className="mb-3 font-semibold">{dict.adminUsers.accounts} ({users.length})</h2>
         <div className="flex flex-col gap-2">
           {users.map((u) => (
             <div
@@ -114,7 +116,7 @@ export default function AdminUsers({ users }: { users: U[] }) {
                 {u.name}
                 {u.isAdmin && (
                   <span className="ms-2 rounded-full bg-surface-2 px-2 py-0.5 text-xs text-accent">
-                    מנהל
+                    {dict.roles.admin}
                   </span>
                 )}
               </span>
@@ -125,7 +127,7 @@ export default function AdminUsers({ users }: { users: U[] }) {
                     onChange={(e) =>
                       setResetPin(e.target.value.replace(/\D/g, "").slice(0, 4))
                     }
-                    placeholder="קוד חדש"
+                    placeholder={dict.adminUsers.newPin}
                     inputMode="numeric"
                     className="w-24 rounded-lg border border-border bg-bg px-2 py-1 text-sm outline-none focus:border-accent"
                   />
@@ -133,7 +135,7 @@ export default function AdminUsers({ users }: { users: U[] }) {
                     onClick={() => resetUserPin(u.id)}
                     className="rounded-lg bg-accent px-3 py-1 text-sm font-semibold text-white"
                   >
-                    שמור
+                    {dict.common.save}
                   </button>
                   <button
                     onClick={() => {
@@ -142,7 +144,7 @@ export default function AdminUsers({ users }: { users: U[] }) {
                     }}
                     className="text-sm text-muted"
                   >
-                    בטל
+                    {dict.common.cancel}
                   </button>
                 </div>
               ) : (
@@ -153,7 +155,7 @@ export default function AdminUsers({ users }: { users: U[] }) {
                   }}
                   className="text-sm text-muted hover:text-text"
                 >
-                  אפס קוד
+                  {dict.adminUsers.resetPin}
                 </button>
               )}
             </div>

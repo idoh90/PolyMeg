@@ -1,5 +1,7 @@
 import { ImageResponse } from "next/og";
 import { getPublicBet, toVisualRtl } from "@/lib/share";
+import { getDictionary } from "@/lib/i18n";
+import { defaultLocale } from "@/lib/i18n/config";
 
 export const alt = "GruBet";
 export const size = { width: 1200, height: 630 };
@@ -37,13 +39,16 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   const { id } = await params;
   const bet = await getPublicBet(id);
 
+  // The share card is crawled by social bots (no cookie), so it always renders
+  // in the default locale (Hebrew) rather than per-viewer.
+  const d = getDictionary(defaultLocale);
   const rawTitle = bet?.title ?? "GruBet";
   const emoji = bet?.emoji ?? "🎲";
   const isScalar = bet?.kind === "SCALAR";
   const rawHeadline = isScalar
     ? `${bet?.scalarMin}–${bet?.scalarMax}${bet?.scalarUnit ? " " + bet.scalarUnit : ""}`
     : `${bet?.topPct ?? 0}%`;
-  const rawSub = isScalar ? "ניחוש המספר" : bet?.topLabel ?? "";
+  const rawSub = isScalar ? d.publicBet.guessTheNumber : bet?.topLabel ?? "";
   const rawGroup = bet?.groupName ?? "";
   const potText = bet?.potText ?? "";
 
@@ -52,11 +57,11 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   const headline = isScalar ? toVisualRtl(rawHeadline) : rawHeadline;
   const sub = toVisualRtl(rawSub);
   const groupName = toVisualRtl(rawGroup);
-  const potLabel = toVisualRtl("קופה");
+  const potLabel = toVisualRtl(d.market.pot);
 
   // Subset fonts to just the glyphs we draw.
   const glyphs =
-    "GruBet קופה ניחוש המספר משתתפים " + rawTitle + rawHeadline + rawSub + rawGroup + potText + "0123456789%₪–·";
+    `GruBet ${d.market.pot} ${d.publicBet.guessTheNumber} ` + rawTitle + rawHeadline + rawSub + rawGroup + potText + "0123456789%₪–·";
   const [reg, bold] = await Promise.all([heebo(glyphs, 700), heebo(glyphs, 800)]);
   const fonts = [
     ...(reg ? [{ name: "Heebo", data: reg, weight: 700 as const, style: "normal" as const }] : []),

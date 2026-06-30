@@ -5,18 +5,21 @@ import { getMembership } from "@/lib/membership";
 import { isBinaryMarket } from "@/lib/markets";
 import { shekelsToAgorot } from "@/lib/money";
 import { MarketStatus, NotificationType } from "@/lib/constants";
+import { getI18n } from "@/lib/i18n/server";
+import { notificationMessage, notifLocale } from "@/lib/i18n/notify";
 
 export async function POST(req: Request) {
+  const { dict } = await getI18n();
   const user = await getCurrentUser();
-  if (!user) return NextResponse.json({ error: "לא מורשה" }, { status: 401 });
+  if (!user) return NextResponse.json({ error: dict.errors.unauthorized }, { status: 401 });
 
   const body = await req.json().catch(() => null);
-  if (!body) return NextResponse.json({ error: "בקשה שגויה" }, { status: 400 });
+  if (!body) return NextResponse.json({ error: dict.errors.badRequest }, { status: 400 });
 
   const groupId = String(body.groupId ?? "");
   const membership = await getMembership(user.id, groupId);
   if (!membership || membership.status !== "ACTIVE")
-    return NextResponse.json({ error: "אינך חבר בקבוצה." }, { status: 403 });
+    return NextResponse.json({ error: dict.errors.notMember }, { status: 403 });
 
   const title = String(body.title ?? "").trim();
   // Criteria is optional in the new create flow; fall back to the title.
@@ -50,8 +53,9 @@ export async function POST(req: Request) {
       )
     : [];
 
-  // Numeric (SCALAR) markets: no user options — one synthetic "ניחוש" option
-  // holds the pot; each position carries a numeric guess.
+  // Numeric (SCALAR) markets: no user options — one synthetic "guess" option
+  // (canonical label "ניחוש", localized for display) holds the pot; each
+  // position carries a numeric guess.
   const isScalar = body.kind === "SCALAR";
   let scalarMin: number | null = null;
   let scalarMax: number | null = null;
@@ -67,8 +71,8 @@ export async function POST(req: Request) {
   }
 
   // Validation.
-  if (!title) return bad("נא להוסיף כותרת.");
-  if (!criteria) return bad("נא לתאר איך ההימור מוכרע.");
+  if (!title) return bad(dict.errors.addTitle);
+  if (!criteria) return bad(dict.errors.describeResolve);
   if (isScalar) {
     if (
       scalarMin === null ||
@@ -77,20 +81,20 @@ export async function POST(req: Request) {
       !Number.isFinite(scalarMax) ||
       scalarMin >= scalarMax
     )
-      return bad("טווח מספרי לא תקין.");
+      return bad(dict.errors.invalidNumericRange);
   } else {
-    if (labels.length < 2) return bad("הוסף לפחות שתי אפשרויות.");
+    if (labels.length < 2) return bad(dict.errors.atLeastTwoOptions);
     if (new Set(labels.map((l) => l.toLowerCase())).size !== labels.length)
-      return bad("האפשרויות חייבות להיות שונות זו מזו.");
+      return bad(dict.errors.optionsMustDiffer);
   }
   if (!Number.isFinite(minStakeShekels) || minStakeShekels < 0)
-    return bad("הסכום המינימלי אינו תקין.");
+    return bad(dict.errors.invalidMinStake);
   if (maxStake !== null && maxStake < shekelsToAgorot(minStakeShekels))
-    return bad("המקסימום חייב להיות לפחות כמו המינימום.");
+    return bad(dict.errors.maxAtLeastMin);
   if (perUserCap !== null && perUserCap < shekelsToAgorot(minStakeShekels))
-    return bad("התקרה למשתתף חייבת להיות לפחות כמו המינימום.");
+    return bad(dict.errors.capAtLeastMin);
   if (isNaN(closesAt.getTime()) || closesAt.getTime() <= Date.now())
-    return bad("מועד הסגירה חייב להיות בעתיד.");
+    return bad(dict.errors.closeMustBeFuture);
 
   const kind = isScalar
     ? "SCALAR"
@@ -140,7 +144,7 @@ export async function POST(req: Request) {
   // Notify the rest of the group about the new bet.
   const others = await prisma.membership.findMany({
     where: { groupId, status: "ACTIVE", userId: { not: user.id } },
-    select: { userId: true },
+    select: { userId: true, user: { select: { locale: true } } },
   });
   if (others.length > 0) {
     await prisma.notification.createMany({
@@ -149,7 +153,10 @@ export async function POST(req: Request) {
         groupId,
         type: NotificationType.NEW_MARKET,
         marketId: market.id,
-        message: `${user.displayName} יצר הימור חדש: ${title}`,
+        message: notificationMessage("newMarket", notifLocale(m.user.locale), {
+          name: user.displayName,
+          title,
+        }),
       })),
     });
   }

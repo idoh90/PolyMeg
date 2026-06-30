@@ -2,42 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { EMOJI_OPTIONS, MARKET_TEMPLATES, type MarketTemplate } from "@/lib/constants";
-
-// Generic prompts so any community can relate (replace friend-specific jokes).
-const SUGGESTIONS = [
-  "ירד גשם בסופ״ש?",
-  "מישהו יאחר למפגש הקרוב?",
-  "מי ישלם על הפיצה?",
-  "ננצח את המשחק הקרוב?",
-  "הקבוצה האהובה תנצח השבוע?",
-  "מישהו יבטל ברגע האחרון?",
-  "נצליח לסיים את המשימה עד הדדליין?",
-  "מי יגיע ראשון?",
-  "המבחן הקרוב — נעבור?",
-  "מישהו ישבור שיא השבוע?",
-  "נצא לטיול החודש?",
-  "מי ישכח את הארנק?",
-  "הסרט החדש יהיה שווה?",
-  "נסיים את הסדרה עד סוף השבוע?",
-  "מי ינצח בטורניר?",
-  "המנצח הערב — מי יהיה?",
-  "נגיע ליעד עד סוף החודש?",
-  "מישהו יחזור בתשובה על ההחלטה?",
-  "מי יאכל הכי הרבה במפגש?",
-  "המחיר יעלה החודש?",
-  "נצליח להתאסף כולם יחד?",
-  "מי יישן הכי מעט השבוע?",
-  "מישהו יתחיל הרגל חדש וישרוד שבוע?",
-  "הקבוצה תעלה שלב?",
-];
-
-const CLOSE_CHIPS = [
-  { key: "1", label: "יום", days: 1 },
-  { key: "3", label: "3 ימים", days: 3 },
-  { key: "7", label: "שבוע", days: 7 },
-  { key: "30", label: "חודש", days: 30 },
-];
+import { EMOJI_OPTIONS, marketTemplates, type MarketTemplate } from "@/lib/constants";
+import { useT } from "@/lib/i18n/provider";
+import { interpolate } from "@/lib/i18n/interpolate";
+import { displayLabel } from "@/lib/markets";
+import BackChevron from "@/components/BackChevron";
 
 // In a plain module fn so the create handler stays lint-pure (no Date.now in render).
 function closeISO(days: number): string {
@@ -68,9 +37,17 @@ function fileToDataUrl(file: File, maxSize = 600): Promise<string> {
 }
 
 export default function NewBetPage() {
+  const { dict } = useT();
   const router = useRouter();
   const groupId = String(useParams().groupId);
   const base = `/g/${groupId}`;
+  const SUGGESTIONS = dict.newBet.suggestions;
+  const CLOSE_CHIPS = [
+    { key: "1", label: dict.newBet.day, days: 1 },
+    { key: "3", label: dict.newBet.threeDays, days: 3 },
+    { key: "7", label: dict.newBet.week, days: 7 },
+    { key: "30", label: dict.newBet.month, days: 30 },
+  ];
   const [step, setStep] = useState(0);
   const [title, setTitle] = useState("");
   const [emoji, setEmoji] = useState<string>("");
@@ -135,7 +112,7 @@ export default function NewBetPage() {
     try {
       setImageUrl(await fileToDataUrl(f));
     } catch {
-      setError("לא ניתן לקרוא את התמונה.");
+      setError(dict.newBet.imageReadFailed);
     }
   }
 
@@ -173,7 +150,7 @@ export default function NewBetPage() {
       setCreatedId(id);
     } else {
       const d = await res.json().catch(() => ({}));
-      setError(d.error ?? "לא ניתן ליצור את ההימור.");
+      setError(d.error ?? dict.newBet.createFailed);
     }
     setBusy(false);
   }
@@ -194,9 +171,9 @@ export default function NewBetPage() {
             <path d="M20 6 9 17l-5-5" />
           </svg>
         </div>
-        <div className="mb-2 text-[23px] font-extrabold">ההימור עלה לאוויר!</div>
+        <div className="mb-2 text-[23px] font-extrabold">{dict.newBet.liveTitle}</div>
         <div dir="auto" className="mb-7 max-w-[280px] text-sm font-semibold leading-relaxed text-muted">
-          {title} — החבר׳ה כבר יכולים להמר.
+          {interpolate(dict.newBet.liveBody, { title })}
         </div>
         <button
           onClick={() => {
@@ -205,7 +182,7 @@ export default function NewBetPage() {
           }}
           className="w-full max-w-[300px] rounded-[15px] bg-[var(--text)] py-4 text-base font-extrabold text-white"
         >
-          סיום
+          {dict.betSheet.done}
         </button>
       </div>
     );
@@ -220,11 +197,9 @@ export default function NewBetPage() {
             onClick={() => (step === 0 ? router.push(base) : setStep(step - 1))}
             className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-surface"
           >
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "scaleX(-1)" }}>
-              <path d="m15 18-6-6 6-6" />
-            </svg>
+            <BackChevron size={17} />
           </button>
-          <div className="flex-1 text-center text-base font-extrabold">הימור חדש</div>
+          <div className="flex-1 text-center text-base font-extrabold">{dict.nav.newBet}</div>
           <button
             onClick={() => router.push(base)}
             className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-surface text-muted"
@@ -245,13 +220,13 @@ export default function NewBetPage() {
       <div className="flex-1 overflow-y-auto px-5 pb-4">
         {step === 0 && (
           <div className="pm-screen pt-2.5">
-            <div className="mb-1.5 text-[13px] font-extrabold tracking-wide text-accent">שלב 1 · הרעיון</div>
-            <div className="mb-1.5 text-[23px] font-extrabold">על מה ההימור?</div>
-            <div className="mb-3 text-sm font-semibold leading-relaxed text-muted">נסחו שאלה ברורה שאפשר להכריע עליה.</div>
+            <div className="mb-1.5 text-[13px] font-extrabold tracking-wide text-accent">{dict.newBet.step1}</div>
+            <div className="mb-1.5 text-[23px] font-extrabold">{dict.newBet.q1Title}</div>
+            <div className="mb-3 text-sm font-semibold leading-relaxed text-muted">{dict.newBet.q1Sub}</div>
 
-            <div className="mb-1.5 text-[12px] font-extrabold text-faint">⚡ התחל מתבנית</div>
+            <div className="mb-1.5 text-[12px] font-extrabold text-faint">{dict.newBet.startFromTemplate}</div>
             <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
-              {MARKET_TEMPLATES.map((t) => (
+              {marketTemplates(dict).map((t) => (
                 <button
                   key={t.title}
                   onClick={() => applyTemplate(t)}
@@ -274,16 +249,16 @@ export default function NewBetPage() {
               <button
                 onClick={() => setTitle(suggestion)}
                 key={idx}
-                className="pm-fade flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-accent-soft bg-accent-soft px-3 py-2.5 text-right text-[13px] font-bold text-accent"
+                className="pm-fade flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-accent-soft bg-accent-soft px-3 py-2.5 text-start text-[13px] font-bold text-accent"
               >
                 <span className="shrink-0 text-[15px]">💡</span>
                 <span className="min-w-0 flex-1 truncate">{suggestion}</span>
-                <span className="shrink-0 text-[11px] font-extrabold text-faint">השתמש</span>
+                <span className="shrink-0 text-[11px] font-extrabold text-faint">{dict.newBet.use}</span>
               </button>
               <button
                 onClick={() => setIdx((i) => i + 1)}
                 className="flex w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-surface text-muted"
-                aria-label="הצעה אחרת"
+                aria-label={dict.newBet.anotherSuggestion}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M16 3h5v5" /><path d="M4 20 21 3" /><path d="M21 16v5h-5" /><path d="m15 15 6 6" /><path d="M4 4l5 5" />
@@ -292,7 +267,7 @@ export default function NewBetPage() {
             </div>
 
             <div className="mb-2.5 mt-6 text-[13px] font-extrabold text-muted">
-              סמל <span className="font-semibold text-faint">(לא חובה)</span>
+              {dict.newBet.icon} <span className="font-semibold text-faint">{dict.common.optional}</span>
             </div>
             <div className="mb-1 flex gap-2 overflow-x-auto pb-1">
               {EMOJI_OPTIONS.map((e) => (
@@ -308,7 +283,7 @@ export default function NewBetPage() {
             </div>
 
             <div className="mb-2.5 mt-6 text-[13px] font-extrabold text-muted">
-              תמונה <span className="font-semibold text-faint">(לא חובה)</span>
+              {dict.newBet.image} <span className="font-semibold text-faint">{dict.common.optional}</span>
             </div>
             <label className="block cursor-pointer">
               {imageUrl ? (
@@ -321,14 +296,14 @@ export default function NewBetPage() {
                   <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="3" y="3" width="18" height="18" rx="3" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="m21 15-5-5L5 21" />
                   </svg>
-                  <div className="text-[12.5px] font-bold">הוסף תמונה</div>
+                  <div className="text-[12.5px] font-bold">{dict.newBet.addImage}</div>
                 </div>
               )}
               <input type="file" accept="image/*" onChange={onPickImage} className="hidden" />
             </label>
             {imageUrl && (
               <button onClick={() => setImageUrl(null)} className="mt-2 text-xs font-bold text-no">
-                הסר תמונה
+                {dict.newBet.removeImage}
               </button>
             )}
           </div>
@@ -336,9 +311,9 @@ export default function NewBetPage() {
 
         {step === 1 && (
           <div className="pm-screen pt-2.5">
-            <div className="mb-1.5 text-[13px] font-extrabold tracking-wide text-accent">שלב 2 · האפשרויות</div>
-            <div className="mb-1.5 text-[23px] font-extrabold">איך מכריעים?</div>
-            <div className="mb-[18px] text-sm font-semibold leading-relaxed text-muted">כן/לא לשאלה פשוטה, או כמה אפשרויות לבחירה.</div>
+            <div className="mb-1.5 text-[13px] font-extrabold tracking-wide text-accent">{dict.newBet.step2}</div>
+            <div className="mb-1.5 text-[23px] font-extrabold">{dict.newBet.q2Title}</div>
+            <div className="mb-[18px] text-sm font-semibold leading-relaxed text-muted">{dict.newBet.q2Sub}</div>
             <div className="mb-5 flex gap-1.5 rounded-[14px] bg-surface-2 p-1.5">
               {(["binary", "multi", "scalar"] as const).map((m) => (
                 <button
@@ -348,7 +323,7 @@ export default function NewBetPage() {
                     mode === m ? "bg-surface text-text shadow-[0_1px_3px_rgba(15,19,32,.1)]" : "text-muted"
                   }`}
                 >
-                  {m === "binary" ? "כן / לא" : m === "multi" ? "בחירה" : "מספר"}
+                  {m === "binary" ? dict.newBet.modeBinary : m === "multi" ? dict.newBet.modeMulti : dict.newBet.modeScalar}
                 </button>
               ))}
             </div>
@@ -356,29 +331,29 @@ export default function NewBetPage() {
             {mode === "binary" ? (
               <>
                 <div className="flex gap-2.5">
-                  <div className="flex-1 rounded-[14px] bg-yes-b py-5 text-center text-lg font-extrabold text-yes">כן</div>
-                  <div className="flex-1 rounded-[14px] bg-no-b py-5 text-center text-lg font-extrabold text-no">לא</div>
+                  <div className="flex-1 rounded-[14px] bg-yes-b py-5 text-center text-lg font-extrabold text-yes">{dict.market.yes}</div>
+                  <div className="flex-1 rounded-[14px] bg-no-b py-5 text-center text-lg font-extrabold text-no">{dict.market.no}</div>
                 </div>
-                <div className="mt-3 text-center text-[12.5px] font-semibold text-faint">המשתתפים יקנו צד אחד מהשניים.</div>
+                <div className="mt-3 text-center text-[12.5px] font-semibold text-faint">{dict.newBet.binaryHint}</div>
               </>
             ) : mode === "scalar" ? (
               <div>
-                <div className="mb-4 text-sm font-semibold leading-relaxed text-faint">כל משתתף ינחש מספר בטווח. הניחוש הקרוב ביותר לוקח את הקופה.</div>
+                <div className="mb-4 text-sm font-semibold leading-relaxed text-faint">{dict.newBet.scalarHint}</div>
                 <div className="grid grid-cols-2 gap-2.5">
                   <div>
-                    <div className="mb-2 text-[13px] font-extrabold text-muted">מינימום</div>
+                    <div className="mb-2 text-[13px] font-extrabold text-muted">{dict.newBet.min}</div>
                     <input type="number" inputMode="numeric" value={scMin} onChange={(e) => setScMin(e.target.value)} className="field w-full text-[16px] font-bold" />
                   </div>
                   <div>
-                    <div className="mb-2 text-[13px] font-extrabold text-muted">מקסימום</div>
+                    <div className="mb-2 text-[13px] font-extrabold text-muted">{dict.newBet.max}</div>
                     <input type="number" inputMode="numeric" value={scMax} onChange={(e) => setScMax(e.target.value)} className="field w-full text-[16px] font-bold" />
                   </div>
                 </div>
                 <div className="mb-2 mt-3.5 text-[13px] font-extrabold text-muted">
-                  יחידה <span className="font-semibold text-faint">(לא חובה)</span>
+                  {dict.newBet.unit} <span className="font-semibold text-faint">{dict.common.optional}</span>
                 </div>
-                <input value={scUnit} onChange={(e) => setScUnit(e.target.value)} dir="auto" placeholder="אנשים, גולים, דקות…" className="field w-full text-[15px] font-bold" />
-                {!scalarValid && <div className="mt-2.5 text-[12px] font-bold text-no">המקסימום חייב להיות גדול מהמינימום.</div>}
+                <input value={scUnit} onChange={(e) => setScUnit(e.target.value)} dir="auto" placeholder={dict.newBet.unitPlaceholder} className="field w-full text-[15px] font-bold" />
+                {!scalarValid && <div className="mt-2.5 text-[12px] font-bold text-no">{dict.newBet.maxGtMin}</div>}
               </div>
             ) : (
               <div className="flex flex-col gap-2.5">
@@ -391,7 +366,7 @@ export default function NewBetPage() {
                       value={o}
                       onChange={(e) => setOpts((p) => p.map((x, j) => (j === i ? e.target.value : x)))}
                       dir="auto"
-                      placeholder="שם האפשרות"
+                      placeholder={dict.newBet.optionName}
                       className="field flex-1 text-[15px] font-bold"
                     />
                     {opts.length > 2 && (
@@ -411,7 +386,7 @@ export default function NewBetPage() {
                     onClick={() => setOpts((p) => [...p, ""])}
                     className="mt-1 w-full rounded-xl border-[1.5px] border-dashed border-[#c7cdda] py-3 text-sm font-extrabold text-accent"
                   >
-                    + הוסף אפשרות
+                    {dict.newBet.addOption}
                   </button>
                 )}
               </div>
@@ -421,8 +396,8 @@ export default function NewBetPage() {
 
         {step === 2 && (
           <div className="pm-screen pt-2.5">
-            <div className="mb-1.5 text-[13px] font-extrabold tracking-wide text-accent">שלב 3 · פרטים אחרונים</div>
-            <div className="mb-[18px] text-[23px] font-extrabold">כמעט שם!</div>
+            <div className="mb-1.5 text-[13px] font-extrabold tracking-wide text-accent">{dict.newBet.step3}</div>
+            <div className="mb-[18px] text-[23px] font-extrabold">{dict.newBet.q3Title}</div>
 
             {/* preview */}
             <div className="relative mb-[22px] overflow-hidden rounded-[18px] p-4 text-white" style={{ background: "linear-gradient(135deg,#1f2a4d,#0f1320)" }}>
@@ -437,7 +412,7 @@ export default function NewBetPage() {
                       emoji || "🎲"
                     )}
                   </div>
-                  <div dir="auto" className="flex-1 text-[15px] font-extrabold leading-tight">{title || "ההימור שלך"}</div>
+                  <div dir="auto" className="flex-1 text-[15px] font-extrabold leading-tight">{title || dict.newBet.yourBet}</div>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {finalOpts.map((l) => {
@@ -452,7 +427,7 @@ export default function NewBetPage() {
                           color: yes || no ? "#fff" : "#cdd6e6",
                         }}
                       >
-                        {l}
+                        {displayLabel(l, dict)}
                       </span>
                     );
                   })}
@@ -461,12 +436,12 @@ export default function NewBetPage() {
             </div>
 
             <div className="mb-2.5 flex items-center justify-between">
-              <span className="text-[13px] font-extrabold text-muted">{fixedMode ? "סכום קבוע לכולם" : "סכום מינימלי להשתתפות"}</span>
+              <span className="text-[13px] font-extrabold text-muted">{fixedMode ? dict.newBet.fixedForAll : dict.newBet.minToParticipate}</span>
               <button onClick={() => setFixedMode((v) => !v)} className="flex items-center gap-2 text-[12px] font-extrabold text-accent">
                 <span className="relative h-[22px] w-[38px] rounded-full transition-colors" style={{ background: fixedMode ? "var(--accent)" : "var(--border)" }}>
                   <span className="absolute top-[3px] h-4 w-4 rounded-full bg-white shadow transition-all" style={{ insetInlineStart: fixedMode ? 19 : 3 }} />
                 </span>
-                סכום קבוע
+                {dict.betSheet.fixedAmount}
               </button>
             </div>
             <div className="field flex items-center !py-0">
@@ -477,14 +452,14 @@ export default function NewBetPage() {
                 value={fixedMode ? fixedAmt : minStake}
                 onChange={(e) => (fixedMode ? setFixedAmt(e.target.value) : setMinStake(e.target.value))}
                 placeholder={fixedMode ? "10" : "5"}
-                className="w-full bg-transparent px-2.5 py-3 text-right text-[22px] font-extrabold text-text outline-none"
+                className="w-full bg-transparent px-2.5 py-3 text-start text-[22px] font-extrabold text-text outline-none"
               />
             </div>
             <div className="mb-[22px] mt-1.5 text-[11.5px] font-semibold text-faint">
-              {fixedMode ? "כולם נכנסים בדיוק בסכום הזה — אין בחירת סכום." : " "}
+              {fixedMode ? dict.newBet.fixedNote : " "}
             </div>
 
-            <div className="mb-2.5 text-[13px] font-extrabold text-muted">מתי ההימור נסגר?</div>
+            <div className="mb-2.5 text-[13px] font-extrabold text-muted">{dict.newBet.whenCloses}</div>
             <div className="flex gap-2" style={{ opacity: customDate ? 0.5 : 1 }}>
               {CLOSE_CHIPS.map((c) => {
                 const on = closeKey === c.key && !customDate;
@@ -504,7 +479,7 @@ export default function NewBetPage() {
                 );
               })}
             </div>
-            <div className="mt-2.5 text-[12px] font-extrabold text-muted">או תאריך מדויק</div>
+            <div className="mt-2.5 text-[12px] font-extrabold text-muted">{dict.newBet.orExactDate}</div>
             <input
               type="datetime-local"
               value={customDate}
@@ -514,7 +489,7 @@ export default function NewBetPage() {
             />
             {customDate && (
               <button onClick={() => setCustomDate("")} className="mt-1.5 text-[11.5px] font-bold text-no">
-                נקה תאריך
+                {dict.newBet.clearDate}
               </button>
             )}
 
@@ -523,21 +498,21 @@ export default function NewBetPage() {
               <>
                 <div className="mt-[22px] grid grid-cols-2 gap-2.5">
                   <div>
-                    <div className="mb-2 text-[13px] font-extrabold text-muted">מקס׳ להימור</div>
+                    <div className="mb-2 text-[13px] font-extrabold text-muted">{dict.newBet.maxPerBet}</div>
                     <div className="field flex items-center !py-0">
                       <span className="text-[18px] font-extrabold text-faint">₪</span>
-                      <input type="number" inputMode="decimal" value={maxStake} onChange={(e) => setMaxStake(e.target.value)} placeholder="ללא" className="w-full bg-transparent px-2 py-3 text-right text-[18px] font-extrabold outline-none" />
+                      <input type="number" inputMode="decimal" value={maxStake} onChange={(e) => setMaxStake(e.target.value)} placeholder={dict.newBet.none} className="w-full bg-transparent px-2 py-3 text-start text-[18px] font-extrabold outline-none" />
                     </div>
                   </div>
                   <div>
-                    <div className="mb-2 text-[13px] font-extrabold text-muted">תקרה למשתתף</div>
+                    <div className="mb-2 text-[13px] font-extrabold text-muted">{dict.newBet.perUserCap}</div>
                     <div className="field flex items-center !py-0">
                       <span className="text-[18px] font-extrabold text-faint">₪</span>
-                      <input type="number" inputMode="decimal" value={perUserCap} onChange={(e) => setPerUserCap(e.target.value)} placeholder="ללא" className="w-full bg-transparent px-2 py-3 text-right text-[18px] font-extrabold outline-none" />
+                      <input type="number" inputMode="decimal" value={perUserCap} onChange={(e) => setPerUserCap(e.target.value)} placeholder={dict.newBet.none} className="w-full bg-transparent px-2 py-3 text-start text-[18px] font-extrabold outline-none" />
                     </div>
                   </div>
                 </div>
-                <div className="mt-1.5 text-[11.5px] font-semibold text-faint">תקרה מונעת ממשתתף יחיד לעוות את הקופה.</div>
+                <div className="mt-1.5 text-[11.5px] font-semibold text-faint">{dict.newBet.capNote}</div>
               </>
             )}
 
@@ -548,13 +523,13 @@ export default function NewBetPage() {
                   <span className="absolute top-[3px] h-5 w-5 rounded-full bg-white shadow transition-all" style={{ insetInlineStart: recurring ? 21 : 3 }} />
                 </span>
                 <span className="flex-1">
-                  <span className="block text-[14.5px] font-extrabold">🔁 הימור חוזר</span>
-                  <span className="block text-[11.5px] font-semibold text-faint">נפתח מחדש אוטומטית ובונה רצף</span>
+                  <span className="block text-[14.5px] font-extrabold">{dict.newBet.recurringTitle}</span>
+                  <span className="block text-[11.5px] font-semibold text-faint">{dict.newBet.recurringSub}</span>
                 </span>
               </button>
               {recurring && (
                 <div className="mt-3 flex gap-2">
-                  {[{ d: 1, l: "יומי" }, { d: 7, l: "שבועי" }, { d: 30, l: "חודשי" }].map((o) => {
+                  {[{ d: 1, l: dict.newBet.daily }, { d: 7, l: dict.newBet.weekly }, { d: 30, l: dict.newBet.monthly }].map((o) => {
                     const on = recurDays === o.d;
                     return (
                       <button
@@ -578,8 +553,8 @@ export default function NewBetPage() {
                     <span className="absolute top-[3px] h-5 w-5 rounded-full bg-white shadow transition-all" style={{ insetInlineStart: cashOut ? 21 : 3 }} />
                   </span>
                   <span className="flex-1">
-                    <span className="block text-[14.5px] font-extrabold">💵 מכירה מוקדמת</span>
-                    <span className="block text-[11.5px] font-semibold text-faint">שחקנים יוכלו למכור פוזיציה לפי השווי הנוכחי לפני ההכרעה</span>
+                    <span className="block text-[14.5px] font-extrabold">{dict.newBet.cashOutTitle}</span>
+                    <span className="block text-[11.5px] font-semibold text-faint">{dict.newBet.cashOutSub}</span>
                   </span>
                 </button>
               </div>
@@ -598,7 +573,7 @@ export default function NewBetPage() {
             disabled={!canNext}
             className="w-full rounded-[15px] bg-[var(--text)] py-4 text-base font-extrabold text-white disabled:opacity-40"
           >
-            המשך
+            {dict.newBet.continue}
           </button>
         ) : (
           <button
@@ -606,7 +581,7 @@ export default function NewBetPage() {
             disabled={busy}
             className="w-full rounded-[15px] bg-accent py-4 text-base font-extrabold text-white shadow-[0_10px_22px_-10px_var(--accent)] disabled:opacity-50"
           >
-            {busy ? "יוצר…" : "🎲 צור הימור"}
+            {busy ? dict.newGroup.creating : dict.newBet.create}
           </button>
         )}
       </div>

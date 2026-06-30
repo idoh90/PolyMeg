@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/db";
 import { MarketStatus, NotificationType } from "@/lib/constants";
+import { getDictionary, type Dictionary } from "@/lib/i18n";
+import { notificationMessage, notifLocale } from "@/lib/i18n/notify";
 
 /**
  * Resolve a market to a winning option: mark RESOLVED, set winner + resolvedAt,
@@ -28,17 +30,23 @@ export async function resolveMarket(marketId: string, winningOptionId: string) {
   const participants = await prisma.position.findMany({
     where: { marketId },
     distinct: ["userId"],
-    select: { userId: true },
+    select: { userId: true, user: { select: { locale: true } } },
   });
   if (participants.length > 0) {
     await prisma.notification.createMany({
-      data: participants.map((p) => ({
-        userId: p.userId,
-        groupId: market.groupId,
-        type: NotificationType.MARKET_RESOLVED,
-        marketId,
-        message: `ההימור "${market.title}" הוכרע: ${winner.label} ניצח. בדוק את ההתחשבנות שלך.`,
-      })),
+      data: participants.map((p) => {
+        const loc = notifLocale(p.user.locale);
+        return {
+          userId: p.userId,
+          groupId: market.groupId,
+          type: NotificationType.MARKET_RESOLVED,
+          marketId,
+          message: notificationMessage("resolved", loc, {
+            title: market.title,
+            winner: displayLabel(winner.label, getDictionary(loc)),
+          }),
+        };
+      }),
     });
   }
 
@@ -124,7 +132,7 @@ export async function resolveScalarMarket(marketId: string, value: number) {
   const participants = await prisma.position.findMany({
     where: { marketId },
     distinct: ["userId"],
-    select: { userId: true },
+    select: { userId: true, user: { select: { locale: true } } },
   });
   if (participants.length > 0) {
     await prisma.notification.createMany({
@@ -133,7 +141,10 @@ export async function resolveScalarMarket(marketId: string, value: number) {
         groupId: market.groupId,
         type: NotificationType.MARKET_RESOLVED,
         marketId,
-        message: `ההימור "${market.title}" הוכרע: התוצאה ${value}. בדוק את ההתחשבנות שלך.`,
+        message: notificationMessage("resolvedScalar", notifLocale(p.user.locale), {
+          title: market.title,
+          value,
+        }),
       })),
     });
   }
@@ -207,4 +218,17 @@ export function sideKind(label: string): "yes" | "no" | "accent" {
   if (label === "כן" || label === "Yes") return "yes";
   if (label === "לא" || label === "No") return "no";
   return "accent";
+}
+
+/**
+ * Localize a *system* option label for display. Binary Yes/No (כן/לא · Yes/No)
+ * and the synthetic SCALAR guess option (ניחוש · Guess) are app-generated, so
+ * they follow the active locale; any other label is user-authored content and
+ * is returned unchanged.
+ */
+export function displayLabel(label: string, dict: Dictionary): string {
+  if (label === "כן" || label === "Yes") return dict.market.yes;
+  if (label === "לא" || label === "No") return dict.market.no;
+  if (label === "ניחוש" || label === "Guess") return dict.market.guess;
+  return label;
 }

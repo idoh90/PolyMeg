@@ -3,6 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPublicBet, getBaseUrl } from "@/lib/share";
 import Wordmark from "@/components/Wordmark";
+import { getI18n } from "@/lib/i18n/server";
+import { interpolate } from "@/lib/i18n/interpolate";
 
 export async function generateMetadata({
   params,
@@ -13,11 +15,12 @@ export async function generateMetadata({
   const bet = await getPublicBet(id);
   const base = getBaseUrl();
   if (!bet) return { title: "GruBet" };
+  const { dict } = await getI18n();
 
   const desc =
     bet.kind === "SCALAR"
-      ? `נחשו את המספר · קופה ${bet.potText} · ${bet.groupName}`
-      : `${bet.topLabel} ${bet.topPct}% · קופה ${bet.potText} · ${bet.groupName}`;
+      ? interpolate(dict.publicBet.descScalar, { pot: bet.potText, group: bet.groupName })
+      : interpolate(dict.publicBet.descBinary, { label: bet.topLabel, pct: bet.topPct, pot: bet.potText, group: bet.groupName });
 
   return {
     metadataBase: new URL(base),
@@ -32,6 +35,7 @@ export default async function PublicBetPage({ params }: { params: Promise<{ id: 
   const { id } = await params;
   const bet = await getPublicBet(id);
   if (!bet) notFound();
+  const { dict } = await getI18n();
 
   const isScalar = bet.kind === "SCALAR";
   const headline = isScalar
@@ -62,10 +66,10 @@ export default async function PublicBetPage({ params }: { params: Promise<{ id: 
           <div className="mt-5 flex items-end justify-between">
             <div>
               <div className="text-[40px] font-black leading-none text-yes">{headline}</div>
-              <div className="mt-1 text-[13px] font-bold text-[#aeb7c9]">{isScalar ? "ניחוש המספר" : bet.topLabel}</div>
+              <div className="mt-1 text-[13px] font-bold text-[#aeb7c9]">{isScalar ? dict.publicBet.guessTheNumber : bet.topLabel}</div>
             </div>
             <div className="text-end">
-              <div className="text-[12px] font-bold text-[#aeb7c9]">קופה</div>
+              <div className="text-[12px] font-bold text-[#aeb7c9]">{dict.market.pot}</div>
               <div className="text-[24px] font-extrabold">{bet.potText}</div>
             </div>
           </div>
@@ -76,10 +80,10 @@ export default async function PublicBetPage({ params }: { params: Promise<{ id: 
         href={`/g/${bet.groupId}/bets/${bet.id}`}
         className="pressable mt-6 w-full rounded-[15px] bg-accent py-4 text-center text-[16.5px] font-extrabold text-white shadow-[0_12px_24px_-12px_var(--accent)]"
       >
-        פתח ב-GruBet ←
+        {dict.publicBet.openInApp}
       </Link>
       <div className="mt-3 text-center text-[13px] font-semibold text-muted">
-        הצטרפו לקבוצה כדי להמר · {bet.betCount} כבר בפנים
+        {interpolate(dict.publicBet.joinToBet, { n: bet.betCount })}
       </div>
     </main>
   );

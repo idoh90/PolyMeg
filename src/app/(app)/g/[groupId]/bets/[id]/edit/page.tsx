@@ -5,6 +5,8 @@ import { getCurrentUser } from "@/lib/currentUser";
 import { getMembership, isAdminRole } from "@/lib/membership";
 import { agorotToShekels } from "@/lib/money";
 import EditBetForm from "@/components/EditBetForm";
+import BackChevron from "@/components/BackChevron";
+import { getI18n } from "@/lib/i18n/server";
 
 export default async function EditBetPage({
   params,
@@ -15,6 +17,7 @@ export default async function EditBetPage({
   const base = `/g/${groupId}`;
   const user = await getCurrentUser();
   if (!user) redirect("/login");
+  const { dict } = await getI18n();
 
   const [market, membership] = await Promise.all([
     prisma.market.findUnique({
@@ -44,11 +47,9 @@ export default async function EditBetPage({
           href={`${base}/bets/${id}`}
           className="flex h-[38px] w-[38px] items-center justify-center rounded-xl border border-border bg-surface"
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "scaleX(-1)" }}>
-            <path d="m15 18-6-6 6-6" />
-          </svg>
+          <BackChevron />
         </Link>
-        <h1 className="text-2xl font-extrabold">עריכת הימור</h1>
+        <h1 className="text-2xl font-extrabold">{dict.editBet.pageTitle}</h1>
       </div>
 
       <EditBetForm

@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useT } from "@/lib/i18n/provider";
+import { interpolate } from "@/lib/i18n/interpolate";
 
 const WINDOW_MS = 6 * 60 * 60 * 1000;
 
@@ -26,6 +28,7 @@ export default function PositionDeleteControl({
   isAdmin: boolean;
   marketOpen: boolean;
 }) {
+  const { dict } = useT();
   const router = useRouter();
   const [now, setNow] = useState(() => Date.now());
   const [busy, setBusy] = useState(false);
@@ -42,14 +45,14 @@ export default function PositionDeleteControl({
   if (!mine && !isAdmin) return null;
 
   async function del() {
-    if (!confirm("למחוק את ההימור שלך?")) return;
+    if (!confirm(dict.posDelete.confirm)) return;
     setBusy(true);
     const r = await fetch(`/api/positions/${positionId}`, { method: "DELETE" });
     if (r.ok) {
       router.refresh();
     } else {
       const d = await r.json().catch(() => ({}));
-      alert(d.error ?? "מחיקה נכשלה");
+      alert(d.error ?? dict.posDelete.deleteFailed);
       setBusy(false);
     }
   }
@@ -64,12 +67,12 @@ export default function PositionDeleteControl({
           disabled={busy}
           className="rounded-md px-2 py-0.5 text-xs font-extrabold text-no disabled:opacity-50"
         >
-          {busy ? "…" : "מחק"}
+          {busy ? "…" : dict.comments.delete}
         </button>
       )}
       {mine && marketOpen && (
         <span className="text-[10px] font-semibold text-faint">
-          {left > 0 ? `ניתן למחוק עוד ${fmt(left)}` : "נעול"}
+          {left > 0 ? interpolate(dict.posDelete.deletableFor, { t: fmt(left) }) : dict.posDelete.locked}
         </span>
       )}
     </div>

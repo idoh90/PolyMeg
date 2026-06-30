@@ -2,21 +2,23 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useT } from "@/lib/i18n/provider";
 
 export default function BottomNav({ myId, groupId }: { myId: string; groupId: string }) {
+  const { dict } = useT();
   const pathname = usePathname();
   const base = `/g/${groupId}`;
 
   const items = [
     {
       href: base,
-      label: "הימורים",
+      label: dict.nav.bets,
       icon: <path d="M3 3v18h18M19 9l-5 5-4-4-3 3" />,
       active: pathname === base || pathname.startsWith(`${base}/bets/`),
     },
     {
       href: `${base}/news`,
-      label: "חדשות",
+      label: dict.nav.news,
       icon: (
         <>
           <path d="M4 22a2 2 0 0 1-2-2V8h4" />
@@ -28,7 +30,7 @@ export default function BottomNav({ myId, groupId }: { myId: string; groupId: st
     },
     {
       href: `${base}/u/${myId}`,
-      label: "התיק",
+      label: dict.nav.portfolio,
       icon: (
         <>
           <rect x="3" y="7" width="18" height="13" rx="2" />
@@ -39,7 +41,7 @@ export default function BottomNav({ myId, groupId }: { myId: string; groupId: st
     },
     {
       href: `${base}/settlement`,
-      label: "חשבון",
+      label: dict.nav.settlement,
       icon: <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />,
       active: pathname === `${base}/settlement`,
     },
@@ -58,7 +60,7 @@ export default function BottomNav({ myId, groupId }: { myId: string; groupId: st
 
       <Link
         href={`${base}/bets/new`}
-        aria-label="הימור חדש"
+        aria-label={dict.nav.newBet}
         className="absolute left-1/2 top-[-20px] flex h-14 w-14 -translate-x-1/2 items-center justify-center rounded-[18px] border-4 border-surface bg-accent text-white shadow-[0_10px_22px_-8px_var(--accent)] transition active:scale-95"
       >
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">

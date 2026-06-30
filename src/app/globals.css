@@ -15,6 +15,9 @@
   --yes-b: #e6f6ef;
   --no: #f0405a;
   --no-b: #fdebee;
+  /* skeleton shimmer (base + highlight) */
+  --sk: #e7eaf1;
+  --sk-hi: #f6f8fc;
 }
 
 @theme inline {
@@ -39,6 +42,54 @@ html,
 body {
   background: var(--bg);
   color: var(--text);
+}
+
+/* Mirror directional glyphs (back chevrons, etc.) only in RTL. The base glyph
+   points the LTR-correct way; this flips it for Hebrew. */
+[dir="rtl"] .rtl-flip {
+  transform: scaleX(-1);
+}
+
+/* Cross-group surfaces (/groups, /explore, /feed) opt into OS dark mode without
+   touching the rest of the app: the wrapper re-anchors `color` to the token so
+   text re-themes, and the media query overrides the palette only under it. */
+.gb-auto-dark {
+  color: var(--text);
+}
+@media (prefers-color-scheme: dark) {
+  .gb-auto-dark {
+    --bg: #0c0f17;
+    --surface: #151a26;
+    --surface-2: #1e2431;
+    --border: #2a3142;
+    --text: #eef1f7;
+    --muted: #9aa6b6;
+    --faint: #6b7589;
+    --accent: #5b93f8;
+    --accent-soft: #1b2840;
+    --yes: #23ca8e;
+    --yes-b: #0f2a20;
+    --no: #fb5d72;
+    --no-b: #2c1620;
+    --sk: #222b3b;
+    --sk-hi: #313d52;
+    /* Tailwind utilities reference the inlined --color-* tokens, so override
+       those too (the base --* above cover raw var() usage in inline styles). */
+    --color-bg: #0c0f17;
+    --color-surface: #151a26;
+    --color-surface-2: #1e2431;
+    --color-border: #2a3142;
+    --color-text: #eef1f7;
+    --color-ink: #eef1f7;
+    --color-muted: #9aa6b6;
+    --color-faint: #6b7589;
+    --color-accent: #5b93f8;
+    --color-accent-soft: #1b2840;
+    --color-yes: #23ca8e;
+    --color-yes-b: #0f2a20;
+    --color-no: #fb5d72;
+    --color-no-b: #2c1620;
+  }
 }
 
 body {
@@ -165,3 +216,47 @@ input[type="number"] {
 .pm-fade { animation: pm-fade 0.25s ease both; }
 .pm-pop { animation: pm-pop 0.45s cubic-bezier(0.2, 0.9, 0.25, 1) both; }
 .pm-draw { stroke-dasharray: 340; animation: pm-draw 1.1s ease forwards; }
+
+/* App-open sequence (ported from the GruBet "App open" design):
+   sections drop in from the top, loaded cards swish up, skeletons shimmer,
+   and a brand splash fades up and out over the first boot. */
+@keyframes gb-drop {
+  from { opacity: 0; transform: translateY(-26px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes gb-swish {
+  from { opacity: 0; transform: translateY(15px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes gb-shim {
+  from { background-position: 185% 0; }
+  to { background-position: -85% 0; }
+}
+@keyframes gb-splash {
+  0% { opacity: 1; }
+  56% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: translateY(-12px); }
+}
+@keyframes gb-logo {
+  0% { opacity: 0; transform: scale(0.9) translateY(4px); }
+  48% { opacity: 1; transform: none; }
+  100% { opacity: 1; transform: none; }
+}
+
+.gb-drop { animation: gb-drop 0.55s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.gb-swish { animation: gb-swish 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.gb-shimmer {
+  background: linear-gradient(100deg, var(--sk) 28%, var(--sk-hi) 46%, var(--sk) 64%);
+  background-size: 200% 100%;
+  animation: gb-shim 1.2s ease-in-out infinite;
+}
+.gb-splash { animation: gb-splash 0.74s ease forwards; }
+.gb-logo { animation: gb-logo 0.55s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Honor reduced-motion: show the end state instantly, no movement or looping. */
+@media (prefers-reduced-motion: reduce) {
+  .gb-drop,
+  .gb-swish,
+  .gb-logo,
+  .gb-shimmer { animation: none; }
+}

@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Avatar from "./Avatar";
+import { useT } from "@/lib/i18n/provider";
 
 type PublicUser = { id: string; name: string; avatarUrl: string | null };
 
 export default function LockScreen({ users }: { users: PublicUser[] }) {
+  const { dict } = useT();
   const router = useRouter();
   const [selected, setSelected] = useState<PublicUser | null>(null);
   const [pin, setPin] = useState("");
@@ -27,7 +29,7 @@ export default function LockScreen({ users }: { users: PublicUser[] }) {
       router.refresh();
     } else {
       const data = await res.json().catch(() => ({}));
-      setError(data.error ?? "ההתחברות נכשלה.");
+      setError(data.error ?? dict.lockScreen.loginFailed);
       setPin("");
       setBusy(false);
     }
@@ -46,10 +48,10 @@ export default function LockScreen({ users }: { users: PublicUser[] }) {
         <h1 className="mb-1 text-center text-3xl font-bold tracking-tight">
           Poly<span className="text-accent">meg</span>
         </h1>
-        <p className="mb-8 text-center text-muted">הקש על הפרופיל שלך כדי להתחבר</p>
+        <p className="mb-8 text-center text-muted">{dict.lockScreen.tapProfile}</p>
         {users.length === 0 ? (
           <p className="text-center text-muted">
-            אין עדיין חשבונות. צור חשבון מנהל כדי להתחיל.
+            {dict.lockScreen.noAccounts}
           </p>
         ) : (
           <div className="grid grid-cols-3 gap-4">
@@ -76,7 +78,7 @@ export default function LockScreen({ users }: { users: PublicUser[] }) {
     <main className="mx-auto flex min-h-dvh max-w-xs flex-col items-center justify-center px-6 py-10">
       <Avatar name={selected.name} src={selected.avatarUrl} size={88} />
       <h2 className="mt-4 text-xl font-semibold">{selected.name}</h2>
-      <p className="mb-6 text-muted">הזן את הקוד בן 4 הספרות</p>
+      <p className="mb-6 text-muted">{dict.lockScreen.enterPin}</p>
 
       <div className="mb-6 flex gap-3">
         {[0, 1, 2, 3].map((i) => (
@@ -106,7 +108,7 @@ export default function LockScreen({ users }: { users: PublicUser[] }) {
             setError("");
           }}
         >
-          <span className="text-sm text-muted">חזרה</span>
+          <span className="text-sm text-muted">{dict.common.back}</span>
         </PadButton>
         <PadButton onClick={() => press("0")}>0</PadButton>
         <PadButton onClick={() => setPin((p) => p.slice(0, -1))}>⌫</PadButton>

@@ -3,12 +3,15 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/currentUser";
 import { getMembership, isAdminRole } from "@/lib/membership";
-import { autoCloseExpired, poolFor, sideKind } from "@/lib/markets";
+import { autoCloseExpired, poolFor, sideKind, displayLabel } from "@/lib/markets";
 import { buildPriceHistory } from "@/lib/charts";
 import { formatAgorot } from "@/lib/money";
 import { timeUntil, nowMs } from "@/lib/format";
 import { MarketStatus } from "@/lib/constants";
+import { getI18n } from "@/lib/i18n/server";
+import { interpolate } from "@/lib/i18n/interpolate";
 import Avatar from "@/components/Avatar";
+import BackChevron from "@/components/BackChevron";
 import PriceChart from "@/components/PriceChart";
 import BuyOptionList from "@/components/BuyOptionList";
 import DecisionBet from "@/components/DecisionBet";
@@ -48,6 +51,7 @@ export default async function BetDetailPage({
   const base = `/g/${groupId}`;
   const user = await getCurrentUser();
   if (!user) notFound();
+  const { dict } = await getI18n();
 
   const [market, membership, comments, receipt, memberRows] = await Promise.all([
     prisma.market.findUnique({
@@ -126,11 +130,9 @@ export default async function BetDetailPage({
           href={base}
           className="flex h-[38px] w-[38px] items-center justify-center rounded-xl border border-border bg-surface"
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "scaleX(-1)" }}>
-            <path d="m15 18-6-6 6-6" />
-          </svg>
+          <BackChevron />
         </Link>
-        <span className="text-[15px] font-extrabold text-muted">פרטי הימור</span>
+        <span className="text-[15px] font-extrabold text-muted">{dict.betDetail.title}</span>
         <div className="ms-auto flex items-center gap-2">
           <ShareBet id={market.id} title={market.title} />
           {(market.creatorId === user.id || isAdmin) && (
@@ -138,7 +140,7 @@ export default async function BetDetailPage({
               href={`${base}/bets/${market.id}/edit`}
               className="rounded-full border border-border bg-surface px-3 py-1.5 text-sm font-bold"
             >
-              ערוך
+              {dict.betDetail.edit}
             </Link>
           )}
         </div>
@@ -163,11 +165,11 @@ export default async function BetDetailPage({
               href={`${base}/u/${market.creator.id}`}
               className="mt-1 block text-[12.5px] font-semibold text-faint hover:underline"
             >
-              מאת {market.creator.displayName} · קופה {formatAgorot(totalPot)}
+              {interpolate(dict.market.by, { name: market.creator.displayName })} · {dict.market.pot} {formatAgorot(totalPot)}
             </Link>
             {market.recurring && (
               <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-accent-soft px-2 py-0.5 text-[10.5px] font-extrabold text-accent">
-                🔁 חוזר · מופע #{market.seriesIndex ?? 1}
+                {interpolate(dict.betDetail.recurring, { n: market.seriesIndex ?? 1 })}
               </span>
             )}
           </div>
@@ -179,19 +181,19 @@ export default async function BetDetailPage({
         {isScalar ? (
           /* numeric market summary */
           <div className="mb-5 rounded-[18px] border border-border bg-surface p-4">
-            <div className="text-[13px] font-extrabold text-muted">טווח ניחושים</div>
+            <div className="text-[13px] font-extrabold text-muted">{dict.betDetail.guessRange}</div>
             <div className="mt-1 text-[28px] font-black leading-none">
               {market.scalarMin}–{market.scalarMax}
               {market.scalarUnit ? <span className="ms-1.5 text-[15px] font-bold text-faint">{market.scalarUnit}</span> : null}
             </div>
             {isResolved && market.resolvedValue != null ? (
               <div className="mt-2.5 text-[14px] font-extrabold text-yes">
-                התוצאה: {market.resolvedValue}
-                {market.scalarUnit ? ` ${market.scalarUnit}` : ""} · הכי קרוב זכה
+                {dict.betDetail.resultLabel} {market.resolvedValue}
+                {market.scalarUnit ? ` ${market.scalarUnit}` : ""} · {dict.betDetail.closestWon}
               </div>
             ) : (
               <div className="mt-2 text-[12.5px] font-semibold text-faint">
-                {market.positions.length} ניחושים · הכי קרוב לוקח את הקופה
+                {interpolate(dict.betDetail.guessesCount, { n: market.positions.length })} · {dict.betDetail.closestTakesPot}
               </div>
             )}
           </div>
@@ -203,42 +205,42 @@ export default async function BetDetailPage({
                 {top.pct}
                 <span className="text-[22px]">%</span>
               </span>
-              <span className="text-[15px] font-bold text-faint">{top.label}</span>
+              <span className="text-[15px] font-bold text-faint">{displayLabel(top.label, dict)}</span>
               <span
                 className="me-auto text-sm font-extrabold"
                 style={{ color: isResolved ? "var(--muted)" : change >= 0 ? "var(--yes)" : "var(--no)" }}
               >
-                {isResolved ? "הוכרע" : `${change >= 0 ? "▲" : "▼"} ${Math.abs(change)}% היום`}
+                {isResolved ? dict.market.statusResolved : `${change >= 0 ? "▲" : "▼"} ${Math.abs(change)}% ${dict.betDetail.today}`}
               </span>
             </div>
-            <div className="mb-3 text-[13px] font-semibold text-muted">סיכוי משתמע מתוך הקופה</div>
+            <div className="mb-3 text-[13px] font-semibold text-muted">{dict.betDetail.impliedFromPot}</div>
 
             {/* chart — leading option's probability trend */}
             {market.positions.length > 0 && topSeries ? (
               <div className="mb-5 rounded-[18px] border border-border bg-surface p-3 shadow-[0_1px_2px_rgba(15,19,32,.03)]">
                 <div className="mb-1.5 flex items-center justify-between px-1">
-                  <span className="text-[11.5px] font-extrabold text-muted">מגמת הסיכוי · {top.label}</span>
+                  <span className="text-[11.5px] font-extrabold text-muted">{dict.betDetail.probabilityTrend} · {displayLabel(top.label, dict)}</span>
                   <span className="text-[13px] font-extrabold" style={{ color: topColor }}>{top.pct}%</span>
                 </div>
                 <PriceChart series={[{ ...topSeries, color: topColor }]} />
               </div>
             ) : (
               <div className="mb-5 rounded-[18px] border border-dashed border-border p-6 text-center text-sm text-muted">
-                עדיין אין הימורים — היה הראשון!
+                {dict.betDetail.noBetsBeFirst}
               </div>
             )}
           </>
         )}
 
         {/* buy / results */}
-        <div className="mb-2.5 text-[15px] font-extrabold">{isOpen ? (isScalar ? "נחש מספר" : "קנה אפשרות") : "תוצאות"}</div>
+        <div className="mb-2.5 text-[15px] font-extrabold">{isOpen ? (isScalar ? dict.market.guessNumber : dict.betDetail.buyOption) : dict.betDetail.results}</div>
         <div className="mb-5">
           {isScalar ? (
             isOpen ? (
               <ScalarBet sheet={sheet} />
             ) : (
               <div className="rounded-[14px] border border-border bg-surface p-4 text-center text-sm font-semibold text-muted">
-                {isResolved ? "ההימור הוכרע." : "ההימור נסגר לניחושים."}
+                {isResolved ? dict.betDetail.betResolved : dict.betDetail.closedToGuesses}
               </div>
             )
           ) : (
@@ -263,7 +265,7 @@ export default async function BetDetailPage({
         )}
         {!isOpen && !canDecide && !isResolved && (
           <div className="mb-5 rounded-[16px] border border-border bg-surface p-4 text-sm text-muted">
-            ההימור נסגר וממתין ש{market.creator.displayName} יקבע את התוצאה.
+            {interpolate(dict.betDetail.awaitingDecision, { name: market.creator.displayName })}
           </div>
         )}
 
@@ -274,14 +276,14 @@ export default async function BetDetailPage({
 
         {/* criteria */}
         <div className="mb-5 rounded-[16px] border border-border bg-surface p-[15px]">
-          <div className="mb-1.5 text-[13px] font-extrabold text-muted">איך זה נסגר</div>
+          <div className="mb-1.5 text-[13px] font-extrabold text-muted">{dict.betDetail.howItResolves}</div>
           <div dir="auto" className="whitespace-pre-wrap text-sm leading-relaxed">
             {market.criteria}
           </div>
         </div>
 
         {/* activity */}
-        <div className="mb-2.5 text-[15px] font-extrabold">פעילות אחרונה</div>
+        <div className="mb-2.5 text-[15px] font-extrabold">{dict.betDetail.recentActivity}</div>
         <div className="mb-6 flex flex-col gap-1">
           {activity.map((p) => {
             const opt = market.options.find((o) => o.id === p.optionId);
@@ -298,23 +300,23 @@ export default async function BetDetailPage({
                       <span className="font-extrabold">{p.user.displayName}</span>{" "}
                       {isScalar ? (
                         <>
-                          ניחש <span className="font-extrabold text-accent">{p.guess}</span>
+                          {dict.betDetail.guessed} <span className="font-extrabold text-accent">{p.guess}</span>
                         </>
                       ) : (
                         <>
-                          קנה{" "}
+                          {dict.group.bought}{" "}
                           <span className="font-extrabold" style={{ color: SIDE_HEX[k] }}>
-                            {opt?.label}
+                            {displayLabel(opt?.label ?? "", dict)}
                           </span>
                         </>
                       )}
-                      <div className="text-xs font-semibold text-faint">{timeUntil(p.createdAt)}</div>
+                      <div className="text-xs font-semibold text-faint">{timeUntil(p.createdAt, dict.time)}</div>
                     </div>
                   </Link>
                   <span className="text-sm font-extrabold">{formatAgorot(p.amount)}</span>
                   {p.soldAt ? (
                     <span className="flex-none rounded-full bg-surface-2 px-2.5 py-1 text-[11px] font-extrabold text-faint">
-                      נמכר · {formatAgorot(p.soldValue ?? 0)}
+                      {dict.market.sold} · {formatAgorot(p.soldValue ?? 0)}
                     </span>
                   ) : market.cashOutEnabled && isOpen && !isScalar && p.userId === user.id ? (
                     <CashOutControl positionId={p.id} />
@@ -329,7 +331,7 @@ export default async function BetDetailPage({
                 </div>
                 {p.shout && (
                   <div dir="auto" className="ms-[44px] mt-1.5 inline-block rounded-[10px] bg-surface-2 px-2.5 py-1 text-[12.5px] font-bold text-muted">
-                    ״{p.shout}״
+                    {interpolate(dict.betDetail.shoutQuote, { shout: p.shout })}
                   </div>
                 )}
                 <div className="ms-[44px] mt-1.5">

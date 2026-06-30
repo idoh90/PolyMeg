@@ -2,8 +2,12 @@
 
 import Avatar from "@/components/Avatar";
 import type { Receipt, ReceiptPerson } from "@/lib/receipts";
+import { useT } from "@/lib/i18n/provider";
+import { interpolate } from "@/lib/i18n/interpolate";
+import { displayLabel } from "@/lib/markets";
 
 function ShareBtn({ text }: { text: string }) {
+  const { dict } = useT();
   async function share() {
     const url = typeof window !== "undefined" ? window.location.href : "";
     const payload = `${text}\n${url}`;
@@ -11,14 +15,14 @@ function ShareBtn({ text }: { text: string }) {
       if (navigator.share) await navigator.share({ text: payload });
       else {
         await navigator.clipboard.writeText(payload);
-        alert("הועתק ✓");
+        alert(dict.newGroup.copied);
       }
     } catch {
       /* user dismissed share sheet */
     }
   }
   return (
-    <button onClick={share} className="pressable flex h-8 w-8 flex-none items-center justify-center rounded-full bg-white/15 text-white" aria-label="שתף">
+    <button onClick={share} className="pressable flex h-8 w-8 flex-none items-center justify-center rounded-full bg-white/15 text-white" aria-label={dict.share.share}>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
         <path d="m8.6 13.5 6.8 4M15.4 6.5 8.6 10.5" />
@@ -42,6 +46,7 @@ function Card({
   title: string;
   shareText: string;
 }) {
+  const { dict } = useT();
   const bg =
     tone === "win"
       ? "linear-gradient(135deg,#15b87a,#0f8f5f)"
@@ -62,7 +67,7 @@ function Card({
         </div>
         <div className="text-end">
           <div className="text-[20px] font-black leading-none">{person.amount}</div>
-          <div className="mt-0.5 text-[11px] font-semibold text-white/80">{person.sideLabel}</div>
+          <div className="mt-0.5 text-[11px] font-semibold text-white/80">{displayLabel(person.sideLabel, dict)}</div>
         </div>
         <ShareBtn text={shareText} />
       </div>
@@ -71,29 +76,30 @@ function Card({
 }
 
 export default function CalledItCard({ receipt }: { receipt: Receipt }) {
+  const { dict } = useT();
   if (!receipt.winner && !receipt.loser) return null;
   return (
     <div className="mb-5">
-      <div className="mb-2.5 text-[15px] font-extrabold">מי צדק? 🎯</div>
+      <div className="mb-2.5 text-[15px] font-extrabold">{dict.calledIt.title}</div>
       <div className="flex flex-col gap-2.5">
         {receipt.winner && (
           <Card
             person={receipt.winner}
             tone="win"
-            tag="קרא את זה"
+            tag={dict.calledIt.tagWinner}
             emoji={receipt.emoji}
             title={receipt.marketTitle}
-            shareText={`${receipt.winner.name} צדק — ${receipt.winner.amount} · ${receipt.marketTitle}`}
+            shareText={interpolate(dict.calledIt.shareWin, { name: receipt.winner.name, amount: receipt.winner.amount, title: receipt.marketTitle })}
           />
         )}
         {receipt.loser && (
           <Card
             person={receipt.loser}
             tone="roast"
-            tag="הכי טעה"
+            tag={dict.calledIt.tagLoser}
             emoji={receipt.emoji}
             title={receipt.marketTitle}
-            shareText={`${receipt.loser.name} פספס בגדול — ${receipt.loser.amount} · ${receipt.marketTitle} 🤡`}
+            shareText={interpolate(dict.calledIt.shareLoss, { name: receipt.loser.name, amount: receipt.loser.amount, title: receipt.marketTitle })}
           />
         )}
       </div>

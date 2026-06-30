@@ -3,6 +3,8 @@ import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { randomUUID } from "node:crypto";
 import { prisma } from "@/lib/db";
+import { getDictionary } from "@/lib/i18n";
+import { defaultLocale } from "@/lib/i18n/config";
 
 // Auth.js (NextAuth v5) — Google sign-in only. We keep the existing iron-session
 // as the app's source of truth; this bridges Google identity into our Prisma
@@ -20,7 +22,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const displayName =
           (typeof profile.name === "string" && profile.name) ||
           (typeof profile.email === "string" && profile.email.split("@")[0]) ||
-          "משתמש Google";
+          getDictionary(defaultLocale).auth.googleUser;
         const avatarUrl = typeof profile.picture === "string" ? profile.picture : null;
         const user = await prisma.user.upsert({
           where: { username },

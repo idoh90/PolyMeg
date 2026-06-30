@@ -2,8 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useBetSheet, type SheetMarket } from "@/components/BetSheet";
-import { sideKind } from "@/lib/markets";
+import { sideKind, displayLabel } from "@/lib/markets";
 import { MarketStatus } from "@/lib/constants";
+import { useT } from "@/lib/i18n/provider";
+import { interpolate } from "@/lib/i18n/interpolate";
+import type { Dictionary } from "@/lib/i18n";
 
 export interface MarketCardData {
   id: string;
@@ -26,16 +29,17 @@ export interface MarketCardData {
   options: { id: string; label: string; pct: number; total: number; isWinner: boolean }[];
 }
 
-function statusInfo(status: string) {
-  if (status === MarketStatus.OPEN) return { label: "פתוח", cls: "bg-yes-b text-yes" };
-  if (status === MarketStatus.CLOSED) return { label: "ממתין", cls: "bg-surface-2 text-muted" };
-  return { label: "הוכרע", cls: "bg-accent-soft text-accent" };
+function statusInfo(status: string, dict: Dictionary) {
+  if (status === MarketStatus.OPEN) return { label: dict.market.statusOpen, cls: "bg-yes-b text-yes" };
+  if (status === MarketStatus.CLOSED) return { label: dict.market.statusClosed, cls: "bg-surface-2 text-muted" };
+  return { label: dict.market.statusResolved, cls: "bg-accent-soft text-accent" };
 }
 
 export default function MarketCard({ market }: { market: MarketCardData }) {
+  const { dict } = useT();
   const router = useRouter();
   const { open } = useBetSheet();
-  const st = statusInfo(market.status);
+  const st = statusInfo(market.status, dict);
   const isOpen = market.status === MarketStatus.OPEN;
 
   const sheet: SheetMarket = {
@@ -72,7 +76,7 @@ export default function MarketCard({ market }: { market: MarketCardData }) {
           <div dir="auto" className="text-[15px] font-bold leading-tight">
             {market.title}
           </div>
-          <div className="mt-1 text-xs font-semibold text-faint">מאת {market.creatorName}</div>
+          <div className="mt-1 text-xs font-semibold text-faint">{interpolate(dict.market.by, { name: market.creatorName })}</div>
         </div>
         <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10.5px] font-extrabold ${st.cls}`}>
           {st.label}
@@ -88,13 +92,14 @@ export default function MarketCard({ market }: { market: MarketCardData }) {
           disabled={!isOpen}
           className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-accent-soft bg-accent-soft py-[11px] text-sm font-extrabold text-accent disabled:opacity-60"
         >
-          🔢 נחש מספר · {market.scalarMin}–{market.scalarMax}
+          🔢 {dict.market.guessNumber} · {market.scalarMin}–{market.scalarMax}
           {market.scalarUnit ? ` ${market.scalarUnit}` : ""}
         </button>
       ) : market.isBinary ? (
         <div className="mt-3 flex gap-2.5">
           <SideButton
             label={yes.label}
+            display={displayLabel(yes.label, dict)}
             pct={yes.pct}
             disabled={!isOpen}
             onClick={(e) => {
@@ -104,6 +109,7 @@ export default function MarketCard({ market }: { market: MarketCardData }) {
           />
           <SideButton
             label={no.label}
+            display={displayLabel(no.label, dict)}
             pct={no.pct}
             disabled={!isOpen}
             onClick={(e) => {
@@ -117,7 +123,7 @@ export default function MarketCard({ market }: { market: MarketCardData }) {
           {market.options.map((o) => (
             <div key={o.id} className="relative h-[30px] overflow-hidden rounded-[9px] bg-surface-2">
               <div
-                className="absolute inset-y-0 right-0"
+                className="absolute inset-y-0 start-0"
                 style={{
                   width: `${o.pct}%`,
                   background: o.isWinner ? "var(--yes-b)" : "var(--accent-soft)",
@@ -125,7 +131,7 @@ export default function MarketCard({ market }: { market: MarketCardData }) {
               />
               <div className="relative flex h-full items-center justify-between px-2.5 text-[13px] font-bold">
                 <span>
-                  {o.label}
+                  {displayLabel(o.label, dict)}
                   {o.isWinner && " ✓"}
                 </span>
                 <span className="text-muted">{o.pct}%</span>
@@ -136,7 +142,7 @@ export default function MarketCard({ market }: { market: MarketCardData }) {
       )}
 
       <div className="mt-3 flex justify-between text-xs font-semibold text-muted">
-        <span>קופה {market.potText}</span>
+        <span>{dict.market.pot} {market.potText}</span>
         <span>{market.timeText}</span>
       </div>
     </div>
@@ -158,11 +164,13 @@ function Tile({ imageUrl, emoji }: { imageUrl: string | null; emoji: string | nu
 
 function SideButton({
   label,
+  display,
   pct,
   disabled,
   onClick,
 }: {
   label: string;
+  display: string;
   pct: number;
   disabled: boolean;
   onClick: (e: React.MouseEvent) => void;
@@ -180,7 +188,7 @@ function SideButton({
       disabled={disabled}
       className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl border px-3 py-[11px] text-sm font-extrabold disabled:opacity-60 ${cls}`}
     >
-      {label} <span className="opacity-65">{pct}%</span>
+      {display} <span className="opacity-65">{pct}%</span>
     </button>
   );
 }

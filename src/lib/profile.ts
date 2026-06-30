@@ -1,10 +1,11 @@
 import { prisma } from "@/lib/db";
 import { marketProfits } from "@/lib/payout";
 import { buildPortfolioSeries } from "@/lib/charts";
-import { poolFor, sideKind } from "@/lib/markets";
+import { poolFor, sideKind, displayLabel } from "@/lib/markets";
 import { nowMs } from "@/lib/format";
 import { MarketStatus } from "@/lib/constants";
 import type { ChartSeries } from "@/components/LineChart";
+import type { Dictionary } from "@/lib/i18n";
 
 export interface OpenPosition {
   marketId: string;
@@ -50,7 +51,11 @@ export interface ProfileData {
   history: HistoryItem[];
 }
 
-export async function getProfile(userId: string, groupId: string): Promise<ProfileData | null> {
+export async function getProfile(
+  userId: string,
+  groupId: string,
+  dict: Dictionary,
+): Promise<ProfileData | null> {
   const [user, membership] = await Promise.all([
     prisma.user.findUnique({ where: { id: userId } }),
     prisma.membership.findUnique({ where: { userId_groupId: { userId, groupId } } }),
@@ -103,7 +108,9 @@ export async function getProfile(userId: string, groupId: string): Promise<Profi
       marketId: m.id,
       title: m.title,
       imageUrl: m.imageUrl,
-      sideLabel: isScalar ? `ניחוש ${p.guess ?? ""}` : p.option.label,
+      sideLabel: isScalar
+        ? `${dict.market.guess} ${p.guess ?? ""}`.trim()
+        : displayLabel(p.option.label, dict),
       sideKind: isScalar ? "accent" : sideKind(p.option.label),
       stake: p.amount,
       toWin,
@@ -138,12 +145,12 @@ export async function getProfile(userId: string, groupId: string): Promise<Profi
     const mineHere = m.positions.filter((p) => p.userId === userId);
     let sideLabel: string;
     if (m.kind === "SCALAR") {
-      sideLabel = `ניחוש ${mineHere[0]?.guess ?? ""}`;
+      sideLabel = `${dict.market.guess} ${mineHere[0]?.guess ?? ""}`.trim();
     } else {
       const byOpt = new Map<string, number>();
       for (const p of mineHere) byOpt.set(p.optionId, (byOpt.get(p.optionId) ?? 0) + p.amount);
       const topOptId = [...byOpt.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
-      sideLabel = m.options.find((o) => o.id === topOptId)?.label ?? "";
+      sideLabel = displayLabel(m.options.find((o) => o.id === topOptId)?.label ?? "", dict);
     }
 
     history.push({
@@ -169,7 +176,7 @@ export async function getProfile(userId: string, groupId: string): Promise<Profi
       marketId: p.market.id,
       title: mk?.title ?? "",
       imageUrl: mk?.imageUrl ?? null,
-      sideLabel: `${p.option.label} · נמכר`,
+      sideLabel: `${displayLabel(p.option.label, dict)} · ${dict.market.sold}`,
       won: profit > 0,
       profit,
     });
@@ -216,7 +223,7 @@ export async function getProfile(userId: string, groupId: string): Promise<Profi
       dayStreak,
       winStreak,
     },
-    portfolio: buildPortfolioSeries(profitEntries, user.createdAt, nowMs()),
+    portfolio: buildPortfolioSeries(profitEntries, user.createdAt, nowMs(), dict.market.profitLoss),
     openPositions,
     history,
   };

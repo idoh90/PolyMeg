@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import { useT } from "@/lib/i18n/provider";
 
 export type ChartPoint = { x: number; y: number };
 export type ChartSeries = { label: string; color: string; points: ChartPoint[] };
@@ -51,8 +52,13 @@ export default function LineChart({
   yMax,
   midline,
   formatY = (v) => v.toFixed(0),
-  formatX = (v) => new Date(v).toLocaleDateString("he-IL", { day: "2-digit", month: "short" }),
+  formatX,
 }: Props) {
+  const { dict, locale } = useT();
+  const fx =
+    formatX ??
+    ((v: number) =>
+      new Date(v).toLocaleDateString(locale === "he" ? "he-IL" : "en-US", { day: "2-digit", month: "short" }));
   const uid = useId().replace(/:/g, "");
   const [hoverX, setHoverX] = useState<number | null>(null);
   const [tipLeft, setTipLeft] = useState(0);
@@ -81,7 +87,7 @@ export default function LineChart({
   if (all.length === 0) {
     return (
       <div className="flex h-40 items-center justify-center text-sm text-muted">
-        אין עדיין מספיק נתונים להצגה.
+        {dict.lineChart.notEnoughData}
       </div>
     );
   }
@@ -198,10 +204,10 @@ export default function LineChart({
         )}
 
         <text x={plotLeft} y={H - 5} fill="var(--faint)" fontSize={11} fontFamily="var(--font-sans)">
-          {formatX(xMin)}
+          {fx(xMin)}
         </text>
         <text x={plotLeft + plotW} y={H - 5} fill="var(--faint)" fontSize={11} textAnchor="end" fontFamily="var(--font-sans)">
-          עכשיו
+          {dict.lineChart.now}
         </text>
       </svg>
 
@@ -210,7 +216,7 @@ export default function LineChart({
           className="pointer-events-none absolute top-0 z-10 -translate-x-1/2 rounded-lg border border-border bg-surface-2 px-2.5 py-1.5 text-xs shadow-lg"
           style={{ left: Math.min(Math.max(tipLeft, 60), 9999) }}
         >
-          <div className="mb-1 text-muted">{formatX(hoverX)}</div>
+          <div className="mb-1 text-muted">{fx(hoverX)}</div>
           {series.map((s) => (
             <div key={s.label} className="flex items-center gap-1.5 whitespace-nowrap">
               <span className="inline-block h-2 w-2 rounded-full" style={{ background: s.color }} />

@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Wordmark from "@/components/Wordmark";
+import BackChevron from "@/components/BackChevron";
+import { useT } from "@/lib/i18n/provider";
 
 type QUser = { id: string; username: string; displayName: string; avatarUrl: string | null };
 
@@ -14,6 +16,7 @@ function colorFor(s: string) {
 }
 
 export default function QuickPicker({ users }: { users: QUser[] }) {
+  const { dict } = useT();
   const router = useRouter();
   const [busyId, setBusyId] = useState<string | null>(null);
 
@@ -36,16 +39,14 @@ export default function QuickPicker({ users }: { users: QUser[] }) {
     <main className="mx-auto flex min-h-dvh max-w-[440px] flex-col px-[26px] py-10">
       <div className="mb-2 flex items-center justify-between">
         <button onClick={() => router.push("/login")} className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-surface">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "scaleX(-1)" }}>
-            <path d="m15 18-6-6 6-6" />
-          </svg>
+          <BackChevron size={17} />
         </button>
-        <span className="rounded-full bg-no-b px-2.5 py-1 text-[11px] font-extrabold text-no">מצב דיבוג</span>
+        <span className="rounded-full bg-no-b px-2.5 py-1 text-[11px] font-extrabold text-no">{dict.quickPicker.debugMode}</span>
       </div>
 
       <div className="mb-7 text-center">
         <Wordmark size={26} />
-        <div className="mt-3 text-[14.5px] font-semibold text-muted">כניסה מהירה — בחר משתמש</div>
+        <div className="mt-3 text-[14.5px] font-semibold text-muted">{dict.quickPicker.pickUser}</div>
       </div>
 
       <div className="grid grid-cols-3 gap-x-3 gap-y-5">
@@ -80,7 +81,7 @@ export default function QuickPicker({ users }: { users: QUser[] }) {
 
       {users.length === 0 && (
         <div className="mt-6 rounded-[16px] border border-dashed border-border p-8 text-center text-sm font-semibold text-muted">
-          אין משתמשים עדיין. הריצו את scripts/grubet-seed-debug.mjs.
+          {dict.quickPicker.empty}
         </div>
       )}
     </main>

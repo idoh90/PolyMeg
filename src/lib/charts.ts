@@ -71,6 +71,7 @@ export function buildPortfolioSeries(
   entries: { resolvedAt: Date; profit: number }[],
   startAt: Date,
   endTime: number,
+  label: string,
 ): ChartSeries {
   const sorted = [...entries].sort(
     (a, b) => a.resolvedAt.getTime() - b.resolvedAt.getTime(),
@@ -84,7 +85,7 @@ export function buildPortfolioSeries(
   const last = points[points.length - 1];
   if (last.x < endTime) points.push({ x: endTime, y: cum });
 
-  return { label: "רווח/הפסד", color: cum >= 0 ? "#1ec77d" : "#fb5a5a", points };
+  return { label, color: cum >= 0 ? "#1ec77d" : "#fb5a5a", points };
 }
 
 // Re-export for convenience in callers that format y as shekels.

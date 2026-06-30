@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireActiveMembership, isAdminRole } from "@/lib/membership";
 import ManageGroup from "@/components/ManageGroup";
+import BackChevron from "@/components/BackChevron";
+import { getI18n } from "@/lib/i18n/server";
 
 export default async function ManagePage({
   params,
@@ -12,6 +14,7 @@ export default async function ManagePage({
   const { groupId } = await params;
   const { membership, group } = await requireActiveMembership(groupId);
   if (!isAdminRole(membership.role)) redirect(`/g/${groupId}`);
+  const { dict } = await getI18n();
 
   const rows = await prisma.membership.findMany({
     where: { groupId },
@@ -31,11 +34,9 @@ export default async function ManagePage({
     <div className="px-[18px] pb-8 pt-3">
       <div className="mb-5 flex items-center gap-3">
         <Link href={`/g/${groupId}`} className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-surface">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "scaleX(-1)" }}>
-            <path d="m15 18-6-6 6-6" />
-          </svg>
+          <BackChevron size={17} />
         </Link>
-        <h1 className="text-2xl font-extrabold">ניהול קבוצה</h1>
+        <h1 className="text-2xl font-extrabold">{dict.manage.pageTitle}</h1>
       </div>
 
       <ManageGroup

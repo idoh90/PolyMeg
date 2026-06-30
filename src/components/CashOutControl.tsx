@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useT } from "@/lib/i18n/provider";
 
 // Sell an open position back to the pool at its current value.
 export default function CashOutControl({ positionId }: { positionId: string }) {
+  const { dict } = useT();
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
@@ -17,7 +19,7 @@ export default function CashOutControl({ positionId }: { positionId: string }) {
       router.refresh();
     } else {
       const d = await r.json().catch(() => ({}));
-      setErr(d.error ?? "שגיאה");
+      setErr(d.error ?? dict.common.error);
       setBusy(false);
     }
   }
@@ -26,10 +28,10 @@ export default function CashOutControl({ positionId }: { positionId: string }) {
     <button
       onClick={sell}
       disabled={busy}
-      title={err || "מכירה לפי השווי הנוכחי"}
+      title={err || dict.cashOut.tooltip}
       className="pressable flex-none rounded-full border border-accent-soft bg-accent-soft px-2.5 py-1 text-[11px] font-extrabold text-accent disabled:opacity-50"
     >
-      {busy ? "…" : "מכור"}
+      {busy ? "…" : dict.cashOut.sell}
     </button>
   );
 }

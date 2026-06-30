@@ -7,17 +7,13 @@ import { getMyGroups } from "@/lib/groups";
 import { MarketStatus } from "@/lib/constants";
 import { formatAgorot } from "@/lib/money";
 import { timeUntil } from "@/lib/format";
+import { displayLabel } from "@/lib/markets";
 import Avatar from "@/components/Avatar";
 import MarketCard, { type MarketCardData } from "@/components/MarketCard";
 import FeaturedCard, { type FeaturedData } from "@/components/FeaturedCard";
 import GroupSwitcher, { type SwitcherGroup } from "@/components/GroupSwitcher";
-
-const FILTERS = [
-  { key: "all", label: "הכול" },
-  { key: "open", label: "פתוחים" },
-  { key: "closed", label: "ממתינים" },
-  { key: "resolved", label: "הוכרעו" },
-] as const;
+import { getI18n } from "@/lib/i18n/server";
+import { interpolate } from "@/lib/i18n/interpolate";
 
 const SIDE_HEX = { yes: "#15b87a", no: "#f0405a", accent: "#2b6ef2" };
 
@@ -32,7 +28,15 @@ export default async function GroupHomePage({
   const { groupId } = await params;
   const { filter = "all" } = await searchParams;
   const user = await getCurrentUser();
+  const { dict } = await getI18n();
   const base = `/g/${groupId}`;
+
+  const FILTERS = [
+    { key: "all", label: dict.group.filterAll },
+    { key: "open", label: dict.group.filterOpen },
+    { key: "closed", label: dict.group.filterClosed },
+    { key: "resolved", label: dict.group.filterResolved },
+  ] as const;
 
   const statusFilter =
     filter === "open"
@@ -75,7 +79,7 @@ export default async function GroupHomePage({
     id: g.id,
     name: g.name,
     emoji: g.emoji,
-    membersText: `${g.memberCount} חברים`,
+    membersText: interpolate(dict.groups.members, { n: g.memberCount }),
     unread: g.unread > 0,
     active: g.id === groupId,
   }));
@@ -101,10 +105,10 @@ export default async function GroupHomePage({
       potText: formatAgorot(totalPot),
       timeText:
         m.status === MarketStatus.OPEN
-          ? `נסגר ${timeUntil(m.closesAt)}`
+          ? interpolate(dict.market.closesIn, { t: timeUntil(m.closesAt, dict.time) })
           : m.status === MarketStatus.RESOLVED
-            ? "הוכרע"
-            : "ממתין לתוצאה",
+            ? dict.market.statusResolved
+            : dict.market.awaitingResult,
       isBinary: isBinaryMarket(m.options),
       options,
     };
@@ -138,7 +142,7 @@ export default async function GroupHomePage({
       emojiImage: featMarket.imageUrl,
       emoji: featMarket.emoji,
       title: featMarket.title,
-      timeText: `נסגר ${timeUntil(featMarket.closesAt)}`,
+      timeText: interpolate(dict.market.closesIn, { t: timeUntil(featMarket.closesAt, dict.time) }),
       potText: formatAgorot(totalPot),
       betCount: featMarket.positions.length,
       top: { id: top.id, label: top.label, pct: top.pct },
@@ -148,13 +152,13 @@ export default async function GroupHomePage({
 
   const ticker = recent.map((p) => ({
     user: p.user.displayName,
-    side: p.option.label,
+    side: displayLabel(p.option.label, dict),
     color: SIDE_HEX[sideKind(p.option.label)],
     market: p.market.title,
   }));
 
   const listTitle =
-    filter === "open" ? "הימורים פתוחים" : filter === "closed" ? "ממתינים לתוצאה" : filter === "resolved" ? "הוכרעו" : "כל ההימורים";
+    filter === "open" ? dict.group.listOpen : filter === "closed" ? dict.group.listClosed : filter === "resolved" ? dict.group.listResolved : dict.group.listAll;
 
   return (
     <div className="pb-8">
@@ -165,18 +169,18 @@ export default async function GroupHomePage({
           current={{
             name: current?.name ?? "",
             emoji: current?.emoji ?? null,
-            membersText: `${current?.memberCount ?? 0} חברים`,
+            membersText: interpolate(dict.groups.members, { n: current?.memberCount ?? 0 }),
           }}
           groups={switcherGroups}
           isAdmin={isAdmin}
         />
         <div className="flex items-center gap-2">
-          <Link href={`${base}/notifications`} className="relative flex h-[38px] w-[38px] items-center justify-center rounded-xl border border-border bg-surface" aria-label="התראות">
+          <Link href={`${base}/notifications`} className="relative flex h-[38px] w-[38px] items-center justify-center rounded-xl border border-border bg-surface" aria-label={dict.group.notifications}>
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
               <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
             </svg>
-            {unread > 0 && <span className="absolute left-[7px] top-1.5 h-2 w-2 rounded-full border-[1.5px] border-surface bg-no" />}
+            {unread > 0 && <span className="absolute top-1.5 h-2 w-2 rounded-full border-[1.5px] border-surface bg-no" style={{ insetInlineStart: 7 }} />}
           </Link>
           {user && (
             <Link href={`${base}/u/${user.id}`} className="flex h-[38px] w-[38px] items-center justify-center rounded-full bg-accent text-[15px] font-extrabold text-white">
@@ -189,9 +193,9 @@ export default async function GroupHomePage({
       {/* live ticker */}
       {ticker.length > 0 && (
         <div className="relative mb-3.5 flex h-[34px] items-center overflow-hidden bg-[var(--text)]">
-          <span className="absolute right-0 z-[2] flex h-full items-center gap-1.5 bg-[var(--text)] px-3 text-[11px] font-extrabold text-white">
+          <span className="absolute z-[2] flex h-full items-center gap-1.5 bg-[var(--text)] px-3 text-[11px] font-extrabold text-white" style={{ insetInlineStart: 0 }}>
             <span className="h-[7px] w-[7px] rounded-full bg-no" style={{ animation: "pm-fade 1s ease-in-out infinite alternate" }} />
-            חי
+            {dict.group.live}
           </span>
           <div className="pm-marq flex w-max whitespace-nowrap">
             {[0, 1].map((dup) => (
@@ -199,7 +203,7 @@ export default async function GroupHomePage({
                 {ticker.map((t, i) => (
                   <span key={i} className="inline-flex items-center gap-1.5 px-4 text-[12.5px] font-medium text-[#cdd4e0]">
                     <span className="font-bold text-white">{t.user}</span>
-                    קנה
+                    {dict.group.bought}
                     <span className="font-bold" style={{ color: t.color }}>{t.side}</span>
                     · <span className="text-[#8b94a6]">{t.market}</span>
                   </span>
@@ -216,7 +220,7 @@ export default async function GroupHomePage({
             <circle cx="11" cy="11" r="7" />
             <path d="m20 20-3-3" />
           </svg>
-          <span className="text-[14.5px] font-medium">חיפוש הימור…</span>
+          <span className="text-[14.5px] font-medium">{dict.group.searchBet}</span>
         </div>
 
         <Link
@@ -227,8 +231,8 @@ export default async function GroupHomePage({
             🏆
           </div>
           <div className="min-w-0 flex-1">
-            <div className="text-[15px] font-extrabold">טבלת המובילים</div>
-            <div className="text-xs font-semibold text-faint">מי מוביל ברווחים</div>
+            <div className="text-[15px] font-extrabold">{dict.leaderboard.title}</div>
+            <div className="text-xs font-semibold text-faint">{dict.leaderboard.subtitle}</div>
           </div>
           <div className="flex flex-row-reverse">
             {board.slice(0, 3).map((b, i) => (
@@ -237,7 +241,7 @@ export default async function GroupHomePage({
               </div>
             ))}
           </div>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--faint)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "scaleX(-1)" }}>
+          <svg className="rtl-flip" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--faint)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
             <path d="m9 18 6-6-6-6" />
           </svg>
         </Link>
@@ -265,14 +269,14 @@ export default async function GroupHomePage({
 
         <div className="flex items-center justify-between pb-2.5">
           <span className="text-base font-extrabold">{listTitle}</span>
-          <span className="text-[13px] font-bold text-muted">{visible.length} הימורים</span>
+          <span className="text-[13px] font-bold text-muted">{interpolate(dict.market.betsCount, { n: visible.length })}</span>
         </div>
 
         {visible.length === 0 ? (
           <div className="rounded-[18px] border border-dashed border-border p-10 text-center text-muted">
-            <p className="mb-3">אין כאן הימורים עדיין.</p>
+            <p className="mb-3">{dict.group.noBetsYet}</p>
             <Link href={`${base}/bets/new`} className="inline-block rounded-full bg-accent px-4 py-2 text-sm font-bold text-white">
-              צור את ההימור הראשון
+              {dict.group.createFirstBet}
             </Link>
           </div>
         ) : (

@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Wordmark from "@/components/Wordmark";
+import LanguageToggle from "@/components/LanguageToggle";
+import { useT } from "@/lib/i18n/provider";
 
 const GoogleIcon = () => (
   <svg width="19" height="19" viewBox="0 0 48 48" aria-hidden>
@@ -22,6 +24,7 @@ const EyeIcon = () => (
 );
 
 export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
+  const { dict } = useT();
   const router = useRouter();
   const isSignup = mode === "signup";
   const [displayName, setDisplayName] = useState("");
@@ -34,8 +37,8 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   // light client-side validation (signup) for inline field states
   const userValid = /^[a-zA-Z0-9_.]{3,20}$/.test(username);
   const passValid = password.length >= 4;
-  const errUser = isSignup && username.length > 0 && !userValid ? "3–20 תווים: אותיות, מספרים, נקודה וקו תחתון" : "";
-  const errPass = isSignup && password.length > 0 && !passValid ? "סיסמה קצרה מדי (לפחות 4)" : "";
+  const errUser = isSignup && username.length > 0 && !userValid ? dict.auth.usernameError : "";
+  const errPass = isSignup && password.length > 0 && !passValid ? dict.auth.passwordTooShort : "";
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -57,14 +60,14 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
         router.push("/groups");
         router.refresh();
       } else {
-        setError("מצב דיבוג כבוי.");
+        setError(dict.auth.debugOff);
         setBusy(false);
       }
       return;
     }
 
     if (!username || !password) {
-      setError("מלא שם משתמש וסיסמה.");
+      setError(dict.auth.fillUserPass);
       return;
     }
 
@@ -79,19 +82,22 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
       router.refresh();
     } else {
       const d = await res.json().catch(() => ({}));
-      setError(d.error ?? "משהו השתבש.");
+      setError(d.error ?? dict.auth.somethingWrong);
       setBusy(false);
     }
   }
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-[440px] flex-col justify-center px-[26px] py-10">
+      <div className="mb-5 flex justify-center">
+        <LanguageToggle compact />
+      </div>
       <div className="mb-8 text-center">
         <Wordmark size={isSignup ? 28 : 30} />
-        <div className="mt-3 text-[14.5px] font-semibold text-muted">שוק הניבויים של החבר׳ה שלך</div>
+        <div className="mt-3 text-[14.5px] font-semibold text-muted">{dict.auth.tagline}</div>
       </div>
 
-      <h1 className="mb-4 text-[21px] font-extrabold">{isSignup ? "יצירת חשבון" : "התחברות"}</h1>
+      <h1 className="mb-4 text-[21px] font-extrabold">{isSignup ? dict.auth.signupTitle : dict.auth.loginTitle}</h1>
 
       {!isSignup && error && (
         <div className="mb-3.5 flex items-center gap-2 rounded-xl bg-no-b px-3.5 py-2.5 text-[13.5px] font-bold text-no">
@@ -105,20 +111,20 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
       <form onSubmit={submit} className="flex flex-col">
         {isSignup && (
           <>
-            <label className="mb-1.5 text-[12.5px] font-extrabold text-muted">שם תצוגה</label>
+            <label className="mb-1.5 text-[12.5px] font-extrabold text-muted">{dict.account.displayName}</label>
             <div data-field className="mb-3.5 rounded-[14px] border-[1.5px] border-border bg-surface px-[15px] py-[13px]">
-              <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} dir="auto" placeholder="איך יקראו לך בקבוצות" className="w-full bg-transparent text-[15.5px] font-semibold outline-none" required />
+              <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} dir="auto" placeholder={dict.auth.displayNamePlaceholder} className="w-full bg-transparent text-[15.5px] font-semibold outline-none" required />
             </div>
           </>
         )}
 
-        <label className="mb-1.5 text-[12.5px] font-extrabold text-muted">שם משתמש</label>
+        <label className="mb-1.5 text-[12.5px] font-extrabold text-muted">{dict.account.username}</label>
         <div data-field className="flex items-center gap-1 rounded-[14px] border-[1.5px] bg-surface px-[15px] py-[13px]" style={{ borderColor: errUser ? "var(--no)" : "var(--border)", marginBottom: isSignup ? 6 : 14 }}>
           {isSignup && <span className="text-[15px] font-bold text-faint">@</span>}
           <input
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder={isSignup ? "username" : "שם המשתמש שלך"}
+            placeholder={isSignup ? "username" : dict.auth.usernamePlaceholderLogin}
             autoCapitalize="none"
             autoComplete="username"
             className="w-full bg-transparent text-[15.5px] font-semibold outline-none"
@@ -127,20 +133,20 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
           />
         </div>
         {errUser && <div className="mb-1.5 text-[12px] font-bold text-no">{errUser}</div>}
-        {isSignup && <div className="mb-3.5 mt-0.5 text-[11.5px] font-semibold text-faint">3–20 תווים · אותיות, מספרים, נקודה וקו תחתון</div>}
+        {isSignup && <div className="mb-3.5 mt-0.5 text-[11.5px] font-semibold text-faint">{dict.auth.usernameHint}</div>}
 
-        <label className="mb-1.5 text-[12.5px] font-extrabold text-muted">סיסמה</label>
+        <label className="mb-1.5 text-[12.5px] font-extrabold text-muted">{dict.auth.password}</label>
         <div data-field className="flex items-center rounded-[14px] border-[1.5px] bg-surface px-[15px]" style={{ borderColor: errPass ? "var(--no)" : "var(--border)", marginBottom: isSignup ? 6 : 22 }}>
           <input
             type={show ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder={isSignup ? "לפחות 4 תווים" : "הסיסמה שלך"}
+            placeholder={isSignup ? dict.auth.passwordPlaceholderSignup : dict.auth.passwordPlaceholderLogin}
             autoComplete={isSignup ? "new-password" : "current-password"}
             className="w-full bg-transparent py-[9px] text-[15.5px] font-semibold outline-none"
             required={isSignup}
           />
-          <button type="button" onClick={() => setShow((s) => !s)} className="flex p-1.5 text-faint" aria-label={show ? "הסתר סיסמה" : "הצג סיסמה"}>
+          <button type="button" onClick={() => setShow((s) => !s)} className="flex p-1.5 text-faint" aria-label={show ? dict.auth.hidePassword : dict.auth.showPassword}>
             <EyeIcon />
           </button>
         </div>
@@ -152,14 +158,14 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
           className="mt-3.5 flex items-center justify-center gap-2.5 rounded-[15px] bg-accent py-4 text-[16.5px] font-extrabold text-white shadow-[0_12px_24px_-12px_var(--accent)] disabled:opacity-60"
         >
           {busy && <span className="block h-[17px] w-[17px] animate-[pm-spin_.7s_linear_infinite] rounded-full border-[2.5px] border-white/40 border-t-white" />}
-          {busy ? "רגע…" : isSignup ? "צור חשבון" : "התחבר"}
+          {busy ? dict.auth.oneMoment : isSignup ? dict.auth.createAccount : dict.auth.login}
         </button>
       </form>
 
       {/* social auth */}
       <div className="my-5 flex items-center gap-3">
         <span className="h-px flex-1 bg-border" />
-        <span className="text-[12px] font-bold text-faint">או</span>
+        <span className="text-[12px] font-bold text-faint">{dict.auth.or}</span>
         <span className="h-px flex-1 bg-border" />
       </div>
       <button
@@ -168,7 +174,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
         className="pressable flex w-full items-center justify-center gap-2.5 rounded-[14px] border-[1.5px] border-border bg-surface py-[13px] text-[15px] font-extrabold"
       >
         <GoogleIcon />
-        המשך עם Google
+        {dict.auth.continueGoogle}
       </button>
       <button
         type="button"
@@ -176,13 +182,13 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
         className="mt-2.5 flex w-full items-center justify-center gap-2.5 rounded-[14px] border-[1.5px] border-border bg-surface-2 py-[13px] text-[15px] font-extrabold text-faint"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M16.4 12.8c0-2.2 1.8-3.3 1.9-3.3-1-1.5-2.6-1.7-3.2-1.7-1.4-.1-2.6.8-3.3.8-.7 0-1.7-.8-2.8-.8-1.4 0-2.8.8-3.5 2.1-1.5 2.6-.4 6.4 1.1 8.5.7 1 1.5 2.2 2.6 2.1 1-.04 1.4-.7 2.7-.7s1.6.7 2.7.6c1.1-.02 1.8-1 2.5-2 .8-1.2 1.1-2.3 1.1-2.4-.02-.01-2.1-.8-2.1-3.1zM14.3 6.3c.6-.7 1-1.7.9-2.7-.8.03-1.9.6-2.5 1.3-.5.6-1 1.6-.9 2.6.9.07 1.8-.5 2.5-1.2z" /></svg>
-        Apple · בקרוב
+        {dict.auth.appleSoon}
       </button>
 
       <div className="mt-5 text-center text-sm font-semibold text-muted">
-        {isSignup ? "כבר יש לי חשבון " : "אין לך חשבון? "}
+        {isSignup ? `${dict.auth.haveAccount} ` : `${dict.auth.noAccount} `}
         <button onClick={() => router.push(isSignup ? "/login" : "/signup")} className="font-extrabold text-accent">
-          {isSignup ? "← התחבר" : "הרשמה"}
+          {isSignup ? dict.auth.login : dict.auth.signup}
         </button>
       </div>
     </main>

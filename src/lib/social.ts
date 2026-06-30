@@ -1,16 +1,14 @@
 // Shared helpers + constants for the social/banter layer (comments, reactions,
 // trash-talk). Pure functions — safe to import on client or server.
 
+import type { Dictionary } from "@/lib/i18n";
+
 export const REACTION_EMOJI = ["🔥", "😂", "💀", "🤡"] as const;
 
-export const TRASH_TALK_LINES = [
-  "קראתי את זה 😎",
-  "קל 💸",
-  "אין מצב שאני טועה",
-  "בנק 🏦",
-  "סומכים עליי",
-  "תבכו אחר כך 😂",
-] as const;
+/** Localized one-tap trash-talk presets for the shout bar. */
+export function trashTalkLines(dict: Dictionary): readonly string[] {
+  return dict.trashTalk.list;
+}
 
 export const MAX_COMMENT_LEN = 500;
 export const MAX_SHOUT_LEN = 40;

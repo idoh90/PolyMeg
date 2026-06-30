@@ -2,6 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useBetSheet, type SheetMarket } from "@/components/BetSheet";
+import { displayLabel } from "@/lib/markets";
+import { useT } from "@/lib/i18n/provider";
+import { interpolate } from "@/lib/i18n/interpolate";
 
 export interface FeaturedData {
   groupId: string;
@@ -17,8 +20,11 @@ export interface FeaturedData {
 }
 
 export default function FeaturedCard({ data }: { data: FeaturedData }) {
+  const { dict } = useT();
   const router = useRouter();
   const { open } = useBetSheet();
+  const topLabel = displayLabel(data.top.label, dict);
+  const botLabel = displayLabel(data.bot.label, dict);
 
   return (
     <div
@@ -27,12 +33,12 @@ export default function FeaturedCard({ data }: { data: FeaturedData }) {
       style={{ background: "linear-gradient(135deg,#1f2a4d,#0f1320)" }}
     >
       <div
-        className="absolute -left-[30px] -top-10 h-40 w-40 rounded-full"
-        style={{ background: "radial-gradient(circle,rgba(43,110,242,.5),transparent 70%)" }}
+        className="absolute -top-10 h-40 w-40 rounded-full"
+        style={{ insetInlineStart: -30, background: "radial-gradient(circle,rgba(43,110,242,.5),transparent 70%)" }}
       />
       <div className="relative">
         <div className="mb-3 flex items-center gap-2 text-[11px] font-extrabold tracking-wide text-[#aeb7c9]">
-          <span className="rounded-full bg-[rgba(43,110,242,.25)] px-2.5 py-[3px] text-[#9cc0ff]">מומלץ</span>
+          <span className="rounded-full bg-[rgba(43,110,242,.25)] px-2.5 py-[3px] text-[#9cc0ff]">{dict.market.featured}</span>
           <span>{data.timeText}</span>
         </div>
         <div className="flex items-start gap-3">
@@ -52,7 +58,7 @@ export default function FeaturedCard({ data }: { data: FeaturedData }) {
               {data.top.pct}
               <span className="text-base">%</span>
             </div>
-            <div className="mt-0.5 text-[11px] font-semibold text-[#aeb7c9]">{data.top.label}</div>
+            <div className="mt-0.5 text-[11px] font-semibold text-[#aeb7c9]">{topLabel}</div>
           </div>
         </div>
         <div className="mt-4 flex gap-2.5">
@@ -63,7 +69,7 @@ export default function FeaturedCard({ data }: { data: FeaturedData }) {
             }}
             className="flex-1 rounded-[13px] bg-yes py-[13px] text-[15px] font-extrabold text-[#04130c]"
           >
-            קנה {data.top.label} · {data.top.pct}%
+            {dict.market.buy} {topLabel} · {data.top.pct}%
           </button>
           <button
             onClick={(e) => {
@@ -72,12 +78,12 @@ export default function FeaturedCard({ data }: { data: FeaturedData }) {
             }}
             className="flex-1 rounded-[13px] bg-no py-[13px] text-[15px] font-extrabold text-[#1a0509]"
           >
-            קנה {data.bot.label} · {data.bot.pct}%
+            {dict.market.buy} {botLabel} · {data.bot.pct}%
           </button>
         </div>
         <div className="mt-3 flex justify-between text-xs font-semibold text-[#aeb7c9]">
-          <span>קופה {data.potText}</span>
-          <span>{data.betCount} הימורים</span>
+          <span>{dict.market.pot} {data.potText}</span>
+          <span>{interpolate(dict.market.betsCount, { n: data.betCount })}</span>
         </div>
       </div>
     </div>

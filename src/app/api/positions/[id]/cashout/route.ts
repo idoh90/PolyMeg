@@ -4,13 +4,15 @@ import { getCurrentUser } from "@/lib/currentUser";
 import { getMembership } from "@/lib/membership";
 import { poolFor } from "@/lib/markets";
 import { MarketStatus } from "@/lib/constants";
+import { getI18n } from "@/lib/i18n/server";
 
 // Simplified cash-out: sell an open position back to the pool at its option's
 // current share. value = stake × (currentPct / entryPct). The freed stake leaves
 // the live pool; realized P/L is value - stake.
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { dict } = await getI18n();
   const user = await getCurrentUser();
-  if (!user) return NextResponse.json({ error: "לא מורשה" }, { status: 401 });
+  if (!user) return NextResponse.json({ error: dict.errors.unauthorized }, { status: 401 });
 
   const { id } = await params;
   const pos = await prisma.position.findUnique({
@@ -34,18 +36,18 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
       },
     },
   });
-  if (!pos) return NextResponse.json({ error: "הפוזיציה לא נמצאה." }, { status: 404 });
-  if (pos.userId !== user.id) return NextResponse.json({ error: "לא הפוזיציה שלך." }, { status: 403 });
+  if (!pos) return NextResponse.json({ error: dict.errors.positionNotFound }, { status: 404 });
+  if (pos.userId !== user.id) return NextResponse.json({ error: dict.errors.notYourPosition }, { status: 403 });
 
   const m = pos.market;
-  if (m.kind === "SCALAR") return NextResponse.json({ error: "לא ניתן למכור בהימור מספרי." }, { status: 400 });
-  if (!m.cashOutEnabled) return NextResponse.json({ error: "מכירה מוקדמת כבויה בהימור הזה." }, { status: 400 });
-  if (m.status !== MarketStatus.OPEN) return NextResponse.json({ error: "ההימור סגור למכירה." }, { status: 400 });
-  if (pos.soldAt) return NextResponse.json({ error: "הפוזיציה כבר נמכרה." }, { status: 400 });
+  if (m.kind === "SCALAR") return NextResponse.json({ error: dict.errors.cantSellScalar }, { status: 400 });
+  if (!m.cashOutEnabled) return NextResponse.json({ error: dict.errors.cashOutDisabled }, { status: 400 });
+  if (m.status !== MarketStatus.OPEN) return NextResponse.json({ error: dict.errors.betClosedForSale }, { status: 400 });
+  if (pos.soldAt) return NextResponse.json({ error: dict.errors.alreadySold }, { status: 400 });
 
   const membership = await getMembership(user.id, m.groupId);
   if (!membership || membership.status !== "ACTIVE")
-    return NextResponse.json({ error: "אינך חבר בקבוצה." }, { status: 403 });
+    return NextResponse.json({ error: dict.errors.notMember }, { status: 403 });
 
   const { options } = poolFor(m.options, m.positions, m.winningOptionId);
   const curPct = options.find((o) => o.id === pos.optionId)?.pct ?? 0;

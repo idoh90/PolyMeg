@@ -6,6 +6,9 @@ import { isAdminRole } from "@/lib/membership";
 import { formatAgorot } from "@/lib/money";
 import Avatar from "@/components/Avatar";
 import PortfolioChart from "@/components/PortfolioChart";
+import BackChevron from "@/components/BackChevron";
+import { getI18n } from "@/lib/i18n/server";
+import { interpolate, plural } from "@/lib/i18n/interpolate";
 
 const SIDE_HEX = { yes: "#15b87a", no: "#f0405a", accent: "#2b6ef2" };
 const SIDE_SOFT = { yes: "var(--yes-b)", no: "var(--no-b)", accent: "var(--accent-soft)" };
@@ -21,13 +24,14 @@ export default async function ProfilePage({
 }) {
   const { groupId, userId } = await params;
   const base = `/g/${groupId}`;
-  const [profile, meId] = await Promise.all([getProfile(userId, groupId), getCurrentUserId()]);
+  const { dict, locale } = await getI18n();
+  const [profile, meId] = await Promise.all([getProfile(userId, groupId, dict), getCurrentUserId()]);
   if (!profile) notFound();
 
   const { user, stats, portfolio, openPositions, history } = profile;
   const isMe = meId === user.id;
   const isAdmin = isAdminRole(user.role);
-  const roleLabel = user.role === "OWNER" ? "בעלים" : user.role === "ADMIN" ? "מנהל" : null;
+  const roleLabel = user.role === "OWNER" ? dict.roles.owner : user.role === "ADMIN" ? dict.roles.admin : null;
   const hasChart = portfolio.points.length > 2;
   const netColor = stats.realizedNet > 0 ? "var(--yes)" : stats.realizedNet < 0 ? "var(--no)" : "#fff";
 
@@ -37,11 +41,9 @@ export default async function ProfilePage({
       {!isMe && (
         <div className="mb-4 flex items-center gap-3">
           <Link href={base} className="flex h-[38px] w-[38px] items-center justify-center rounded-xl border border-border bg-surface">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "scaleX(-1)" }}>
-              <path d="m15 18-6-6 6-6" />
-            </svg>
+            <BackChevron />
           </Link>
-          <span className="text-[15px] font-extrabold text-muted">פרופיל חבר</span>
+          <span className="text-[15px] font-extrabold text-muted">{dict.profile.memberProfile}</span>
         </div>
       )}
 
@@ -50,7 +52,7 @@ export default async function ProfilePage({
         <div className="flex items-center gap-3">
           {!isMe && <Avatar name={user.name} src={user.avatarUrl} size={40} />}
           <h1 className="text-2xl font-extrabold">
-            {isMe ? "התיק שלי" : user.name}
+            {isMe ? dict.profile.myPortfolio : user.name}
             {roleLabel && !isMe && (
               <span className="ms-2 rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent">{roleLabel}</span>
             )}
@@ -60,11 +62,11 @@ export default async function ProfilePage({
           <div className="flex items-center gap-2">
             {isAdmin && (
               <Link href={`${base}/manage`} className="rounded-xl border border-border bg-surface px-3 py-2 text-sm font-bold">
-                ניהול
+                {dict.profile.manage}
               </Link>
             )}
             <Link href="/account" className="rounded-xl border border-border bg-surface px-3 py-2 text-sm font-bold text-muted">
-              חשבון
+              {dict.profile.account}
             </Link>
           </div>
         )}
@@ -82,7 +84,7 @@ export default async function ProfilePage({
         <div className="relative">
           <div className="flex items-start justify-between">
             <div>
-              <div className="text-[12.5px] font-bold tracking-wide text-[#aeb7c9]">רווח/הפסד נטו</div>
+              <div className="text-[12.5px] font-bold tracking-wide text-[#aeb7c9]">{dict.profile.netProfitLoss}</div>
               <div className="my-1 text-[38px] font-black tracking-tight" style={{ color: netColor }}>
                 {signed(stats.realizedNet)}
               </div>
@@ -91,12 +93,12 @@ export default async function ProfilePage({
               <div className="flex flex-col items-end gap-1.5">
                 {stats.dayStreak > 0 && (
                   <div className="flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-[13px] font-extrabold">
-                    🔥 {stats.dayStreak} {stats.dayStreak === 1 ? "יום" : "ימים"}
+                    🔥 {stats.dayStreak} {plural(locale, stats.dayStreak, { one: dict.profile.dayOne, other: dict.profile.dayOther })}
                   </div>
                 )}
                 {stats.winStreak >= 2 && (
                   <div className="rounded-full bg-white/10 px-2.5 py-1 text-[11.5px] font-bold text-[#aeb7c9]">
-                    🎯 {stats.winStreak} ברצף
+                    🎯 {stats.winStreak} {dict.profile.inARow}
                   </div>
                 )}
               </div>
@@ -104,15 +106,15 @@ export default async function ProfilePage({
           </div>
           <div className="mt-3 flex gap-7">
             <div>
-              <div className="text-[11px] font-bold text-[#aeb7c9]">פוזיציות פתוחות</div>
+              <div className="text-[11px] font-bold text-[#aeb7c9]">{dict.profile.openPositions}</div>
               <div className="mt-0.5 text-[17px] font-extrabold">{stats.openCount}</div>
             </div>
             <div>
-              <div className="text-[11px] font-bold text-[#aeb7c9]">הימרת בסה״כ</div>
+              <div className="text-[11px] font-bold text-[#aeb7c9]">{dict.profile.totalStaked}</div>
               <div className="mt-0.5 text-[17px] font-extrabold">{formatAgorot(stats.totalStaked)}</div>
             </div>
             <div>
-              <div className="text-[11px] font-bold text-[#aeb7c9]">אחוז הצלחה</div>
+              <div className="text-[11px] font-bold text-[#aeb7c9]">{dict.profile.winRate}</div>
               <div className="mt-0.5 text-[17px] font-extrabold">
                 {stats.winRate === null ? "—" : `${Math.round(stats.winRate * 100)}%`}
               </div>
@@ -124,7 +126,7 @@ export default async function ProfilePage({
       {/* value chart */}
       {hasChart && (
         <div className="mb-5 rounded-[18px] border border-border bg-surface p-2 pt-3.5">
-          <div className="px-2.5 pb-2 text-[13px] font-extrabold text-muted">שווי לאורך זמן</div>
+          <div className="px-2.5 pb-2 text-[13px] font-extrabold text-muted">{dict.profile.valueOverTime}</div>
           <PortfolioChart series={portfolio} />
         </div>
       )}
@@ -132,8 +134,8 @@ export default async function ProfilePage({
       {/* trophies placeholder */}
       <div className="mb-5 rounded-[18px] border border-border bg-surface p-4">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-extrabold">🏆 גביעים</h2>
-          <span className="text-xs text-muted">בקרוב</span>
+          <h2 className="font-extrabold">{dict.profile.trophies}</h2>
+          <span className="text-xs text-muted">{dict.profile.comingSoon}</span>
         </div>
         <div className="flex gap-3">
           {[0, 1, 2, 3].map((i) => (
@@ -145,13 +147,13 @@ export default async function ProfilePage({
             </div>
           ))}
         </div>
-        <p className="mt-3 text-xs text-muted">אירועים מיוחדים ופרסים יופיעו כאן — תנו גביע למי שצדק.</p>
+        <p className="mt-3 text-xs text-muted">{dict.profile.trophiesNote}</p>
       </div>
 
       {/* open positions */}
       {openPositions.length > 0 && (
         <>
-          <div className="mb-2.5 text-base font-extrabold">פוזיציות פתוחות</div>
+          <div className="mb-2.5 text-base font-extrabold">{dict.profile.openPositions}</div>
           <div className="mb-5 flex flex-col gap-2.5">
             {openPositions.map((p, i) => (
               <Link
@@ -179,10 +181,10 @@ export default async function ProfilePage({
                       </span>
                     </div>
                   </div>
-                  <div className="text-left">
-                    <div className="text-[11px] font-bold text-faint">הימרת</div>
+                  <div className="text-end">
+                    <div className="text-[11px] font-bold text-faint">{dict.profile.staked}</div>
                     <div className="text-[15px] font-extrabold">{formatAgorot(p.stake)}</div>
-                    <div className="mt-0.5 text-[11px] font-bold text-yes">זכייה {formatAgorot(p.toWin)}</div>
+                    <div className="mt-0.5 text-[11px] font-bold text-yes">{dict.profile.win} {formatAgorot(p.toWin)}</div>
                   </div>
                 </div>
               </Link>
@@ -194,7 +196,7 @@ export default async function ProfilePage({
       {/* history */}
       {history.length > 0 && (
         <>
-          <div className="mb-2.5 text-base font-extrabold">היסטוריה</div>
+          <div className="mb-2.5 text-base font-extrabold">{dict.profile.history}</div>
           <div className="flex flex-col">
             {history.map((h, i) => (
               <Link
@@ -213,7 +215,7 @@ export default async function ProfilePage({
                 <div className="min-w-0 flex-1">
                   <div dir="auto" className="text-[13.5px] font-bold leading-tight">{h.title}</div>
                   <div className="text-xs font-semibold text-faint">
-                    הימרת {h.sideLabel} · {h.won ? "זכית" : "הפסדת"}
+                    {dict.profile.staked} {h.sideLabel} · {h.won ? dict.profile.youWon : dict.profile.youLost}
                   </div>
                 </div>
                 <span
@@ -230,7 +232,7 @@ export default async function ProfilePage({
 
       {openPositions.length === 0 && history.length === 0 && (
         <p className="rounded-[16px] border border-dashed border-border p-8 text-center text-sm text-muted">
-          {isMe ? "עוד לא הימרת. כנס להימור והנח את הראשון!" : "עדיין אין פעילות."}
+          {isMe ? dict.profile.emptyMine : dict.profile.emptyOther}
         </p>
       )}
     </div>

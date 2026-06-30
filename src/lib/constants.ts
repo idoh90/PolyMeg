@@ -1,5 +1,7 @@
 // Shared string constants (used instead of native DB enums for portability).
 
+import type { Dictionary } from "@/lib/i18n";
+
 export const MarketStatus = {
   OPEN: "OPEN",
   CLOSED: "CLOSED",
@@ -13,9 +15,10 @@ export const EMOJI_OPTIONS = [
   "🏆", "💸", "🎬", "🎓", "🏠", "💼", "🚀", "🐉",
 ] as const;
 
-export const GROUP_CATEGORIES = [
-  "חברים", "גיימינג", "ספורט", "עבודה", "משפחה", "לימודים", "קהילה",
-] as const;
+/** Localized group-category suggestions for the create-group picker. */
+export function groupCategories(dict: Dictionary): readonly string[] {
+  return dict.categories.list;
+}
 
 // One-tap market templates: prefill the create flow. `kind` drives the type
 // toggle; `options` seeds multi-choice rows (empty strings = blanks to fill).
@@ -27,14 +30,18 @@ export type MarketTemplate = {
   scalarUnit?: string;
 };
 
-export const MARKET_TEMPLATES: MarketTemplate[] = [
-  { emoji: "⏰", title: "מישהו יאחר הערב?", kind: "BINARY" },
-  { emoji: "🌧️", title: "ירד גשם בסופ״ש?", kind: "BINARY" },
-  { emoji: "⚽", title: "מי ינצח במשחק?", kind: "MULTI", options: ["קבוצה א׳", "קבוצה ב׳", "תיקו"] },
-  { emoji: "🍕", title: "מי מביא אוכל למפגש?", kind: "MULTI", options: ["", "", ""] },
-  { emoji: "👥", title: "כמה אנשים יגיעו בשבת?", kind: "SCALAR", scalarUnit: "אנשים" },
-  { emoji: "💪", title: "נעמוד ביעד השבוע?", kind: "BINARY" },
-];
+/** Localized one-tap market templates for the create flow. */
+export function marketTemplates(dict: Dictionary): MarketTemplate[] {
+  const t = dict.templates;
+  return [
+    { emoji: "⏰", title: t.lateTitle, kind: "BINARY" },
+    { emoji: "🌧️", title: t.rainTitle, kind: "BINARY" },
+    { emoji: "⚽", title: t.matchTitle, kind: "MULTI", options: [...t.matchOptions] },
+    { emoji: "🍕", title: t.foodTitle, kind: "MULTI", options: ["", "", ""] },
+    { emoji: "👥", title: t.countTitle, kind: "SCALAR", scalarUnit: t.countUnit },
+    { emoji: "💪", title: t.goalTitle, kind: "BINARY" },
+  ];
+}
 
 export const NotificationType = {
   NEW_MARKET: "NEW_MARKET",

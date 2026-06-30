@@ -3,17 +3,19 @@ import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/session";
 import { getMembership, isAdminRole, makeJoinCode } from "@/lib/membership";
 import { hashPassword } from "@/lib/auth";
+import { getI18n } from "@/lib/i18n/server";
 
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const { dict } = await getI18n();
   const userId = await getCurrentUserId();
-  if (!userId) return NextResponse.json({ error: "לא מחובר" }, { status: 401 });
+  if (!userId) return NextResponse.json({ error: dict.errors.notLoggedIn }, { status: 401 });
   const { id } = await params;
   const m = await getMembership(userId, id);
   if (!isAdminRole(m?.role))
-    return NextResponse.json({ error: "אין הרשאה." }, { status: 403 });
+    return NextResponse.json({ error: dict.errors.noPermission }, { status: 403 });
 
   const body = await req.json().catch(() => ({}));
   const data: Record<string, unknown> = {};
@@ -33,12 +35,13 @@ export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const { dict } = await getI18n();
   const userId = await getCurrentUserId();
-  if (!userId) return NextResponse.json({ error: "לא מחובר" }, { status: 401 });
+  if (!userId) return NextResponse.json({ error: dict.errors.notLoggedIn }, { status: 401 });
   const { id } = await params;
   const m = await getMembership(userId, id);
   if (m?.role !== "OWNER")
-    return NextResponse.json({ error: "רק הבעלים יכול למחוק." }, { status: 403 });
+    return NextResponse.json({ error: dict.errors.onlyOwnerDelete }, { status: 403 });
 
   await prisma.group.delete({ where: { id } }); // cascades memberships + markets
   return NextResponse.json({ ok: true });

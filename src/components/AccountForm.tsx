@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useT } from "@/lib/i18n/provider";
 
 function fileToDataUrl(file: File, maxSize = 400): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -35,6 +36,7 @@ export default function AccountForm({
   initial: { username: string; displayName: string; avatarUrl: string | null };
   ownerGroups: OwnerGroup[];
 }) {
+  const { dict } = useT();
   const router = useRouter();
   const [displayName, setDisplayName] = useState(initial.displayName);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(initial.avatarUrl);
@@ -58,13 +60,13 @@ export default function AccountForm({
       body: JSON.stringify(body),
     });
     if (res.ok) {
-      setMsg("נשמר ✓");
+      setMsg(dict.common.saved);
       setNewPassword("");
       setCurrentPassword("");
       router.refresh();
     } else {
       const d = await res.json().catch(() => ({}));
-      setMsg(d.error ?? "שמירה נכשלה");
+      setMsg(d.error ?? dict.common.saveFailed);
     }
     setBusy(false);
   }
@@ -95,27 +97,27 @@ export default function AccountForm({
         <div className="text-[13px] font-semibold text-faint" style={{ direction: "ltr" }}>@{initial.username}</div>
       </div>
 
-      <label className="mb-1.5 block text-[12.5px] font-extrabold text-muted">שם תצוגה</label>
+      <label className="mb-1.5 block text-[12.5px] font-extrabold text-muted">{dict.account.displayName}</label>
       <div data-field className="mb-3.5 rounded-[14px] border-[1.5px] border-border bg-surface px-[15px] py-[13px]">
         <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} dir="auto" className="w-full bg-transparent text-[15.5px] font-bold outline-none" />
       </div>
-      <label className="mb-1.5 block text-[12.5px] font-extrabold text-muted">שם משתמש</label>
+      <label className="mb-1.5 block text-[12.5px] font-extrabold text-muted">{dict.account.username}</label>
       <div className="mb-[22px] flex items-center rounded-[14px] border-[1.5px] border-border bg-surface-2 px-[15px] py-[13px]">
         <input value={initial.username} disabled className="w-full bg-transparent text-[15.5px] font-semibold text-faint outline-none" style={{ direction: "ltr", textAlign: "start" }} />
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--faint)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
       </div>
 
-      <div className="mb-2.5 text-[13px] font-extrabold text-muted">שינוי סיסמה</div>
+      <div className="mb-2.5 text-[13px] font-extrabold text-muted">{dict.account.changePassword}</div>
       <div data-field className="mb-2.5 rounded-[14px] border-[1.5px] border-border bg-surface px-[15px] py-[13px]">
-        <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="סיסמה נוכחית" className="w-full bg-transparent text-[15px] font-semibold outline-none" />
+        <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder={dict.account.currentPassword} className="w-full bg-transparent text-[15px] font-semibold outline-none" />
       </div>
       <div data-field className="mb-6 rounded-[14px] border-[1.5px] border-border bg-surface px-[15px] py-[13px]">
-        <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="סיסמה חדשה" className="w-full bg-transparent text-[15px] font-semibold outline-none" />
+        <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder={dict.account.newPassword} className="w-full bg-transparent text-[15px] font-semibold outline-none" />
       </div>
 
       {ownerGroups.length > 0 && (
         <>
-          <div className="mb-2.5 text-[13px] font-extrabold text-muted">קבוצות שאני מנהל</div>
+          <div className="mb-2.5 text-[13px] font-extrabold text-muted">{dict.account.groupsIManage}</div>
           <div className="mb-6 overflow-hidden rounded-[16px] border border-border bg-surface">
             {ownerGroups.map((o) => (
               <div key={o.id} className="flex items-center gap-[11px] border-b border-border px-[15px] py-[13px] last:border-b-0">
@@ -131,11 +133,11 @@ export default function AccountForm({
       {msg && <p className="mb-3 text-sm font-semibold text-muted">{msg}</p>}
 
       <button onClick={save} disabled={busy} className="mb-3 w-full rounded-[14px] bg-accent py-3.5 text-base font-extrabold text-white disabled:opacity-50">
-        {busy ? "שומר…" : "שמור שינויים"}
+        {busy ? dict.common.saving : dict.common.saveChanges}
       </button>
       <button onClick={logout} className="flex w-full items-center justify-center gap-2 rounded-[14px] border border-no-b bg-no-b py-[15px] text-[15.5px] font-extrabold text-no">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="m16 17 5-5-5-5M21 12H9" /></svg>
-        התנתקות
+        {dict.account.logout}
       </button>
     </div>
   );

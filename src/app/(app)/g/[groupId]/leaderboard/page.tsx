@@ -3,6 +3,9 @@ import { getLeaderboard } from "@/lib/leaderboard";
 import { getCurrentUserId } from "@/lib/session";
 import { formatAgorot } from "@/lib/money";
 import Avatar from "@/components/Avatar";
+import BackChevron from "@/components/BackChevron";
+import { getI18n } from "@/lib/i18n/server";
+import { interpolate } from "@/lib/i18n/interpolate";
 
 function signed(n: number) {
   return `${n > 0 ? "+" : ""}${formatAgorot(n)}`;
@@ -19,6 +22,7 @@ export default async function LeaderboardPage({
 }) {
   const { groupId } = await params;
   const [board, meId] = await Promise.all([getLeaderboard(groupId), getCurrentUserId()]);
+  const { dict } = await getI18n();
   const base = `/g/${groupId}`;
 
   // Podium order: 2nd, 1st, 3rd
@@ -28,15 +32,13 @@ export default async function LeaderboardPage({
     <div className="px-[18px] pb-8 pt-1.5">
       <div className="mb-4 flex items-center gap-3">
         <Link href={base} className="flex h-[38px] w-[38px] items-center justify-center rounded-xl border border-border bg-surface">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "scaleX(-1)" }}>
-            <path d="m15 18-6-6 6-6" />
-          </svg>
+          <BackChevron />
         </Link>
-        <span className="text-[15px] font-extrabold text-muted">חזרה לבית</span>
+        <span className="text-[15px] font-extrabold text-muted">{dict.leaderboard.backHome}</span>
       </div>
-      <h1 className="text-2xl font-extrabold">טבלת המובילים</h1>
+      <h1 className="text-2xl font-extrabold">{dict.leaderboard.title}</h1>
       <p className="mb-[18px] mt-1 text-[13.5px] font-semibold text-muted">
-        רווח והפסד נטו מכל ההימורים שהוכרעו
+        {dict.leaderboard.subtitleLong}
       </p>
 
       {/* podium */}
@@ -97,10 +99,10 @@ export default async function LeaderboardPage({
             <div className="min-w-0 flex-1">
               <div className="text-[14.5px] font-extrabold">
                 {b.name}
-                {b.userId === meId && <span className="font-semibold text-muted"> (אתה)</span>}
+                {b.userId === meId && <span className="font-semibold text-muted"> {dict.leaderboard.you}</span>}
               </div>
               <div className="text-xs font-semibold text-faint">
-                {b.wins} ניצחונות · {b.bets} הימורים
+                {interpolate(dict.leaderboard.wins, { n: b.wins })} · {interpolate(dict.market.betsCount, { n: b.bets })}
               </div>
             </div>
             <span

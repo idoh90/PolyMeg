@@ -23,6 +23,7 @@ model User {
   passwordHash String
   displayName  String
   avatarUrl    String? // data URL or external URL
+  locale       String? // preferred UI language ("he" | "en"); null = follow cookie/default
   createdAt    DateTime @default(now())
 
   memberships    Membership[]

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useT } from "@/lib/i18n/provider";
 
 // Sends a settlement reminder to a debtor.
 export default function NudgeButton({
@@ -12,6 +13,7 @@ export default function NudgeButton({
   toUserId: string;
   amount: number;
 }) {
+  const { dict } = useT();
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -32,7 +34,7 @@ export default function NudgeButton({
       disabled={busy || sent}
       className="pressable flex-none rounded-full bg-no px-3 py-1.5 text-[12px] font-extrabold text-white disabled:opacity-60"
     >
-      {sent ? "נשלח ✓" : busy ? "…" : "תזכורת"}
+      {sent ? dict.nudge.sent : busy ? "…" : dict.nudge.remind}
     </button>
   );
 }

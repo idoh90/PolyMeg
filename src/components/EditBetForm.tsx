@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import OptionBlocks, { type BlockUser } from "@/components/OptionBlocks";
+import { useT } from "@/lib/i18n/provider";
 
 export interface EditInitial {
   id: string;
@@ -50,6 +51,7 @@ export default function EditBetForm({
   initial: EditInitial;
   users: BlockUser[];
 }) {
+  const { dict } = useT();
   const router = useRouter();
   const [title, setTitle] = useState(initial.title);
   const [criteria, setCriteria] = useState(initial.criteria);
@@ -68,7 +70,7 @@ export default function EditBetForm({
     try {
       setImageUrl(await fileToDataUrl(file));
     } catch {
-      setError("לא ניתן לקרוא את התמונה.");
+      setError(dict.newBet.imageReadFailed);
     }
   }
 
@@ -103,7 +105,7 @@ export default function EditBetForm({
       router.refresh();
     } else {
       const d = await res.json().catch(() => ({}));
-      setError(d.error ?? "העריכה נכשלה.");
+      setError(d.error ?? dict.editBet.editFailed);
       setBusy(false);
     }
   }
@@ -111,17 +113,17 @@ export default function EditBetForm({
   return (
     <form onSubmit={submit} className="flex flex-col gap-5">
       <label className="flex flex-col gap-1.5">
-        <span className="text-sm font-medium">כותרת</span>
+        <span className="text-sm font-medium">{dict.editBet.titleLabel}</span>
         <input value={title} onChange={(e) => setTitle(e.target.value)} className="ebinput" required />
       </label>
 
       <label className="flex flex-col gap-1.5">
-        <span className="text-sm font-medium">תנאי הכרעה</span>
+        <span className="text-sm font-medium">{dict.editBet.criteria}</span>
         <textarea value={criteria} onChange={(e) => setCriteria(e.target.value)} rows={3} className="ebinput resize-none" required />
       </label>
 
       <label className="flex flex-col gap-1.5">
-        <span className="text-sm font-medium">תמונה</span>
+        <span className="text-sm font-medium">{dict.newBet.image}</span>
         <div className="flex items-center gap-3">
           {imageUrl && (
             // eslint-disable-next-line @next/next/no-img-element
@@ -133,11 +135,11 @@ export default function EditBetForm({
 
       <div className="grid grid-cols-2 gap-4">
         <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">סכום מינימלי (₪)</span>
+          <span className="text-sm font-medium">{dict.editBet.minStake}</span>
           <input type="number" min={0} step="1" value={minStake} onChange={(e) => setMinStake(e.target.value)} className="ebinput" required />
         </label>
         <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">נסגר בתאריך</span>
+          <span className="text-sm font-medium">{dict.editBet.closesOn}</span>
           <input type="datetime-local" value={closesAt} onChange={(e) => setClosesAt(e.target.value)} className="ebinput" required />
         </label>
       </div>
@@ -145,7 +147,7 @@ export default function EditBetForm({
       {users.length > 0 && (
         <label className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">
-            חסימות <span className="font-normal text-muted">מנע ממשתתף להמר על אפשרות</span>
+            {dict.editBet.blocks} <span className="font-normal text-muted">{dict.editBet.blocksHint}</span>
           </span>
           <OptionBlocks
             options={initial.options.map((o) => ({ key: o.id, label: o.label }))}
@@ -159,7 +161,7 @@ export default function EditBetForm({
       {error && <p className="text-sm text-no">{error}</p>}
 
       <button type="submit" disabled={busy} className="rounded-full bg-accent py-2.5 font-semibold text-white transition hover:opacity-90 disabled:opacity-50">
-        {busy ? "שומר…" : "שמור שינויים"}
+        {busy ? dict.common.saving : dict.common.saveChanges}
       </button>
 
       <style>{`
